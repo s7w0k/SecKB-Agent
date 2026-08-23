@@ -34,6 +34,26 @@ jobs:
           KNOWLEDGE_VECTOR_ENABLED: "false"
         run: python -m unittest discover -s tests
 
+  # ---- L0：Phase 0 工程测试基线（hard gate，回归即阻断） ----
+  l0-phase0-baseline:
+    name: L0 Phase0 Test Baseline
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Run Phase 0 baseline suite
+        env:
+          AI_PROVIDER: mock
+          DATABASE_URL: sqlite:///./target/ci-baseline.sqlite3
+          KNOWLEDGE_VECTOR_ENABLED: "false"
+        run: python -m unittest tests.test_phase0_test_baseline -v
+
   # ---- L0：数据集 schema 校验（hard gate） ----
   l0-schema-validation:
     name: L0 Schema Validation

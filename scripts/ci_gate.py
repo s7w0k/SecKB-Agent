@@ -7,9 +7,10 @@
 3. migration_rollback 迁移升级/降级/回滚测试
 4. full_tests        全量测试套件
 5. scope_leakage     跨租户/跨 Scope 泄漏测试
-6. dependency_lock   依赖锁定一致性（pip check）
-7. security_scan     业务代码直连 Provider / 硬编码密钥静态检查
-8. image_smoke       镜像构建 + 容器内 smoke（无 docker 时退化为探测）
+6. phase0_baseline   Phase 0 工程测试基线（Agent Runtime/多租户/安全/Prompt 注入/Tool 幂等/RAG）
+7. dependency_lock   依赖锁定一致性（pip check）
+8. security_scan     业务代码直连 Provider / 硬编码密钥静态检查
+9. image_smoke       镜像构建 + 容器内 smoke（无 docker 时退化为探测）
 
 用法：
     $env:LANGFUSE_ENABLED="false"; python scripts/ci_gate.py        # 全部步骤
@@ -102,6 +103,14 @@ def dependency_lock() -> tuple[bool, str]:
     return code == 0, out
 
 
+def phase0_baseline() -> tuple[bool, str]:
+    code, out = _run(
+        [sys.executable, "-m", "unittest", "tests.test_phase0_test_baseline", "-q"],
+        timeout=1200,
+    )
+    return code == 0, out
+
+
 def security_scan() -> tuple[bool, str]:
     code, out = _run([sys.executable, SECURITY_SCAN, "--fail"])
     return code == 0, out
@@ -129,6 +138,7 @@ STEPS = {
     "migration_rollback": ("迁移升级/降级/回滚测试", migration_rollback),
     "full_tests": ("全量测试套件", full_tests),
     "scope_leakage": ("跨租户/Scope 泄漏测试", scope_leakage),
+    "phase0_baseline": ("Phase 0 工程测试基线", phase0_baseline),
     "dependency_lock": ("依赖锁定 (pip check)", dependency_lock),
     "security_scan": ("安全静态扫描", security_scan),
     "image_smoke": ("镜像 smoke", image_smoke),

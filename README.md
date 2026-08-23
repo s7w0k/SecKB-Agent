@@ -462,6 +462,32 @@ AI_PROVIDER=mock KNOWLEDGE_VECTOR_ENABLED=false python -m unittest discover -s t
 统一测试替身位于 `tests/fakes.py`（`FakeLLMAdapter` / `FakeModelGateway` / `FakeVectorStore` / `FakeToolExecutor` / `FakeObjectStorage`），
 使核心集成测试不依赖真实外部模型、向量库、工具与对象存储。基线用例位于 `tests/test_phase1_baseline.py`，由 CI L0 一并执行。
 
+### Phase 0 工程测试基线
+
+`tests/test_phase0_test_baseline.py` 提供 **19 个离线、确定性**的质量护栏用例，覆盖六类护栏，
+作为"修改核心链路后 CI 立即阻断回归"的首道防线（`test.yml` 中 `l0-phase0-baseline` hard gate，且纳入 `scripts/ci_gate.py`）：
+
+- Agent Runtime：事件驱动多 Agent 核心不变量（task 创建 → agent 认领 → artifact 产出）。
+- Multi-tenant：FakeVectorStore 严格按 workspace 过滤，跨租户文档绝不串出。
+- Safety Regression：输出 DLP 对敏感域 secret 输入 fail-closed（block）；PII 脱敏（redact）。
+- Prompt Injection：直接注入 / jailbreak 模式被检测，良性输入不放报。
+- Tool Idempotency：同一 `idempotency_key` 重试不产生重复副作用，失败无副作用。
+- RAG Retrieval：向量库检索的 scope 过滤 / `top_k` / 结果结构。
+
+统一替身即 `tests/fakes.py` 中的四个 Fake（Model Gateway / LLM Provider / Vector Store / Tool Executor），全流程不依赖真实模型、向量库、数据库与网络。
+
+### 下一阶段计划 · Phase 1–3 闭环测试
+
+为"下一阶段企业级优化计划"的 Phase 1–3 增加离线验收套件（复用既有生产实现 + `tests/fakes.py` 替身）：
+
+- `tests/test_next_phase1_safety_closure.py`：**Safety/Compliance 最终输出闭环** —— ResponseArtifact（content_hash/model/prompt_version）、SafetyAgent/ComplianceAgent 审核正文（risk/decision/policy/reason）、修订循环（`max_revision_attempts=3`）、输出 DLP fail-closed、以及"v1 被拒 → v2 修订 → 通过审核 → DLP 放行"的端到端闭环。
+- `tests/test_next_phase2_durable_runtime.py`：**Durable Agent Runtime** —— AgentRun 生命周期/终态判定、事件日志不变量（TASK_CREATED/TASK_CLAIMED/ARTIFACT_PUBLISHED/FINAL_ACCEPTED）、checkpoint 快照 + **Crash→Restart→Resume**（按 run_id 恢复事件顺序与 final artifact 指针），全部基于 sqlite 内存库离线验证。
+- `tests/test_next_phase3_enterprise_gateway.py`：**Enterprise Model Gateway** —— 全局单例注入、ModelRequest 路由（按 operation/risk/capability，不直接选模型）、fallback 主备、Budget Governance（org/workspace/user 独立预算 + 安全独立额度）、分布式熔断/并发协调器离线（Fake）验证。
+- `tests/test_next_phase4_reliable_tool_runtime.py`：**Reliable Tool Runtime** —— 类型分离 Worker（excel/email 独立 executor）、幂等键格式与语义、Lease 恢复（仅回收 lease 已过期/缺失的 RUNNING 任务，持有有效 lease 的不回收避免重复副作用）、本地+分布式限流。
+- `tests/test_next_phase5_rag_platform.py`：**Production RAG Platform** —— Index Generation 生命周期（Atomic Publish prev/current、Rollback）、Validation 门禁（重复率/checksum/召回/延迟）、两级缓存（L1+L2 Redis Fake）、缓存只存 chunk 引用不存正文、负缓存、按 tag 精确失效。
+- `tests/test_next_phase6_eval_observability.py`：**Evaluation & Observability** —— 统一 trace 管线拓扑校验、Agent/Model/Security/Tool 五组指标、SLO 六类求值（PASS/FAIL/NODATA、跨租户=0、快照来自指标）。
+- `tests/test_next_phase7_production_deployment.py`：**Production Deployment** —— 生产启动校验（无默认账号/禁确定性 embedding/启用 OIDC/外部密钥托管/非 sqlite 生产 DB/分布式限流），severe 失败 `run_or_raise` 阻止启动，settings 绑定判定。
+
 ### Phase 2：输出 DLP 流安全
 
 修复了原固定窗口 DLP 在 `BLOCK` 时仍把 `pending` 原样 `yield`（敏感内容泄漏）的安全漏洞：
