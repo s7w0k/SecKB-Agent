@@ -105,12 +105,14 @@ def get_request_scope(
     classification_limit = request.headers.get("X-Classification-Limit")
 
     resolver = ScopeResolver(db)
+    settings = get_settings()
     try:
         return resolver.resolve(
             user,
             workspace_id=workspace_id,
             organization_id=org_id,
             classification_limit=classification_limit,
+            server_clearance=settings.classification_server_clearance,
         )
     except ScopeRequiredError as exc:
         _write_deny_audit(

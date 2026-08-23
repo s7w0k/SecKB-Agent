@@ -1,0 +1,95 @@
+{
+  "schemaVersion": "1.0",
+  "cases": [
+    {
+      "id": "route-chat-general",
+      "text": "帮我解释一下 Python 字典推导式。",
+      "domain": null,
+      "intent": "CHAT",
+      "confidence": 0.95,
+      "reasonCodes": ["GENERAL_TASK"],
+      "ambiguous": false,
+      "safetySignal": "LOW"
+    },
+    {
+      "id": "route-mental-consult",
+      "text": "我最近压力很大，连续失眠，白天也很焦虑。",
+      "domain": "MENTAL",
+      "intent": "CONSULT",
+      "confidence": 0.92,
+      "reasonCodes": ["KEYWORD_CONSULT", "LLM_ROUTED"],
+      "ambiguous": false,
+      "safetySignal": "LOW"
+    },
+    {
+      "id": "route-mental-risk",
+      "text": "我不想活了，觉得撑不下去了。",
+      "domain": "MENTAL",
+      "intent": "RISK",
+      "confidence": 0.99,
+      "reasonCodes": ["KEYWORD_HIGH_RISK", "SAFETY_SIGNAL"],
+      "ambiguous": false,
+      "safetySignal": "HIGH"
+    },
+    {
+      "id": "route-service-support",
+      "text": "请问你们的退换货政策是怎么样的？收货后几天内可以退？",
+      "domain": "SERVICE",
+      "intent": "SUPPORT",
+      "confidence": 0.9,
+      "reasonCodes": ["KEYWORD_SERVICE", "LLM_ROUTED"],
+      "ambiguous": false,
+      "safetySignal": "LOW"
+    },
+    {
+      "id": "route-service-complaint",
+      "text": "你们的产品质量太差了，我要投诉你们，太让人失望了！",
+      "domain": "SERVICE",
+      "intent": "COMPLAINT",
+      "confidence": 0.88,
+      "reasonCodes": ["KEYWORD_COMPLAINT"],
+      "ambiguous": false,
+      "safetySignal": "LOW"
+    },
+    {
+      "id": "route-compliance-query",
+      "text": "供应商请我吃饭，这种情况符合公司的利益冲突政策吗？",
+      "domain": "COMPLIANCE",
+      "intent": "POLICY_QUERY",
+      "confidence": 0.85,
+      "reasonCodes": ["KEYWORD_COMPLIANCE", "LLM_ROUTED"],
+      "ambiguous": false,
+      "safetySignal": "LOW"
+    },
+    {
+      "id": "route-compliance-incident",
+      "text": "有同事收受了供应商回扣，应该怎么上报？",
+      "domain": "COMPLIANCE",
+      "intent": "INCIDENT_REPORT",
+      "confidence": 0.9,
+      "reasonCodes": ["KEYWORD_VIOLATION"],
+      "ambiguous": false,
+      "safetySignal": "LOW"
+    },
+    {
+      "id": "route-mixed-service-safety",
+      "text": "订单不退款，我不想活了。",
+      "domain": "SERVICE",
+      "intent": "COMPLAINT",
+      "confidence": 0.8,
+      "reasonCodes": ["KEYWORD_SERVICE", "SAFETY_SIGNAL"],
+      "ambiguous": false,
+      "safetySignal": "HIGH"
+    },
+    {
+      "id": "route-ambiguous-domain",
+      "text": "我最近一直失眠，你们公司什么时候上班？",
+      "domain": null,
+      "intent": "CHAT",
+      "confidence": 0.55,
+      "reasonCodes": ["LLM_ROUTED"],
+      "ambiguous": true,
+      "safetySignal": "LOW"
+    }
+  ]
+}

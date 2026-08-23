@@ -97,6 +97,7 @@ class ScopeResolver:
         workspace_id: Optional[int] = None,
         organization_id: Optional[int] = None,
         classification_limit: Optional[str] = None,
+        server_clearance: Optional[str] = None,
     ) -> RequestScope:
         settings = get_settings()
         enforced = settings.domain_rbac_enforced
@@ -175,7 +176,8 @@ class ScopeResolver:
             roles=roles,
             group_ids=group_ids,
             acl_version=workspace.acl_version,
-            classification_limit=classification_limit,
+            # §4.5：客户端只能主动降低、不能提高数据分级上限
+            classification_limit=effective_classification_limit(classification_limit, server_clearance),
         )
 
 
@@ -187,3 +189,29 @@ def require_scope(scope: Optional[RequestScope]) -> RequestScope:
     if scope is not None:
         return scope
     raise ScopeRequiredError("RequestScope 不可省略：缺少 scope 时直接拒绝")
+
+
+# 数据分级从低到高的次序（INTERNAL < RESTRICTED < CONFIDENTIAL）
+_CLASSIFICATION_ORDER = {"INTERNAL": 0, "RESTRICTED": 1, "CONFIDENTIAL": 2}
+
+
+def effective_classification_limit(
+    requested: Optional[str] = None,
+    server_clearance: Optional[str] = None,
+) -> Optional[str]:
+    """Phase 4（§4.5）：用户请求的分类上限不能高于服务端（DB/JWT/IAM）授权上限。
+
+    ``effective = min(server_clearance, requested)``，用户只能主动降低权限范围、不能主动提高：
+    - ``server_clearance is None``：服务端未设上限，按客户端请求（不额外限制）。
+    - ``requested is None``：客户端未请求上限，回落到服务端上限。
+    - 分级次序 INTERNAL < RESTRICTED < CONFIDENTIAL；未知取值按放行处理（取较低优先级判断）。
+    """
+    if server_clearance is None:
+        return requested
+    if requested is None:
+        return server_clearance
+    if requested.upper() == server_clearance.upper():
+        return requested
+    req_rank = _CLASSIFICATION_ORDER.get(requested.upper(), 99)
+    srv_rank = _CLASSIFICATION_ORDER.get(server_clearance.upper(), 99)
+    return requested if req_rank <= srv_rank else server_clearance

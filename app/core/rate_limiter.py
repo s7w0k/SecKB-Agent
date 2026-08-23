@@ -56,8 +56,19 @@ class TokenBucketRateLimiter:
             return (1.0 - bucket.tokens) / max(self._refill_per_second, 1e-9)
 
 
+# Phase 5（§5.4）：固定窗口计数 + TTL 放进单个 Lua 脚本，INCR 与 EXPIRE 原子执行，
+# 消除"GET/INCR/EXPIRE 分离往返"导致的并发竞争（窗口键无 TTL / 双双 INCR）。
+_REDIS_FIXED_WINDOW_LUA = """
+local current = redis.call('INCR', KEYS[1])
+if current == 1 then
+  redis.call('EXPIRE', KEYS[1], ARGV[1])
+end
+return current
+"""
+
+
 class RedisRateLimiter:
-    """分布式限流（v2 8.2）：固定窗口计数，基于 Redis INCR+EXPIRE。
+    """分布式限流（v2 8.2 + Phase 5 §5.4）：固定窗口计数，基于 Redis Lua 原子 INCR+EXPIRE。
 
     支持按维度组织 key：`rl:{namespace}:{dimension}:{value}:{window_key}`。
     Redis 不可用时：
@@ -138,10 +149,9 @@ class RedisRateLimiter:
         key = self._key(namespace=namespace, dimension=dimension, value=value)
         if self._redis_available():
             try:
-                count = self._client.incr(key)
-                if count == 1:
-                    self._client.expire(key, self._window_seconds)
-                return int(count) <= self._limit
+                # §5.4：单个 Lua 脚本原子完成 INCR + 首次 EXPIRE，避免并发竞争。
+                count = int(self._client.eval(_REDIS_FIXED_WINDOW_LUA, 1, key, self._window_seconds))
+                return count <= self._limit
             except Exception:
                 # Redis 运行中故障：按 fail_closed 决策
                 if self._fail_closed:

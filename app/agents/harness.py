@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import uuid
 from dataclasses import dataclass
 
 from sqlalchemy.orm import Session
@@ -16,6 +15,7 @@ from app.services.knowledge import SearchResult
 from app.services.mcp_client import MindBridgeMcpToolClient
 from app.services.memory import RedisShortTermMemoryStore
 from app.services.privacy import PrivacySanitizer
+from app.services.session_service import SessionService
 from app.services.tool_queue import ToolQueueService
 from app.services.trace import AgentTraceService
 
@@ -46,6 +46,8 @@ class AgentHarnessOutcome:
     report_id: int | None
     tool_plan: AgentToolPlan
     trace_id: int | None
+    # Phase 3（§3.10）：最终被审核并采纳的文本（可由 ChatService 直接播放）。
+    final_text: str | None = None
 
 
 class MindBridgeAgentHarness:
@@ -65,7 +67,10 @@ class MindBridgeAgentHarness:
     def run(self, user: UserAccount, request: ChatRequest, scope=None) -> AgentHarnessOutcome:
         original_input = request.message.strip()
         model_input = self.privacy.sanitize(original_input)
-        session = self._resolve_session(user, request.sessionId, original_input, scope=scope)
+        # Phase 4（§4.3）：统一走 SessionService.resolve_or_create，不再在 Harness 内私自解析会话。
+        session = SessionService(self.db, self.settings).resolve_or_create(
+            user, request.sessionId, original_input, scope=scope
+        )
         agent_run = create_agent_runtime(self.db, self.settings).run(user, session, original_input, model_input, scope=scope)
         self.save_message(user, session, MessageRole.USER, original_input, scope=scope)
 
@@ -98,6 +103,7 @@ class MindBridgeAgentHarness:
             report_id=report.id if report is not None else None,
             tool_plan=tool_plan,
             trace_id=trace.id,
+            final_text=getattr(agent_run, "final_text", None),
         )
 
     def save_assistant_message(self, user: UserAccount, session: ChatSession, content: str, scope=None) -> None:
@@ -123,23 +129,6 @@ class MindBridgeAgentHarness:
         self.db.add(session)
         self.db.commit()
         self.memory.append(session.public_id, role.value, content)
-
-    def _resolve_session(self, user: UserAccount, public_id: str | None, text: str, scope=None) -> ChatSession:
-        if public_id:
-            session = self.db.query(ChatSession).filter(ChatSession.public_id == public_id, ChatSession.user_id == user.id).first()
-            if session is None:
-                raise ValueError("Session not found")
-            # 会话必须属于当前 scope 的 workspace（防跨 workspace 继续会话）
-            if scope is not None and session.workspace_id not in (None, scope.workspace_id):
-                raise ValueError("Session not found")
-            return session
-        session = ChatSession(public_id=uuid.uuid4().hex, user_id=user.id, title=text[:36])
-        if scope is not None:
-            session.workspace_id = scope.workspace_id
-        self.db.add(session)
-        self.db.commit()
-        self.db.refresh(session)
-        return session
 
     def _create_report(self, user: UserAccount, session: ChatSession, text: str, agent_run, scope=None) -> PsychologicalReport | None:
         if not agent_run.requires_report or agent_run.assessment is None:

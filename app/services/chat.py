@@ -9,12 +9,14 @@ from sqlalchemy.orm import Session
 from app.agents.harness import MindBridgeAgentHarness
 from app.core.config import Settings
 from app.core.enums import MessageRole
+from app.core.output_security import DLP_BLOCK_FALLBACK, OutputDecision, OutputSecurityBuffer, audit_output_dlp
 from app.core.security_gate import GateAction, GateDecision, SecurityGate
 from app.core.scope import RequestScope
 from app.core.telemetry import get_metrics, safe_hash, TraceContext
 from app.models.entities import UserAccount
 from app.schemas.dtos import ChatRequest, ChatStreamEvent
 from app.services.ai import AiClient
+from app.services.session_service import SessionService
 
 
 logger = logging.getLogger(__name__)
@@ -79,7 +81,10 @@ class ChatService:
                                                       traceId=ctx.trace_id).model_dump(by_alias=True))
                     yield sse("token", ChatStreamEvent(type="token", sessionId=request.sessionId or "",
                                                        content=template).model_dump())
-                    session = self._resolve_session(user, request)
+                    # Phase 4（§4.3）：注入/降级路径统一走 SessionService，不再调用 Harness 私有方法。
+                    session = SessionService(self.db, self.settings).resolve_or_create(
+                        user, request.sessionId, request.message, scope=scope
+                    )
                     self.agent_harness.save_message(user, session, MessageRole.USER, request.message, scope=scope)
                     self.agent_harness.save_message(user, session, MessageRole.ASSISTANT, template, scope=scope)
                     yield sse("done", ChatStreamEvent(type="done", sessionId=request.sessionId or "").model_dump())
@@ -100,47 +105,57 @@ class ChatService:
                 self._record_eval_sample(ctx, root)
 
                 assistant = []
-                # v2 阶段 5（10.3）：流式输出 DLP——固定窗口缓冲，未通过窗口不得发送
-                window: list[str] = []
-                window_size = 80  # 字符窗口
-                async for token in self.ai.stream(outcome.response_messages, operation="response-generation"):
-                    window.append(token)
-                    pending = "".join(window)
-                    if len(pending) >= window_size:
-                        decision: GateDecision = self.security.check_output_window(pending, domain=(outcome.tool_plan.domain or "MENTAL"))
-                        if decision.action == GateAction.BLOCK:
-                            self.security.record_abuse(str(user.id), "dlp_block", ";".join(decision.reasons))
-                            get_metrics().increment("dlp_block_count", **{"domain": outcome.tool_plan.domain or "MENTAL"})
-                            root.update(metadata={"dlpBlocked": True, "dlpReasons": decision.reasons[:5]})
-                            assistant.append(pending)
-                            yield sse("token", ChatStreamEvent(type="token", sessionId=outcome.session.public_id,
-                                                               content=pending).model_dump())
-                            yield sse("dlp", ChatStreamEvent(type="dlp_blocked", sessionId=outcome.session.public_id,
-                                                             message=";".join(decision.reasons)).model_dump())
-                            window.clear()
+                domain = outcome.tool_plan.domain or "MENTAL"
+                # v2 阶段 5（10.3）+ Phase 2：滚动窗口 DLP（overlap=32）。
+                # BLOCKED 内容绝不发射；跨窗口密钥、结尾残余统一收敛到 OutputSecurityBuffer。
+                buf = OutputSecurityBuffer(self.security, domain=domain)
+                blocked = False
+                block_reasons: list[str] = []
+                decisions: list[OutputDecision] = []
+                if outcome.final_text:
+                    # Phase 3（§3.8/3.10）：ChatService 不再负责最终生成 —— 直接播放
+                    # Safety / Compliance 已审核采纳的 ResponseArtifact.text，仍经 DLP 缓冲做末层防线。
+                    decisions = [buf.push(outcome.final_text), buf.flush()]
+                else:
+                    # 回退：无已采纳文本（旧链路/异常）时流式生成并经同一缓冲播放。
+                    async for token in self.ai.stream(outcome.response_messages, operation="response-generation"):
+                        decisions.append(buf.push(token))
+                        if decisions[-1].action == GateAction.BLOCK:
                             break
-                        if decision.action == GateAction.REDACT:
-                            redacted = decision.redacted_content or pending
-                            assistant.append(redacted)
-                            yield sse("token", ChatStreamEvent(type="token", sessionId=outcome.session.public_id,
-                                                               content=redacted).model_dump())
-                            window.clear()
-                            continue
-                        assistant.append(pending)
-                        yield sse("token", ChatStreamEvent(type="token", sessionId=outcome.session.public_id,
-                                                           content=pending).model_dump())
-                        window.clear()
-                # 尾部残余窗口
-                if window:
-                    pending = "".join(window)
-                    decision = self.security.check_output_window(pending, domain=(outcome.tool_plan.domain or "MENTAL"))
-                    if decision.action == GateAction.REDACT:
-                        pending = decision.redacted_content or pending
+                    if not decisions or decisions[-1].action != GateAction.BLOCK:
+                        decisions.append(buf.flush())
+                for decision in decisions:
                     if decision.action == GateAction.BLOCK:
-                        root.update(metadata={"dlpBlocked": True})
-                    assistant.append(pending)
+                        blocked = True
+                        block_reasons = list(decision.reasons)
+                        break
+                    if not decision.content:
+                        continue
+                    if decision.action == GateAction.REDACT:
+                        get_metrics().increment("output_dlp_redact_total", **{"domain": domain})
+                        audit_output_dlp(trace_id=ctx.trace_id, session_id=outcome.session.public_id,
+                                         workspace_id=scope.workspace_id,
+                                         policy=domain, action="redact", rule_id=decision.reasons)
+                    else:
+                        get_metrics().increment("output_dlp_allow_total", **{"domain": domain})
+                    assistant.append(decision.content)
                     yield sse("token", ChatStreamEvent(type="token", sessionId=outcome.session.public_id,
-                                                       content=pending).model_dump())
+                                                       content=decision.content).model_dump())
+                if blocked:
+                    # BLOCK：丢弃整个未输出窗口，任何敏感字符都不离开服务器。
+                    self.security.record_abuse(str(user.id), "dlp_block", ";".join(block_reasons))
+                    get_metrics().increment("dlp_block_count", **{"domain": domain})  # 保留旧口径供生产就绪预警
+                    get_metrics().increment("output_dlp_block_total", **{"domain": domain})
+                    get_metrics().increment("output_dlp_stream_abort_total", **{"domain": domain})
+                    root.update(metadata={"dlpBlocked": True, "dlpReasons": block_reasons[:5]})
+                    audit_output_dlp(trace_id=ctx.trace_id, session_id=outcome.session.public_id,
+                                     workspace_id=scope.workspace_id,
+                                     policy=domain, action="block", rule_id=block_reasons)
+                    assistant = [DLP_BLOCK_FALLBACK]
+                    yield sse("dlp", ChatStreamEvent(type="dlp_blocked", sessionId=outcome.session.public_id,
+                                                     message=";".join(block_reasons)).model_dump())
+                    yield sse("token", ChatStreamEvent(type="token", sessionId=outcome.session.public_id,
+                                                       content=DLP_BLOCK_FALLBACK).model_dump())
                 if assistant:
                     self.agent_harness.save_assistant_message(user, outcome.session, "".join(assistant))
                 try:
@@ -189,12 +204,6 @@ class ChatService:
         if sampled:
             root.update(metadata={"evalSampled": True, "evalReason": reason,
                                   "traceIdHash": safe_hash(ctx.trace_id)})
-
-    def _resolve_session(self, user: UserAccount, request: ChatRequest):
-        """注入/降级路径兜底：解析或创建会话（避免 None）。"""
-        from app.agents.harness import MindBridgeAgentHarness
-
-        return MindBridgeAgentHarness(self.db, self.settings)._resolve_session(user, request.sessionId, request.message)
 
 
 def sse(event: str, data: dict) -> str:

@@ -1,6 +1,6 @@
 from typing import Annotated, Optional
 
-from fastapi import APIRouter, Depends, File, HTTPException, Query, Request, UploadFile
+from fastapi import APIRouter, Depends, File, HTTPException, Query, Request, UploadFile, status
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 
@@ -88,16 +88,19 @@ def profile(user: Annotated[UserAccount, Depends(current_user)]):
 
 @router.post("/api/chat/stream")
 async def chat_stream(
-    request: ChatRequest,
+    chat_request: ChatRequest,
     user: Annotated[UserAccount, Depends(current_user)],
     db: Annotated[Session, Depends(get_db)],
     scope: RequestScope = Depends(get_request_scope),
+    http_request: Request = None,
 ):
+    # Phase 5（§5.1）：业务 DTO 与 FastAPI Request 分离 —— 业务字段走 chat_request，
+    # 客户端来源走 http_request（路由显式声明，避免把 ChatRequest 误当 Request）。
     if "ROLE_ADMIN" in user.roles:
         raise HTTPException(403, "管理员账号只能查看后台记录，不能发起学生对话。")
     settings = get_settings()
 
-    # v2 阶段 3（8.2）：分布式多维限流（user/org/workspace/IP + 全局）
+    # v2 阶段 3（8.2）+ Phase 5（§5.3）：多维限流键覆盖 user/org/workspace/endpoint，IP 仅作辅助。
     # 关闭时回退阶段 0 的单实例用户级限流，保证现有行为不变。
     if settings.distributed_rate_limit_enabled:
         _denied: list[tuple[str, float]] = []
@@ -105,7 +108,7 @@ async def chat_stream(
             ("chat:user", "user", str(user.id), settings.chat_rate_limit_per_minute),
             ("chat:org", "org", str(getattr(user, "organization_id", "") or ""), settings.chat_rate_limit_per_org),
             ("chat:ws", "workspace", str(scope.workspace_id), settings.chat_rate_limit_per_workspace),
-            ("chat:ip", "ip", request.client.host if request.client else "", settings.chat_rate_limit_per_ip),
+            ("chat:ip", "ip", http_request.client.host if http_request and http_request.client else "", settings.chat_rate_limit_per_ip),
             ("chat:global", "global", "all", settings.chat_rate_limit_per_minute_global),
         ]
         for namespace, dimension, value, limit in checks:
@@ -151,7 +154,7 @@ async def chat_stream(
     # 覆盖 检索 → 模型首 token → 完整流式生成 → 客户端断开 → 异常。
     async def _sse_stream():
         try:
-            async for chunk in service.stream_chat(user, request, scope):
+            async for chunk in service.stream_chat(user, chat_request, scope):
                 yield chunk
         finally:
             guard.release()

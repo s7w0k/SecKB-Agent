@@ -14,6 +14,7 @@ from app.agents.events import (
     TaskPriority,
 )
 from app.agents.registry import AgentCapability, AgentRegistry
+from app.agents.response_artifacts import allow_revision
 from app.core.config import Settings
 from app.core.enums import INTENT_DOMAIN_MAP, IntentType, KnowledgeDomain, RiskLevel
 
@@ -33,8 +34,20 @@ class EventDrivenCoordinator:
         self.max_claims_per_round = int(getattr(settings, "agent_max_claims_per_round", 4))
         self.max_claims_per_agent = int(getattr(settings, "agent_max_claims_per_agent", 3))
         self.final_min_confidence = float(getattr(settings, "agent_final_acceptance_min_confidence", 0.6))
+        # Phase 3（§3.7）：Revision 预算上限，超过后不再派生新回答 → 安全兜底。
+        self.max_revision_attempts = int(getattr(settings, "agent_max_revision_attempts", 3))
 
-    def run(self, board: CollaborationBlackboard) -> CollaborationBlackboard:
+    def run(
+        self,
+        board: CollaborationBlackboard,
+        *,
+        checkpoint_cb=None,
+    ) -> CollaborationBlackboard:
+        """运行协调器。
+
+        ``checkpoint_cb``：可选回调 ``(board, round_number) -> None``，在每个 Agent
+        完成一次行动后调用，用于 Phase 7 持久化 checkpoint 支持断点续跑。
+        """
         board = self._ensure_root_task(board)
         claim_counts: dict[str, int] = defaultdict(int)
         for round_number in range(1, self.max_rounds + 1):
@@ -69,6 +82,8 @@ class EventDrivenCoordinator:
                 )
                 result = candidate.agent.act(current_task, board)
                 board = board.apply_turn_result(current_task, candidate.agent.profile.name, result)
+                if checkpoint_cb is not None:
+                    checkpoint_cb(board, round_number)
                 claim_counts[candidate.agent.profile.name] += 1
             board = self._derive_missing_work(board)
             board = self._try_accept_final(board)
@@ -129,10 +144,18 @@ class EventDrivenCoordinator:
             condition=needs_context,
         )
         has_response = board.latest_artifact("response_proposal") is not None
-        can_request_response = force_response or (
-            board.latest_artifact("intent") is not None
-            and board.latest_artifact("risk") is not None
-            and (not needs_context or board.latest_artifact("context") is not None or risk == RiskLevel.HIGH)
+        # Phase 3（§3.7）：Revision 预算门限 —— 超出 max_revision_attempts 后不再提出新的候选回答，
+        # 让最终采纳失败 → 落到安全兜底，避免无限 Revision 循环。
+        response_attempts = len(board.artifacts_by_kind("response_proposal"))
+        revision_budget_ok = allow_revision(response_attempts, self.max_revision_attempts)
+        can_request_response = (
+            (force_response or (
+                board.latest_artifact("intent") is not None
+                and board.latest_artifact("risk") is not None
+                and (not needs_context or board.latest_artifact("context") is not None or risk == RiskLevel.HIGH)
+            ))
+            and revision_budget_ok
+            and not has_response
         )
         board = self._ensure_task_for_missing_artifact(
             board,
@@ -179,7 +202,7 @@ class EventDrivenCoordinator:
                         metadata={"kind": "compliance_review", "responseArtifactId": response.id},
                     ),
                 )
-            if compliance_critique and compliance_critique.payload.get("approved") is False:
+            if compliance_critique and compliance_critique.payload.get("approved") is False and revision_budget_ok:
                 board = self._ensure_task(
                     board,
                     AgentTask(
@@ -192,7 +215,7 @@ class EventDrivenCoordinator:
                         metadata={"kind": "response", "revisionOf": compliance_critique.payload.get("responseArtifactId", ""), "reviewer": "compliance"},
                     ),
                 )
-        if critique and critique.payload.get("approved") is False:
+        if critique and critique.payload.get("approved") is False and revision_budget_ok:
             board = self._ensure_task(
                 board,
                 AgentTask(

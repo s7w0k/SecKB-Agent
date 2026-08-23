@@ -159,28 +159,11 @@ class AiClient:
         self._loop_thread = None
 
     def _build_default_gateway(self):
-        from app.model_gateway import ModelConfig, ModelGateway, Operation
+        # Phase 6（§6.1）：复用 App-scoped 全局唯一 ModelGateway 单例，
+        # 不再在每个 AiClient / Service / Runtime 内各自 new Gateway。
+        from app.model_gateway import get_model_gateway
 
-        gw = ModelGateway(settings=self.settings)
-        provider = self.settings.ai_provider.lower()
-        model_id = (
-            self.settings.ollama_model if provider == "ollama"
-            else self.settings.openai_model if provider == "openai"
-            else "mock"
-        )
-        gw.register_model(ModelConfig(
-            model_id=model_id,
-            provider="ollama" if provider == "ollama" else ("openai" if provider == "openai" else "mock"),
-            operation=Operation.CHAT,
-            base_url=self.settings.ollama_base_url if provider == "ollama" else self.settings.openai_base_url,
-            api_key=self.settings.openai_api_key if provider == "openai" else "",
-            max_context=int(getattr(self.settings, "agent_model_max_context", 32768)),
-            supports_streaming=True,
-            price_input_per_1k=0.0,
-            price_output_per_1k=0.0,
-        ))
-        gw.register_fallback("chat", [model_id])
-        return gw
+        return get_model_gateway(self.settings)
 
     def _run_in_loop(self, coro):
         """在独立线程的事件循环中执行 async coroutine（兼容同步调用方）。"""

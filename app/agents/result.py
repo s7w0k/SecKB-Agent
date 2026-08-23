@@ -45,6 +45,9 @@ class AgentRunResult:
     # P4 域评估与双门禁结果
     domain_assessment: DomainAssessment | None = None
     compliance_review_approved: bool | None = None
+    # Phase 3（§3.10）：经过 Safety / Compliance 审核并最终采纳的文本。
+    # 为 None 时表示无已采纳文本（ChatService 回退流式生成或安全兜底）。
+    final_text: str | None = None
 
     @property
     def requires_report(self) -> bool:

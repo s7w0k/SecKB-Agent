@@ -17,6 +17,13 @@ from app.agents.events import (
     TaskPriority,
 )
 from app.agents.registry import AgentCapability, AgentDecision, AgentProfile
+from app.agents.response_artifacts import (
+    artifact_compliance_review,
+    artifact_metadata,
+    artifact_safety_review,
+    build_response_artifact,
+    safety_guidance_keywords,
+)
 from app.agents.routing import RoutingDecision
 from app.core.config import Settings
 from app.core.enums import INTENT_DOMAIN_MAP, IntentType, KnowledgeDomain, RiskLevel
@@ -390,15 +397,11 @@ class SafetyAgent(BaseAutonomousAgent):
     def _review_response(self, task: AgentTask, board: CollaborationBlackboard, response: AgentArtifact) -> AgentTurnResult:
         risk = _risk_level(board)
         domain = _domain_from_board(board) if self.services.settings.multi_domain_enabled else None
-        messages = response.payload.get("messages", [])
-        combined = "\n".join(getattr(message, "content", str(message)) for message in messages)
-        approved = True
-        reason = "response proposal satisfies current safety constraints"
-        if risk == RiskLevel.HIGH:
-            guidance_words = _safety_guidance_keywords(domain)
-            if not any(word in combined for word in guidance_words):
-                approved = False
-                reason = f"high-risk response proposal lacks immediate safety guidance for {domain.value if domain else 'MENTAL'}"
+        # Phase 3（§3.3/3.5）：审核对象是 ResponseArtifact.text，而非 prompt messages。
+        text = response.payload.get("text") or _messages_to_text(response.payload.get("messages", []))
+        review = artifact_safety_review(text, risk, domain)
+        approved = bool(review["approved"])
+        reason = str(review["reason"])
         payload = {
             "approved": approved,
             "reason": reason,
@@ -408,7 +411,7 @@ class SafetyAgent(BaseAutonomousAgent):
         }
         if domain is not None:
             payload["domain"] = domain.value
-        kind = "safety_review" if approved else "critique"
+        kind = str(review["kind"])
         events = ()
         follow_up_tasks = ()
         if not approved:
@@ -666,8 +669,26 @@ class ResponseAgent(BaseAutonomousAgent):
                 *model_history,
             ]
             mode = "support"
+        # Phase 3（§3.4）：ResponseAgent 真正负责生成回答 —— 调用共享模型网关 / AiClient 生成真实文本。
+        # 生成失败时回退为空文本（Safety 审核会按缺失指引判定，最终由 Coordinator 兜底）。
+        try:
+            text = self.client().complete(messages, operation="response-generation") or ""
+        except Exception:
+            text = ""
+        # 类型化 ResponseArtifact：审核对象是 text 而非 prompt messages（§3.3）。
+        ra = build_response_artifact(
+            text,
+            model_id="",
+            provider=self.services.settings.ai_provider or "mock",
+            prompt_version=mode,
+            retrieval_generation="rule|" + (domain.value if domain else "MENTAL"),
+        )
         payload = {
             "messages": messages,
+            "text": text,
+            "responseArtifactId": ra.artifact_id,
+            "contentHash": ra.content_hash,
+            "promptVersion": mode,
             "mode": mode,
             "intent": intent.value,
             "risk": risk.value,
@@ -678,7 +699,7 @@ class ResponseAgent(BaseAutonomousAgent):
             payload["domain"] = domain.value
         self.remember(f"response mode={mode}; intent={intent.value}; risk={risk.value}; domain={domain.value if domain else 'none'}")
         return AgentTurnResult(
-            artifacts=(self._artifact("response_proposal", payload, task, 0.86),),
+            artifacts=(self._artifact("response_proposal", payload, task, 0.86, artifact_metadata(ra)),),
             messages=(
                 AgentMessage(
                     id=f"msg:{uuid.uuid4().hex[:10]}",
@@ -690,17 +711,6 @@ class ResponseAgent(BaseAutonomousAgent):
                 ),
             ),
         )
-
-
-# 合规审核禁止出现的"事实定性"表述（P4-03）
-_COMPLIANCE_FORBIDDEN_PHRASES = [
-    "确认违规", "认定违规", "确实违反", "已构成违规", "属于违规",
-    "确认受贿", "认定受贿", "确认回扣", "认定回扣",
-    "confirmed violation", "confirmed bribery",
-]
-
-# 合规高风险回复应包含的指引关键词
-_COMPLIANCE_GUIDANCE_KEYWORDS = ["授权渠道", "合规负责人", "保留", "停止", "举报渠道", "不作定性"]
 
 
 class ComplianceAgent(BaseAutonomousAgent):
@@ -753,21 +763,12 @@ class ComplianceAgent(BaseAutonomousAgent):
         return self._review_compliance(task, board, response)
 
     def _review_compliance(self, task: AgentTask, board: CollaborationBlackboard, response: AgentArtifact) -> AgentTurnResult:
-        messages = response.payload.get("messages", [])
-        combined = "\n".join(getattr(message, "content", str(message)) for message in messages)
+        # Phase 3（§3.3/3.6）：审核对象是 ResponseArtifact.text，而非 prompt messages。
+        text = response.payload.get("text") or _messages_to_text(response.payload.get("messages", []))
         risk = _risk_level(board)
-
-        approved = True
-        reason = "compliance response satisfies review constraints"
-        # 检查1：禁止事实定性
-        forbidden_found = [phrase for phrase in _COMPLIANCE_FORBIDDEN_PHRASES if phrase in combined]
-        if forbidden_found:
-            approved = False
-            reason = f"compliance response contains forbidden factual determination: {forbidden_found}"
-        # 检查2：高风险需包含合规指引
-        elif risk == RiskLevel.HIGH and not any(word in combined for word in _COMPLIANCE_GUIDANCE_KEYWORDS):
-            approved = False
-            reason = "high-risk compliance response lacks authorized channel or preservation guidance"
+        review = artifact_compliance_review(text, risk)
+        approved = bool(review["approved"])
+        reason = str(review["reason"])
 
         payload = {
             "approved": approved,
@@ -775,9 +776,10 @@ class ComplianceAgent(BaseAutonomousAgent):
             "responseArtifactId": response.id,
             "risk": risk.value,
             "domain": KnowledgeDomain.COMPLIANCE.value,
+            "violations": list(review.get("violations", [])),
             "privateMemoryKey": self.services.private_memory._key(self.name, self.services.session.public_id),
         }
-        kind = "compliance_review" if approved else "compliance_critique"
+        kind = str(review["kind"])
         events = ()
         follow_up_tasks = ()
         if not approved:
@@ -871,18 +873,16 @@ def _domain_from_board(board: CollaborationBlackboard) -> KnowledgeDomain | None
     return INTENT_DOMAIN_MAP.get(_intent(board))
 
 
-# 各域高风险回复应包含的安全指引关键词（P4-02 全域门禁）
-_SAFETY_GUIDANCE_KEYWORDS: dict[KnowledgeDomain, list[str]] = {
-    KnowledgeDomain.MENTAL: ["高风险处理规则", "当前安全", "可信任的人", "紧急"],
-    KnowledgeDomain.SERVICE: ["转人工", "升级", "专线", "客服主管", "紧急"],
-    KnowledgeDomain.COMPLIANCE: ["授权渠道", "保留", "停止", "合规负责人", "紧急"],
-}
-
-
+# 安全指引关键词已迁移到 response_artifacts；此处保留旧命名别名（供既有测试引用）。
 def _safety_guidance_keywords(domain: KnowledgeDomain | None) -> list[str]:
-    if domain is None:
-        return _SAFETY_GUIDANCE_KEYWORDS[KnowledgeDomain.MENTAL]
-    return _SAFETY_GUIDANCE_KEYWORDS.get(domain, _SAFETY_GUIDANCE_KEYWORDS[KnowledgeDomain.MENTAL])
+    return safety_guidance_keywords(domain)
+
+
+def _messages_to_text(messages: list[Any] | None) -> str:
+    """从 prompt messages 兜底拼接出可审核文本（无 ResponseArtifact.text 时的兼容路径）。"""
+    if not messages:
+        return ""
+    return "\n".join(getattr(message, "content", str(message)) for message in messages)
 
 
 def _risk_level(board: CollaborationBlackboard) -> RiskLevel:

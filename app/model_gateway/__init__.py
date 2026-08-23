@@ -104,7 +104,8 @@ class HealthTracker:
     9.3：half-open 探针使用独立低流量配额，防止熔断恢复时打满 provider。
     """
 
-    def __init__(self, window_size: int = 50, half_open_probe_quota: int = 1):
+    def __init__(self, window_size: int = 50, half_open_probe_quota: int = 1,
+                 semaphore=None, circuit_coordinator=None):
         self._window_size = window_size
         self._records: dict[str, deque] = defaultdict(lambda: deque(maxlen=window_size))
         self._concurrent: dict[str, int] = defaultdict(int)
@@ -112,6 +113,9 @@ class HealthTracker:
         self._circuit_opened_at: dict[str, datetime] = {}
         self._half_open_probes: dict[str, int] = defaultdict(int)
         self._half_open_probe_quota = half_open_probe_quota
+        # Phase 6（§6.5/§6.6）：可选分布式并发信号量与熔断协调器；未提供时保持本地行为。
+        self._semaphore = semaphore
+        self._circuit_coordinator = circuit_coordinator
 
     def record(self, model_id: str, success: bool, latency_ms: float, error_class: str | None = None):
         entry = {
@@ -128,8 +132,12 @@ class HealthTracker:
         elif not success:
             self._check_circuit_threshold(model_id)
 
-    def acquire(self, model_id: str) -> bool:
-        """检查 circuit 状态，允许请求通过则递增并发计数。"""
+    def acquire(self, model_id: str, limit: int | None = None) -> bool:
+        """检查 circuit 状态，允许请求通过则递增并发计数。
+
+        Phase 6（§6.5）：提供 limit 时先行向分布式信号量申请一个 lease 槽位；
+        槽位占满则拒绝（原子 DECR 回滚），避免跨 Pod 超限。
+        """
         state = self._circuit[model_id]
         if state == CircuitState.OPEN:
             # 检查是否到了半开时间
@@ -146,10 +154,16 @@ class HealthTracker:
             if self._half_open_probes[model_id] >= self._half_open_probe_quota:
                 return False
             self._half_open_probes[model_id] += 1
+        # Phase 6（§6.5）：分布式 lease 槽位预留
+        if self._semaphore is not None and limit is not None:
+            if not self._semaphore.acquire(model_id, limit):
+                return False
         self._concurrent[model_id] += 1
         return True
 
     def release(self, model_id: str):
+        if self._semaphore is not None:
+            self._semaphore.release(model_id)
         if self._concurrent[model_id] > 0:
             self._concurrent[model_id] -= 1
 
@@ -159,6 +173,8 @@ class HealthTracker:
             self._circuit[model_id] = CircuitState.CLOSED
             self._half_open_probes[model_id] = 0
             logger.info("Circuit %s closed after half-open probe success", model_id)
+        if self._circuit_coordinator is not None:
+            self._circuit_coordinator.publish(model_id, CircuitState.CLOSED.value)
 
     def success_rate(self, model_id: str) -> float:
         records = self._records[model_id]
@@ -194,6 +210,21 @@ class HealthTracker:
             self._circuit[model_id] = CircuitState.OPEN
             self._circuit_opened_at[model_id] = datetime.utcnow()
             logger.warning("Circuit opened for %s: %s", model_id, reason)
+        if self._circuit_coordinator is not None:
+            opened = self._circuit_opened_at.get(model_id)
+            self._circuit_coordinator.publish(
+                model_id,
+                self._circuit[model_id].value,
+                opened.isoformat() if opened else "",
+            )
+
+    def restore_distributed(self) -> None:
+        """Phase 6（§6.6）：从 Redis 恢复多 Pod 共享的 circuit 状态。"""
+        if self._circuit_coordinator is None:
+            return
+        snapshot = self._circuit_coordinator.read_all()
+        if snapshot:
+            self.restore(snapshot)
 
     # --- 9.3 持久化：circuit 状态可恢复（多实例共享/重启不丢失） ---
     def snapshot(self) -> dict[str, dict]:
@@ -238,7 +269,18 @@ class UsageLedger:
 
     def record(self, model_id: str, operation: Operation, *,
                input_tokens: int, output_tokens: int, cache_tokens: int = 0,
-               provider_request_id: str = "", estimated: bool = False) -> UsageRecord:
+               provider_request_id: str = "", estimated: bool = False,
+               # Phase 6（§6.8）：完整归因
+               trace_id: str | None = None,
+               run_id: str | None = None,
+               org_id: str | int | None = None,
+               workspace_id: str | int | None = None,
+               user_id: str | int | None = None,
+               agent: str | None = None,
+               fallback_from: str | None = None,
+               fallback_reason: str | None = None,
+               latency_ms: float = 0.0,
+               success: bool | None = None) -> UsageRecord:
         config = self._price_table.get(model_id)
         cost = 0.0
         if config:
@@ -258,10 +300,17 @@ class UsageLedger:
             estimated=estimated,
         )
         self._records.append(record)
-        self._persist(record, config)
+        self._persist(record, config, trace_id=trace_id, run_id=run_id,
+                      org_id=org_id, workspace_id=workspace_id, user_id=user_id,
+                      agent=agent, fallback_from=fallback_from,
+                      fallback_reason=fallback_reason, latency_ms=latency_ms,
+                      success=success)
         return record
 
-    def _persist(self, record: UsageRecord, config: ModelConfig | None):
+    def _persist(self, record: UsageRecord, config: ModelConfig | None,
+                 *, trace_id=None, run_id=None, org_id=None, workspace_id=None,
+                 user_id=None, agent=None, fallback_from=None, fallback_reason=None,
+                 latency_ms: float = 0.0, success=None):
         """持久化到 DB（model_usage_records）。"""
         if self._db is None:
             return
@@ -269,10 +318,12 @@ class UsageLedger:
             from app.models.entities import ModelUsageRecord as Row
 
             row = Row(
-                organization_id=None,
-                workspace_id=None,
-                user_id=None,
-                trace_id=None,
+                organization_id=(int(org_id) if org_id is not None else None),
+                workspace_id=(int(workspace_id) if workspace_id is not None else None),
+                user_id=(int(user_id) if user_id is not None else None),
+                trace_id=trace_id,
+                run_id=run_id,
+                agent=agent,
                 operation=record.operation.value,
                 provider=record.provider,
                 model=record.model_id,
@@ -283,6 +334,9 @@ class UsageLedger:
                 settled_cost_usd=0.0 if record.estimated else record.cost_usd,
                 status="SETTLED",
                 provider_request_id=record.provider_request_id or None,
+                latency_ms=latency_ms,
+                fallback_from=fallback_from,
+                fallback_reason=fallback_reason,
             )
             self._db.add(row)
             self._db.commit()
@@ -376,12 +430,14 @@ class ModelGateway:
     9.4：调用前预算预留、调用后结算、失败释放。
     """
 
-    def __init__(self, settings=None, db=None, budget=None):
+    def __init__(self, settings=None, db=None, budget=None, *,
+                 semaphore=None, circuit_coordinator=None):
         self.settings = settings
         self.db = db
         self.registry: dict[str, ModelConfig] = {}
         self.adapters: dict[str, "object"] = {}
-        self.health = HealthTracker()
+        # Phase 6（§6.5/§6.6）：分布式并发信号量与熔断协调器（Redis 不可用自动回退本地）
+        self.health = HealthTracker(semaphore=semaphore, circuit_coordinator=circuit_coordinator)
         self.usage = UsageLedger(db=db)
         self.fallback = FallbackGraph()
         if budget is not None:
@@ -390,6 +446,43 @@ class ModelGateway:
             from app.model_gateway.budget import BudgetManager
 
             self.budget = BudgetManager()
+        self._distributed_ready = semaphore is not None or circuit_coordinator is not None
+        if self._distributed_ready:
+            self.health.restore_distributed()
+
+    def enable_distributed(self, settings=None):
+        """Phase 6（§6.5/§6.6）：懒加载分布式状态并恢复共享熔断。需在注册模型前调用。"""
+        if self._distributed_ready:
+            return
+        from app.model_gateway.distributed import build_distributed_coordinator
+
+        sem, cir = build_distributed_coordinator(settings or self.settings)
+        self.health._semaphore = sem
+        self.health._circuit_coordinator = cir
+        self._distributed_ready = True
+        self.health.restore_distributed()
+
+    def register_default_models(self, settings=None):
+        """Phase 6（§6.4）：把 settings 中的默认 chat 模型注册到网关（Agent 不直接绑定模型）。"""
+        s = settings or self.settings
+        if s is None:
+            return
+        provider = (s.ai_provider or "mock").lower()
+        model_id = s.ollama_model if provider == "ollama" else (s.openai_model if provider == "openai" else "mock")
+        if model_id in self.registry:
+            return
+        self.register_model(ModelConfig(
+            model_id=model_id,
+            provider="ollama" if provider == "ollama" else ("openai" if provider == "openai" else "mock"),
+            operation=Operation.CHAT,
+            base_url=s.ollama_base_url if provider == "ollama" else s.openai_base_url,
+            api_key=s.openai_api_key if provider == "openai" else "",
+            max_context=int(getattr(s, "agent_model_max_context", 32768)),
+            supports_streaming=True,
+            price_input_per_1k=0.0,
+            price_output_per_1k=0.0,
+        ))
+        self.register_fallback("chat", [model_id])
 
     def register_model(self, config: ModelConfig, adapter=None):
         self.registry[config.model_id] = config
@@ -535,6 +628,12 @@ class ModelGateway:
         timeout_seconds: float = 60.0,
         max_attempts: int = 2,
         trace_id: str | None = None,
+        # Phase 6（§6.8）：完整归因
+        run_id: str | None = None,
+        org_id=None,
+        workspace_id=None,
+        user_id=None,
+        agent: str | None = None,
     ):
         """完整执行一次完成调用：路由 → 预算预留 → adapter → 结算/释放 → fallback。
 
@@ -594,8 +693,13 @@ class ModelGateway:
                     self.health.record(candidate, True, result.latency_ms)
                     self.health.close_circuit(candidate)
                     self.budget.settle(reservation.token, result_cost(result))
-                    self._record_usage(operation, config, result, estimated=True, trace_id=trace_id,
-                                       latency_ms=result.latency_ms)
+                    self._record_usage(
+                        operation, config, result, estimated=True, trace_id=trace_id,
+                        latency_ms=result.latency_ms, run_id=run_id, org_id=org_id,
+                        workspace_id=workspace_id, user_id=user_id, agent=agent,
+                        fallback_from=fallback_reason or None,
+                        fallback_reason=fallback_reason or None,
+                    )
                     self.health.release(candidate)
                     return {
                         "content": result.content,
@@ -739,7 +843,9 @@ class ModelGateway:
         return round(tokens / 1000 * config.price_input_per_1k, 6)
 
     def _record_usage(self, operation: Operation, config: ModelConfig, result, *, estimated: bool,
-                      trace_id: str | None, latency_ms: float):
+                      trace_id: str | None, latency_ms: float,
+                      run_id=None, org_id=None, workspace_id=None, user_id=None,
+                      agent=None, fallback_from=None, fallback_reason=None):
         try:
             self.usage.record(
                 config.model_id, operation,
@@ -748,6 +854,15 @@ class ModelGateway:
                 cache_tokens=result.cached_tokens,
                 provider_request_id=result.provider_request_id,
                 estimated=estimated,
+                trace_id=trace_id,
+                run_id=run_id,
+                org_id=org_id,
+                workspace_id=workspace_id,
+                user_id=user_id,
+                agent=agent,
+                fallback_from=fallback_from,
+                fallback_reason=fallback_reason,
+                latency_ms=latency_ms,
             )
         except Exception as exc:  # noqa: BLE001
             logger.warning("usage record failed: %s", exc)
@@ -779,3 +894,48 @@ async def asyncio_sleep(seconds: float) -> None:
     import asyncio
 
     await asyncio.sleep(seconds)
+
+
+# --------------------------------------------------------------------------- #
+# Phase 6（§6.1）：App-scoped 单例 ModelGateway
+# --------------------------------------------------------------------------- #
+_gateway_singleton: ModelGateway | None = None
+_gateway_singleton_key: str = ""
+
+
+def get_model_gateway(settings=None, db=None, *, force_distributed: bool | None = None) -> ModelGateway:
+    """App-scoped 全局唯一 ModelGateway 单例。
+
+    所有 Service / Agent / AiClient 注入同一实例，避免各自 new Gateway。
+    分布式状态（Redis 信号量 + 熔断）由 settings.gateway_distributed_enabled 控制，
+    Redis 不可用时自动回退本进程内。
+    """
+    global _gateway_singleton, _gateway_singleton_key
+    settings = settings or get_settings()
+    distributed = (
+        bool(getattr(settings, "gateway_distributed_enabled", False))
+        if force_distributed is None else bool(force_distributed)
+    )
+    # 单例缓存键：分布式开关变化时重建，避免 Redis 依赖被错误复用。
+    key = f"{id(settings)}:distributed={distributed}"
+    if _gateway_singleton is None or _gateway_singleton_key != key:
+        gateway = ModelGateway(settings=settings, db=db)
+        gateway.register_default_models(settings=settings)
+        if distributed:
+            gateway.enable_distributed(settings=settings)
+        _gateway_singleton = gateway
+        _gateway_singleton_key = key
+    return _gateway_singleton
+
+
+def reset_model_gateway_singleton() -> None:
+    """测试用：清空 App-scoped 单例（配合不同 settings/分布式开关）。"""
+    global _gateway_singleton, _gateway_singleton_key
+    _gateway_singleton = None
+    _gateway_singleton_key = ""
+
+
+def get_settings():
+    from app.core.config import get_settings as _get
+
+    return _get()

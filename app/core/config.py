@@ -1,5 +1,6 @@
 from functools import lru_cache
 from pathlib import Path
+from typing import Optional
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -10,6 +11,9 @@ class Settings(BaseSettings):
     agent_max_claims_per_round: int = 4
     agent_max_claims_per_agent: int = 3
     agent_final_acceptance_min_confidence: float = 0.6
+    agent_max_revision_attempts: int = 3
+    # Phase 4（§4.5）：服务端数据分级上限（DB/JWT/IAM）；None=不限，客户端只能降低不能提高。
+    classification_server_clearance: Optional[str] = None
     agent_model_default_provider: str = ""
     agent_model_default_model: str = ""
     agent_model_coordinator_provider: str = ""
@@ -30,6 +34,9 @@ class Settings(BaseSettings):
     # v2 阶段 4（9.1）：主链路是否经 ModelGateway（路由/熔断/预算/账本）。
     # 默认 False 保持旧路径兼容；生产 .env 开启后 AiClient 全部调用走网关。
     model_gateway_enabled: bool = False
+    # Phase 6（§6.5/§6.6）：ModelGateway 分布式状态共享（Redis lease 信号量 + 熔断）。
+    # Redis 不可用时自动回退本进程内，单实例行为不变。
+    gateway_distributed_enabled: bool = False
     # v2 阶段 7（12.2）：灰度 Feature Flags。
     # 默认值取"当前已生效的安全状态"，保证不改动现有行为：
     # - Scope enforce 与关键 DLP/注入均为最严格档位，回滚只回退到安全实现。
@@ -93,6 +100,10 @@ class Settings(BaseSettings):
     chroma_snapshot_dir: str = "data/chroma-snapshots"
     chroma_snapshot_keep: int = 5
     embedding_timeout_seconds: float = 30.0
+    # Phase 10（§10.8）：禁止 Production Hash Embedding。生产启动时若为 True 直接拒绝，
+    # 避免把确定性 hash 向量当成真实语义向量发布进 Serving Index。
+    # 通过环境变量 ALLOW_DETERMINISTIC_EMBEDDING 控制（默认 False，即生产禁止）。
+    allow_deterministic_embedding: bool = False
     # v2 压测优化：向量索引健康检查的节流间隔（秒）。检索热路径原先每请求都做
     # 全库 rows count + has_exact_chunk_ids + hnsw 探针 query，会随并发放大固定开销
     # 并反复访问共享 chroma 目录；改为间隔节流，损坏检测交由检索层 VectorIndexCorrupt 兜底。
@@ -168,6 +179,11 @@ class Settings(BaseSettings):
     tool_queue_excel_workers: int = 1
     tool_queue_email_workers: int = 2
     alert_email_rate_limit_per_minute: int = 30
+    # Phase 8（§8.4）：worker 认领 ToolJob 的 lease 时长（秒），心跳在此内续租。
+    tool_queue_lease_seconds: int = 300
+    # Phase 8（§8.7）：通知限流是否走 Redis 分布式（避免 N 个 worker 各自本地限流）。
+    # Redis 不可用时自动回退本进程本地限流，单实例行为不变。
+    tool_queue_distributed_enabled: bool = False
 
     # 阶段 0：请求大小硬上限（防止超大输入消耗资源）
     chat_message_max_chars: int = 4000          # 单条聊天消息最大字符数
@@ -188,6 +204,16 @@ class Settings(BaseSettings):
     retrieval_cache_ttl_seconds: int = 300       # L1 缓存 TTL
     retrieval_cache_max_entries: int = 1000       # L1 缓存最大条目数
     redis_cache_enabled: bool = False             # L2 Redis 缓存开关
+    # Phase 9（§9.7）：剩余预算驱动的检索降级档位（毫秒）。检索不按阈值截断，
+    # 只据此选择召回路径（rerank / hybrid / 最快路径 / 直接返回候选）。
+    retrieval_budget_rerank_ms: int = 500         # remaining > 该值 → hybrid + rerank
+    retrieval_budget_full_ms: int = 200           # 200~500 → hybrid 不做 rerank
+    retrieval_budget_min_ms: int = 50             # <50 → 直接返回当前候选，不再新召回
+    # Phase 9（§9.4）：空结果负缓存 TTL（很短，避免新文档发布后长时间搜不到）。
+    retrieval_cache_negative_ttl_seconds: int = 15
+    # Phase 10（§10.1）：当前 serving 的 Index Generation。由 IndexGenerationManager 管理，
+    # 检索缓存键以它为版本前缀（§9.3），发布/回滚后旧缓存自动失效。
+    index_generation: str = "G001"
 
     # v2 阶段 3（8.2）：分布式限流配置
     # 开启后 chat 入口按 user/org/workspace/IP 多维限流；Redis 不可用时

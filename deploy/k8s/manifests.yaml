@@ -1,0 +1,146 @@
+# Phase 14.2 Kubernetes 支撑清单。
+# 满足 §14.2 要求的最小集合：Deployment / Service / Ingress / ConfigMap / Secret / HPA / PDB / readinessProbe / livenessProbe。
+#
+# 注意：Secret 仅为占位（生产应使用 external-secrets / Vault 注入，见 §14.4，禁止把真实密钥提交仓库）。
+# 生产启动校验（§14.6，app/deploy/startup_validation.py）会禁止未满足的配置启动。
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mindbridge-config
+  namespace: mindbridge
+data:
+  OIDC_ENABLED: "true"
+  ALLOW_DETERMINISTIC_EMBEDDING: "false"
+  DISTRIBUTED_RATE_LIMIT_ENABLED: "true"
+  RATE_LIMIT_FAIL_CLOSED: "true"
+  SECRET_PROVIDER_CONFIGURED: "true"
+  PRODUCTION_DB_CONFIGURED: "true"
+  DEFAULT_ACCOUNT_DISABLED: "true"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mindbridge-secrets
+  namespace: mindbridge
+type: Opaque
+stringData:
+  # 生产由 external-secrets / Vault 覆盖（勿提交真实值）。
+  DATABASE_URL: "mysql+pymysql://mindbridge:CHANGE_ME@mysql:3306/mindbridge"
+  REDIS_URL: "redis://redis:6379/0"
+  OIDC_ISSUER: "https://idp.example.com/"
+  MODEL_API_KEY: "CHANGE_ME"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mindbridge-api
+  namespace: mindbridge
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: mindbridge
+  template:
+    metadata:
+      labels:
+        app: mindbridge
+    spec:
+      containers:
+        - name: api
+          image: mindbridge:latest
+          ports:
+            - containerPort: 8000
+              name: http
+          envFrom:
+            - configMapRef:
+                name: mindbridge-config
+            - secretRef:
+                name: mindbridge-secrets
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: 8000
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: "1"
+              memory: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mindbridge-api
+  namespace: mindbridge
+spec:
+  selector:
+    app: mindbridge
+  ports:
+    - port: 80
+      targetPort: http
+      name: http
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: mindbridge-ingress
+  namespace: mindbridge
+spec:
+  rules:
+    - host: mindbridge.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: mindbridge-api
+                port:
+                  name: http
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: mindbridge-api-hpa
+  namespace: mindbridge
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: mindbridge-api
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: mindbridge-api-pdb
+  namespace: mindbridge
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: mindbridge

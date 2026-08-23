@@ -19,9 +19,14 @@ from typing import Optional
 from sqlalchemy.orm import Session
 
 from app.core.config import Settings
+from app.core.deadline import DeadlineExceeded, RequestDeadline
 from app.core.enums import KnowledgeDomain
+from app.core.retrieval_budget import BudgetThresholds, RetrievalBudget
 from app.core.scope import RequestScope
 from app.services.knowledge import KnowledgeService, SearchResult
+from app.services.retrieval_cache import RetrievalCache, RetrievalCacheRef
+from app.models.entities import KnowledgeChunk
+from app.core.enums import KnowledgeChunkStatus
 
 logger = logging.getLogger(__name__)
 
@@ -88,7 +93,12 @@ class RetrievalService:
         self.db = db
         self.settings = settings
         self.knowledge_service = KnowledgeService(db, settings)
-        self._cache = _RetrievalCache(settings)
+        self._cache = RetrievalCache(settings)
+        self._budget_thresholds = BudgetThresholds(
+            rerank_ms=int(getattr(settings, "retrieval_budget_rerank_ms", 500)),
+            full_ms=int(getattr(settings, "retrieval_budget_full_ms", 200)),
+            min_ms=int(getattr(settings, "retrieval_budget_min_ms", 50)),
+        )
 
     def retrieve(
         self,
@@ -115,29 +125,34 @@ class RetrievalService:
         top_k = top_k or self.settings.knowledge_top_k
         start = time.monotonic()
 
-        # v2 阶段 3（8.3）：absolute deadline + 剩余预算传播
-        # 入口传入 deadline_ms 时使用绝对截止时间；否则用策略 max_latency_ms。
-        from app.core.deadline import DeadlineExceeded, RequestDeadline
-
+        # v2 阶段 3（8.3）：absolute deadline + 剩余预算传播。
+        # Phase 9（§9.5）：封装为 RetrievalBudget，供 §9.7 降级档位决策。
         deadline = RequestDeadline(
             total_ms=deadline_ms if deadline_ms is not None else policy.max_latency_ms,
             start_monotonic=start,
         )
+        budget = RetrievalBudget(deadline, self._budget_thresholds)
 
-        # 检查缓存（缓存键含 org/workspace/acl/classification/generation/rerank version）
         cache_key = None
         if policy.allow_cache:
             cache_key = self._cache_key(scope, query, top_k, filters, policy)
-            cached = self._cache.get(cache_key)
-            if cached is not None:
-                return RetrievalResponse(
-                    results=cached,
-                    retrieval_path="cache_hit",
-                    cache_hit=True,
-                    cache_key=cache_key,
-                    total_ms=(time.monotonic() - start) * 1000,
-                    scope=scope.to_dict(),
+            # Phase 9（§9.4）：负缓存（空结果短 TTL）
+            if self._cache.is_negative(cache_key):
+                return self._response(
+                    results=[], retrieval_path="cache_hit", cache_hit=True,
+                    cache_key=cache_key, start=start, scope=scope,
+                    index_generation=self.settings.index_generation,
                 )
+            # Phase 9（§9.2）：缓存只存引用，命中后经 DB 重补水正文（Scope 再次校验）
+            refs = self._cache.get_refs(cache_key)
+            if refs is not None:
+                hydrated = self._rehydrate(refs)
+                if hydrated is not None:
+                    return self._response(
+                        results=hydrated, retrieval_path="cache_hit", cache_hit=True,
+                        cache_key=cache_key, start=start, scope=scope,
+                        index_generation=self.settings.index_generation,
+                    )
 
         # 检索域（可空）：不再默认 MENTAL（6.4 关闭 domain is None -> MENTAL 默认）
         domain = None
@@ -147,7 +162,6 @@ class RetrievalService:
             except ValueError:
                 pass
 
-        # 执行检索（通过 KnowledgeService，后续替换为生产引擎）
         # v2 阶段 0：所有路径（正常 + 降级）都携带 scope.workspace_id，保证同 Scope 隔离。
         workspace_id = scope.workspace_id if scope else None
         organization_id = scope.organization_id if scope else None
@@ -156,28 +170,46 @@ class RetrievalService:
         retrieval_path = "hybrid"
         degraded = False
         degradation_reason = None
+        results: list[SearchResult] = []
 
-        def _scoped_retrieve(*, enable_rerank: bool, enable_vector: bool) -> list[SearchResult]:
-            """在保持 Scope 的前提下按请求级策略开关 rerank/vector 检索。
-
-            不修改共享 settings 对象；策略参数直接透传 KnowledgeService（6.4.8）。
-            """
-            # v2 阶段 3（8.3）：执行前检查剩余预算（真正用于超时，而非只计算）
-            deadline.check("retrieval")
-            return self.knowledge_service.retrieve(
+        def _recall(*, enable_rerank: bool, enable_vector: bool) -> list[SearchResult]:
+            budget.check("retrieval")
+            return self._scoped_retrieve(
                 query, domain=domain, top_k=top_k, workspace_id=workspace_id,
                 organization_id=organization_id, classification_limit=classification_limit,
                 enable_rerank=enable_rerank, enable_vector=enable_vector,
             )
 
         try:
+            # Phase 9（§9.7）：按剩余预算选择召回路径，不做昂贵路径上的截断。
             t0 = time.monotonic()
-            results = _scoped_retrieve(enable_rerank=True, enable_vector=True)
+            if budget.can_rerank():
+                results = _recall(enable_rerank=True, enable_vector=True)
+            elif budget.can_hybrid():
+                retrieval_path = "degraded_no_rerank"
+                results = _recall(enable_rerank=False, enable_vector=True)
+            elif budget.can_vector():
+                retrieval_path = "degraded_fast_path"
+                results = _recall(enable_rerank=False, enable_vector=True)
+            else:
+                # <50ms：返回当前候选（本轮为空），不再发起新召回。
+                # v2 阶段 3（8.3）约定：deadline 耗尽即受控降级失败，
+                # 必须标记 degraded（不回退全库扫描），供调用方感知。
+                retrieval_path = "degraded_budget_out"
+                results = []
+                degraded = True
+                degradation_reason = (
+                    f"deadline budget exhausted (remaining "
+                    f"{budget.remaining_ms:.0f}ms <= {self._budget_thresholds.min_ms}ms)"
+                )
             timing["retrieve_ms"] = round((time.monotonic() - t0) * 1000, 2)
 
-            # 写入缓存（只缓存 chunk 引用，不缓存敏感正文）
-            if policy.allow_cache and cache_key and results:
-                self._cache.set(cache_key, results, scope=scope)
+            # Phase 9（§9.2）：写入缓存只存引用；空结果写入负缓存（§9.4）。
+            if policy.allow_cache and cache_key:
+                if results:
+                    self._cache.set_refs(cache_key, [RetrievalCacheRef.from_result(r) for r in results])
+                else:
+                    self._cache.set_negative(cache_key)
 
         except DeadlineExceeded as exc:
             # 预算耗尽：受控失败，不降级为全库扫描
@@ -198,7 +230,7 @@ class RetrievalService:
                 logger.warning("Retrieval degraded (rerank): %s", exc)
                 try:
                     t0 = time.monotonic()
-                    results = _scoped_retrieve(enable_rerank=False, enable_vector=True)
+                    results = _recall(enable_rerank=False, enable_vector=True)
                     timing["retrieve_ms"] = round((time.monotonic() - t0) * 1000, 2)
                 except DeadlineExceeded:
                     results = []
@@ -214,7 +246,7 @@ class RetrievalService:
                 logger.warning("Retrieval degraded (vector): %s", exc)
                 try:
                     t0 = time.monotonic()
-                    results = _scoped_retrieve(enable_rerank=True, enable_vector=False)
+                    results = _recall(enable_rerank=True, enable_vector=False)
                     timing["retrieve_ms"] = round((time.monotonic() - t0) * 1000, 2)
                 except DeadlineExceeded:
                     results = []
@@ -235,6 +267,7 @@ class RetrievalService:
 
         return RetrievalResponse(
             results=results,
+            index_generation=self.settings.index_generation,
             retrieval_path=retrieval_path,
             cache_hit=False,
             cache_key=cache_key,
@@ -244,6 +277,77 @@ class RetrievalService:
             total_ms=total_ms,
             scope=scope.to_dict(),
         )
+
+    def _response(
+        self,
+        *,
+        results: list[SearchResult],
+        retrieval_path: str,
+        cache_hit: bool,
+        cache_key: str | None,
+        start: float,
+        scope: RequestScope,
+        index_generation: str,
+        degraded: bool = False,
+        degradation_reason: str | None = None,
+    ) -> RetrievalResponse:
+        total_ms = (time.monotonic() - start) * 1000
+        return RetrievalResponse(
+            results=results,
+            index_generation=index_generation,
+            retrieval_path=retrieval_path,
+            cache_hit=cache_hit,
+            cache_key=cache_key,
+            degraded=degraded,
+            degradation_reason=degradation_reason,
+            timing_ms={"total_ms": round(total_ms, 2)},
+            total_ms=total_ms,
+            scope=scope.to_dict(),
+        )
+
+    def _scoped_retrieve(
+        self,
+        query: str,
+        *,
+        domain: KnowledgeDomain | None,
+        top_k: int,
+        workspace_id: int | None,
+        organization_id: int | None,
+        classification_limit: str | None,
+        enable_rerank: bool,
+        enable_vector: bool,
+    ) -> list[SearchResult]:
+        """在保持 Scope 的前提下按请求级策略开关 rerank/vector 检索。
+
+        不修改共享 settings 对象；策略参数直接透传 KnowledgeService（6.4.8）。
+        """
+        return self.knowledge_service.retrieve(
+            query, domain=domain, top_k=top_k, workspace_id=workspace_id,
+            organization_id=organization_id, classification_limit=classification_limit,
+            enable_rerank=enable_rerank, enable_vector=enable_vector,
+        )
+
+    def _rehydrate(self, refs: list[RetrievalCacheRef]) -> list[SearchResult] | None:
+        """缓存命中后的重补水：按 chunk_id 从 DB 取正文并再次校验 Scope。
+
+        任一 chunk 已不存在（被删除/归档）时视为缓存陈旧，返回 None 触发重新检索。
+        返回值为 None 表示缓存失效，应回退一次完整检索。
+        """
+        if not refs:
+            return None
+        hydrated: list[SearchResult] = []
+        for ref in refs:
+            chunk = self.db.get(KnowledgeChunk, ref.chunk_id) if ref.chunk_id is not None else None
+            if chunk is None or chunk.status != KnowledgeChunkStatus.PUBLISHED.value:
+                return None
+            hydrated.append(
+                SearchResult(
+                    chunk.id, chunk.source, chunk.content, ref.score,
+                    source_key=ref.source_key, version=ref.version,
+                    source_index=ref.source_index, domain=chunk.domain,
+                )
+            )
+        return hydrated
 
     def _cache_key(
         self,
@@ -270,6 +374,11 @@ class RetrievalService:
             str(top_k),
             f"rr{self.settings.knowledge_rerank_enabled}",
             f"vec{self.settings.knowledge_vector_enabled}",
+            # Phase 9（§9.3）：索引/版本维度加入缓存键，任意变化自动失效旧缓存。
+            f"gen{self.settings.index_generation}",
+            f"emb{self.settings.openai_embedding_model}",
+            f"rtr{self.settings.knowledge_vector_enabled}",
+            f"rrv{self.settings.knowledge_rerank_enabled}",
         ]
         return f"ret:{self._cache_tag(scope)}:{hashlib.sha256(':'.join(parts).encode()).hexdigest()[:24]}"
 
@@ -283,48 +392,11 @@ class RetrievalService:
 
 
 class _RetrievalCache:
-    """L1 进程内缓存（TTL/LRU）。
+    """兼容别名：Phase 9 实际实现为 ``app.services.retrieval_cache.RetrievalCache``。
 
-    缓存键包含 org + workspace + ACL version + classification + index generation
-    + filter + top_k + rerank version（见 RetrievalService._cache_key）。
-    缓存值只保存 chunk 引用（chunk_id + generation），不缓存无边界敏感正文。
-    ACL/索引变化通过 tag 精确失效（invalidate_tag），禁止 hash 模糊删除。
+    保留此名以维持既有导入（``tests/test_p3_retrieval_service.py`` 复用其键集语义）。
+    新的引用缓存 / 负缓存 / L2 实现见 RetrievalCache。
     """
 
-    def __init__(self, settings: Settings):
-        self._settings = settings
-        self._cache: dict[str, tuple[list, float]] = {}  # key -> (results, expiry)
-        self._ttl_seconds = 300  # 5 分钟
-        self._max_entries = 1000
 
-    def get(self, key: str) -> list[SearchResult] | None:
-        entry = self._cache.get(key)
-        if entry is None:
-            return None
-        results, expiry = entry
-        if time.monotonic() > expiry:
-            del self._cache[key]
-            return None
-        return results
-
-    def set(self, key: str, results: list[SearchResult], *, scope: RequestScope | None = None) -> None:
-        if len(self._cache) >= self._max_entries:
-            # LRU: 删除最旧的条目
-            oldest_key = min(self._cache, key=lambda k: self._cache[k][1])
-            del self._cache[oldest_key]
-        self._cache[key] = (results, time.monotonic() + self._ttl_seconds)
-
-    def invalidate_tag(self, tag: str) -> int:
-        """按 tag（如 ws<id>）精确失效缓存，返回失效条数。"""
-        keys_to_delete = [k for k in list(self._cache.keys()) if self._key_has_tag(k, tag)]
-        for k in keys_to_delete:
-            del self._cache[k]
-        return len(keys_to_delete)
-
-    @staticmethod
-    def _key_has_tag(cache_key: str, tag: str) -> bool:
-        """cache key 前缀为 `ret:ws<id>:` 明文 tag；此处精确匹配前缀。
-
-        在 hash 段内做子串模糊删除是禁止的（6.4.5），因此只对明文 tag 前缀做匹配。
-        """
-        return cache_key.startswith(f"ret:{tag}:") or cache_key == f"ret:{tag}"
+_RetrievalCache = RetrievalCache  # noqa: F811（保持可导入别名）

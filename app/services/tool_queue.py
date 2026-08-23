@@ -2,13 +2,14 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 import threading
 import time
 from collections import deque
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta
 
-from sqlalchemy import update
+from sqlalchemy import or_, update
 from sqlalchemy.orm import Session
 
 from app.core.config import Settings
@@ -28,6 +29,20 @@ IDEMPOTENCY_KEY_VERSION = "v1"
 def _make_idempotency_key(domain: str, report_id: int, kind: str) -> str:
     """P5-04 固定格式的幂等键：<domain>:<report_id>:<kind>:v1。"""
     return f"{domain}:{report_id}:{kind}:{IDEMPOTENCY_KEY_VERSION}"
+
+
+def _safe_redis_client(settings: Settings):
+    """构建 Redis 客户端；失败时返回 None（分布式能力回退本地）。"""
+    try:
+        from redis import Redis
+
+        return Redis.from_url(
+            settings.redis_url,
+            socket_timeout=getattr(settings, "redis_socket_timeout_seconds", 2.0),
+        )
+    except Exception:
+        logger.warning("redis unavailable, distributed tool queue disabled")
+        return None
 
 
 class ToolQueueService:
@@ -165,9 +180,51 @@ class RateLimiter:
             return False, retry_after
 
 
+# §8.7：Redis 固定窗口限流（60s）。键首增时加 TTL 防泄漏；超限原子 DECR 回滚。
+_RATE_LIMIT_LUA = """
+local c = redis.call('INCR', KEYS[1])
+if c == 1 then redis.call('EXPIRE', KEYS[1], ARGV[1]) end
+if c <= tonumber(ARGV[2]) then return 1 end
+redis.call('DECR', KEYS[1])
+return 0
+"""
+
+
+class DistributedRateLimiter:
+    """Phase 8（§8.7）：跨 worker 共享的 Redis 限流；Redis 不可用/禁用时回退本地。
+
+    键形如 ``notification:email:org:{org_id}``，避免 N 个 worker 各自持有本地 limiter
+    导致整体超发。
+    """
+
+    def __init__(self, redis_client, key_prefix: str, limit_per_minute: int, enabled: bool = True):
+        self._client = redis_client
+        self._prefix = key_prefix
+        self._limit = max(0, limit_per_minute)
+        self._enabled = enabled
+        self._local = RateLimiter(limit_per_minute)
+
+    def allow(self, scope_key: str) -> tuple[bool, float]:
+        if self._limit <= 0:
+            return True, 0.0
+        if not self._enabled or self._client is None:
+            return self._local.allow()
+        key = f"{self._prefix}:{scope_key}"
+        try:
+            ok = bool(self._client.eval(_RATE_LIMIT_LUA, 1, key, 60, self._limit))
+            return ok, 0.0 if ok else 60.0
+        except Exception:
+            logger.warning("distributed rate limit unavailable, fallback local (scope=%s)", scope_key)
+            return self._local.allow()
+
+
 class ToolQueueWorker:
-    def __init__(self, settings: Settings):
+    def __init__(self, settings: Settings, *, session_factory=None, worker_id: str | None = None,
+                 redis_client=None):
         self.settings = settings
+        self._session_factory = session_factory or SessionLocal
+        # §8.2：worker 唯一身份，认领 ToolJob 时写入 lease_owner（跨进程互斥依据）。
+        self.worker_id = worker_id or f"worker-{os.getpid()}"
         self.stop_event = threading.Event()
         self.dispatcher: threading.Thread | None = None
         self.excel_executor = ThreadPoolExecutor(
@@ -178,7 +235,17 @@ class ToolQueueWorker:
             max_workers=max(1, settings.tool_queue_email_workers),
             thread_name_prefix="mindbridge-email",
         )
+        # §8.7：分布式通知限流；Redis 不可用/禁用时回退本地限流。
         self.email_limiter = RateLimiter(settings.alert_email_rate_limit_per_minute)
+        self.dist_email_limiter = None
+        if bool(getattr(settings, "tool_queue_distributed_enabled", False)):
+            client = redis_client or _safe_redis_client(settings)
+            self.dist_email_limiter = DistributedRateLimiter(
+                client,
+                key_prefix="notification:email:org",
+                limit_per_minute=settings.alert_email_rate_limit_per_minute,
+                enabled=True,
+            )
 
     def start(self) -> None:
         if not self.settings.tool_queue_enabled or self.dispatcher is not None:
@@ -203,7 +270,7 @@ class ToolQueueWorker:
             self.stop_event.wait(self.settings.tool_queue_poll_interval_seconds)
 
     def _dispatch_once(self) -> None:
-        db = SessionLocal()
+        db = self._session_factory()
         try:
             now = datetime.utcnow()
             jobs = (
@@ -213,15 +280,23 @@ class ToolQueueWorker:
                 .limit(self.settings.tool_queue_batch_size)
                 .all()
             )
+            lease_seconds = max(1, int(getattr(self.settings, "tool_queue_lease_seconds", 300)))
             for job in jobs:
-                # P5-04：原子认领 —— 条件更新避免多 Worker 重复执行
+                # P5-04 + Phase 8（§8.2）：原子认领 —— 条件更新避免多 Worker 重复执行。
+                # 认领即写 lease_owner / lease_deadline / heartbeat_at，失败（已被抢走）则跳过。
                 claimed = db.execute(
                     update(ToolJob)
                     .where(
                         ToolJob.id == job.id,
                         ToolJob.status == ToolJobStatus.PENDING.value,
                     )
-                    .values(status=ToolJobStatus.RUNNING.value, updated_at=datetime.utcnow())
+                    .values(
+                        status=ToolJobStatus.RUNNING.value,
+                        updated_at=now,
+                        lease_owner=self.worker_id,
+                        lease_deadline=now + timedelta(seconds=lease_seconds),
+                        heartbeat_at=now,
+                    )
                 )
                 if claimed.rowcount == 0:
                     continue  # 已被其他 Worker 认领
@@ -238,10 +313,13 @@ class ToolQueueWorker:
         return self.email_executor
 
     def _run_job(self, job_id: int) -> None:
-        db = SessionLocal()
+        db = self._session_factory()
         try:
             job = db.get(ToolJob, job_id)
             if job is None or job.status != ToolJobStatus.RUNNING.value:
+                return
+            # §8.3：lease 已被其他 worker 接管（本进程崩溃/超时）时不再执行，避免重复副作用。
+            if job.lease_owner and job.lease_owner != self.worker_id:
                 return
             if not self._dependency_ready(db, job):
                 self._requeue(db, job, self._dependency_wait_reason(job), 2.0)
@@ -252,18 +330,24 @@ class ToolQueueWorker:
                 ToolJobKind.ESCALATION_NOTIFY.value,
                 ToolJobKind.COMPLIANCE_NOTIFY.value,
             }:
-                allowed, retry_after = self.email_limiter.allow()
+                scope_key = str(job.organization_id or "default")
+                allowed, retry_after = self._email_rate_allow(scope_key)
                 if not allowed:
                     self._requeue(db, job, "通知限流中，稍后重试", retry_after)
                     return
             job.attempts += 1
             job.updated_at = datetime.utcnow()
+            # §8.4：执行前心跳续租。
+            self._extend_lease(db, job)
             db.add(job)
             db.commit()
             self._execute(db, job)
             job.status = ToolJobStatus.SUCCESS.value
             job.last_error = ""
             job.updated_at = datetime.utcnow()
+            job.lease_owner = None
+            job.lease_deadline = None
+            job.heartbeat_at = None
             db.add(job)
             db.commit()
         except Exception as exc:
@@ -273,6 +357,20 @@ class ToolQueueWorker:
                 logger.exception("Failed to record tool job failure")
         finally:
             db.close()
+
+    def _email_rate_allow(self, scope_key: str) -> tuple[bool, float]:
+        """§8.7：优先分布式限流，未启用/Redis 不可用时回退本地。"""
+        if self.dist_email_limiter is not None:
+            return self.dist_email_limiter.allow(scope_key)
+        return self.email_limiter.allow()
+
+    def _extend_lease(self, db: Session, job: ToolJob) -> None:
+        """§8.4 心跳：把 lease_deadline 顺延，注明 heartbeat_at。"""
+        now = datetime.utcnow()
+        lease_seconds = max(1, int(getattr(self.settings, "tool_queue_lease_seconds", 300)))
+        job.lease_owner = self.worker_id
+        job.lease_deadline = now + timedelta(seconds=lease_seconds)
+        job.heartbeat_at = now
 
     def _execute(self, db: Session, job: ToolJob) -> None:
         report = db.get(PsychologicalReport, job.report_id)
@@ -345,6 +443,9 @@ class ToolQueueWorker:
         job.last_error = reason
         job.run_after = datetime.utcnow() + timedelta(seconds=max(1.0, delay_seconds))
         job.updated_at = datetime.utcnow()
+        job.lease_owner = None
+        job.lease_deadline = None
+        job.heartbeat_at = None
         db.add(job)
         db.commit()
 
@@ -355,6 +456,9 @@ class ToolQueueWorker:
         message = f"{type(exc).__name__}: {exc}"
         job.last_error = message
         job.updated_at = datetime.utcnow()
+        job.lease_owner = None
+        job.lease_deadline = None
+        job.heartbeat_at = None
         if job.attempts >= job.max_attempts:
             job.status = ToolJobStatus.DEAD.value
             db.add(
@@ -376,14 +480,30 @@ class ToolQueueWorker:
         db.commit()
 
     def _recover_running_jobs(self) -> None:
-        db = SessionLocal()
+        """§8.3 启动恢复：只回收 lease 已过期的 RUNNING 任务。
+
+        持有未过期 lease 的 RUNNING 任务仍由原 worker（可能仍在执行）负责，
+        不回收 → 避免重复执行副作用。
+        """
+        db = self._session_factory()
         try:
-            rows = db.query(ToolJob).filter(ToolJob.status == ToolJobStatus.RUNNING.value).all()
+            now = datetime.utcnow()
+            rows = (
+                db.query(ToolJob)
+                .filter(
+                    ToolJob.status == ToolJobStatus.RUNNING.value,
+                    or_(ToolJob.lease_deadline.is_(None), ToolJob.lease_deadline < now),
+                )
+                .all()
+            )
             for job in rows:
                 job.status = ToolJobStatus.PENDING.value
-                job.last_error = "服务重启后恢复未完成任务"
+                job.last_error = "服务重启后回收过期的任务租约"
                 job.run_after = datetime.utcnow()
                 job.updated_at = datetime.utcnow()
+                job.lease_owner = None
+                job.lease_deadline = None
+                job.heartbeat_at = None
                 db.add(job)
             db.commit()
         finally:

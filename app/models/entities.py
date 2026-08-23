@@ -320,6 +320,10 @@ class ToolJob(Base):
     domain: Mapped[Optional[str]] = mapped_column(String(32), nullable=True)
     idempotency_key: Mapped[Optional[str]] = mapped_column(String(128), nullable=True)
     payload_json: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    # v2 阶段 8（12.4）：Lease 机制（§8.2）—— 只有持有有效 lease 的 worker 才可执行。
+    lease_owner: Mapped[Optional[str]] = mapped_column(String(128), nullable=True)
+    lease_deadline: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True, index=True)
+    heartbeat_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
     # v2 阶段 1：Scope 列（nullable，双写阶段）
     organization_id: Mapped[Optional[int]] = mapped_column(Integer, nullable=True, index=True)
     workspace_id: Mapped[Optional[int]] = mapped_column(Integer, nullable=True, index=True)
@@ -621,6 +625,8 @@ class ModelUsageRecord(Base):
     workspace_id: Mapped[Optional[int]] = mapped_column(Integer, nullable=True, index=True)
     user_id: Mapped[Optional[int]] = mapped_column(Integer, nullable=True, index=True)
     trace_id: Mapped[Optional[str]] = mapped_column(String(64), nullable=True, index=True)
+    run_id: Mapped[Optional[str]] = mapped_column(String(64), nullable=True, index=True)
+    agent: Mapped[Optional[str]] = mapped_column(String(128), nullable=True, index=True)
     operation: Mapped[str] = mapped_column(String(32), index=True)
     provider: Mapped[str] = mapped_column(String(64), index=True)
     model: Mapped[str] = mapped_column(String(128), index=True)
@@ -632,6 +638,154 @@ class ModelUsageRecord(Base):
     status: Mapped[str] = mapped_column(String(32), default="SETTLED", index=True)
     # SETTLED / RESERVED / RELEASED / FAILED
     latency_ms: Mapped[float] = mapped_column(Float, default=0.0)
+    fallback_from: Mapped[Optional[str]] = mapped_column(String(128), nullable=True)
     fallback_reason: Mapped[Optional[str]] = mapped_column(String(256), nullable=True)
     provider_request_id: Mapped[Optional[str]] = mapped_column(String(128), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=now, index=True)
+
+
+# --------------------------------------------------------------------------- #
+# 阶段 7：Durable Agent Runtime
+# --------------------------------------------------------------------------- #
+
+
+class AgentRun(Base):
+    """§7.1 一次多 Agent 运行的持久记录（Source of Truth）。"""
+
+    __tablename__ = "agent_runs"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    run_id: Mapped[str] = mapped_column(String(64), unique=True, index=True)
+    trace_id: Mapped[Optional[str]] = mapped_column(String(64), nullable=True, index=True)
+    session_id: Mapped[Optional[str]] = mapped_column(String(64), nullable=True, index=True)
+    organization_id: Mapped[Optional[int]] = mapped_column(Integer, nullable=True, index=True)
+    workspace_id: Mapped[Optional[int]] = mapped_column(Integer, nullable=True, index=True)
+    user_id: Mapped[Optional[int]] = mapped_column(Integer, nullable=True, index=True)
+    status: Mapped[str] = mapped_column(String(32), default="STARTED", index=True)
+    # STARTED / RUNNING / WAITING_TOOL / VALIDATING / COMPLETED / FAILED_RETRYABLE / FAILED_FINAL / CANCELLED
+    current_round: Mapped[int] = mapped_column(Integer, default=0)
+    deadline: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=now)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=now)
+    completed_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+
+
+class AgentRunTask(Base):
+    """§7.2 Task 持久化。"""
+
+    __tablename__ = "agent_tasks"
+    __table_args__ = (UniqueConstraint("run_id", "task_id", name="uq_agent_tasks_run_task"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    run_id: Mapped[str] = mapped_column(String(64), index=True)
+    task_id: Mapped[str] = mapped_column(String(128))
+    capability: Mapped[str] = mapped_column(String(64), default="")
+    status: Mapped[str] = mapped_column(String(32), default="OPEN", index=True)
+    claimed_by: Mapped[str] = mapped_column(Text, default="[]")  # JSON 数组
+    attempt: Mapped[int] = mapped_column(Integer, default=0)
+    priority: Mapped[str] = mapped_column(String(16), default="NORMAL")
+    input_artifact_ids: Mapped[str] = mapped_column(Text, default="[]")
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=now)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=now)
+
+
+class AgentRunArtifact(Base):
+    """§7.3 Artifact 持久化（含 §7.8 幂等键）。"""
+
+    __tablename__ = "agent_artifacts"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    run_id: Mapped[str] = mapped_column(String(64), index=True)
+    task_id: Mapped[str] = mapped_column(String(128), default="")
+    artifact_id: Mapped[str] = mapped_column(String(128), index=True)
+    artifact_type: Mapped[str] = mapped_column(String(64), index=True)
+    version: Mapped[int] = mapped_column(Integer, default=1)
+    content_hash: Mapped[str] = mapped_column(String(64), default="")
+    payload: Mapped[str] = mapped_column(_MYSQL_MEDIUMTEXT, default="{}")
+    producer: Mapped[str] = mapped_column(String(128), default="")
+    # §7.8 幂等：run_id:task_id:attempt —— 恢复后据此跳过已生成 Artifact
+    idempotency_key: Mapped[Optional[str]] = mapped_column(String(256), nullable=True, unique=True, index=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=now)
+
+
+class AgentRunEvent(Base):
+    """§7.4 追加式事件日志。"""
+
+    __tablename__ = "agent_events"
+    __table_args__ = (UniqueConstraint("run_id", "seq", name="uq_agent_events_run_seq"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    run_id: Mapped[str] = mapped_column(String(64), index=True)
+    seq: Mapped[int] = mapped_column(Integer, default=0)
+    event_type: Mapped[str] = mapped_column(String(64), index=True)
+    actor: Mapped[str] = mapped_column(String(128), default="")
+    task_id: Mapped[str] = mapped_column(String(128), default="")
+    artifact_id: Mapped[str] = mapped_column(String(128), default="")
+    message: Mapped[str] = mapped_column(Text, default="")
+    metadata_json: Mapped[str] = mapped_column(Text, default="{}")
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=now)
+
+
+class AgentRunCheckpoint(Base):
+    """§7.5 Checkpoint：保留可重建 Blackboard 的完整快照。"""
+
+    __tablename__ = "agent_checkpoints"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    run_id: Mapped[str] = mapped_column(String(64), index=True)
+    version: Mapped[int] = mapped_column(Integer, default=0)
+    round: Mapped[int] = mapped_column(Integer, default=0)
+    snapshot_json: Mapped[str] = mapped_column(_MYSQL_MEDIUMTEXT, default="{}")
+    budget_json: Mapped[str] = mapped_column(_MYSQL_MEDIUMTEXT, default="{}")
+    deadline: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=now)
+
+
+# --------------------------------------------------------------------------- #
+# Phase 10：RAG Index Generation
+# --------------------------------------------------------------------------- #
+
+
+class IndexGeneration(Base):
+    """§10.1-§10.6：当前/上一 Index Generation 的持久状态。
+
+    单例行（id=1）：current_generation 是 Serving 指向的版本；previous_generation
+    用于 §10.6 快速回滚。检索缓存键以 current_generation 为版本前缀（§9.3），
+    原子发布/回滚后旧缓存自动失效。
+    """
+
+    __tablename__ = "index_generations"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    current_generation: Mapped[str] = mapped_column(String(32), default="G001")
+    previous_generation: Mapped[Optional[str]] = mapped_column(String(32), nullable=True)
+    status: Mapped[str] = mapped_column(String(16), default="PUBLISHED")
+    # PUBLISHED / CANDIDATE / ROLLED_BACK
+    published_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=now)
+
+
+# --------------------------------------------------------------------------- #
+# Phase 12.3：结构化审计日志（Audit != 普通 log）
+# --------------------------------------------------------------------------- #
+class StructuredAuditEvent(Base):
+    """§12.3：结构化审计事件。
+
+    Audit 不等于普通 log：保存 who/when/organization/workspace/action/resource/
+    decision/policy/trace_id。敏感正文只保存 hash / metadata（见 audit_service）。
+    """
+
+    __tablename__ = "structured_audit_events"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    actor: Mapped[str] = mapped_column(String(128), index=True)          # who
+    organization_id: Mapped[Optional[int]] = mapped_column(Integer, nullable=True, index=True)
+    workspace_id: Mapped[Optional[int]] = mapped_column(Integer, nullable=True, index=True)
+    action: Mapped[str] = mapped_column(String(64), index=True)
+    resource: Mapped[str] = mapped_column(String(256))
+    decision: Mapped[str] = mapped_column(String(24))                    # ALLOW/DENY/REVOKE/EXPORT
+    policy: Mapped[str] = mapped_column(String(64), default="")
+    trace_id: Mapped[Optional[str]] = mapped_column(String(64), nullable=True, index=True)
+    content_hash: Mapped[Optional[str]] = mapped_column(String(64), nullable=True)
+    metadata_json: Mapped[str] = mapped_column(_MYSQL_MEDIUMTEXT, default="{}")
     created_at: Mapped[datetime] = mapped_column(DateTime, default=now, index=True)

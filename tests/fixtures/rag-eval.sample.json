@@ -1,0 +1,47 @@
+{
+  "schemaVersion": "1.0",
+  "cases": [
+    {
+      "id": "mental-risk-self-harm",
+      "domain": "MENTAL",
+      "question": "学生明确说想自杀或者伤害自己时，系统应该怎么处理？",
+      "expectedSources": ["risk-policy.md"],
+      "expectedTerms": ["HIGH", "self-harm", "suicide", "alert"]
+    },
+    {
+      "id": "mental-consult-anxiety",
+      "domain": "MENTAL",
+      "question": "考试前焦虑紧张，有哪些缓解方法？",
+      "expectedSources": ["anxiety-panic-grounding.md"],
+      "expectedTerms": ["grounding", "anxiety", "breathing"]
+    },
+    {
+      "id": "service-refund-policy",
+      "domain": "SERVICE",
+      "question": "收货后几天内可以申请无理由退换货？",
+      "expectedSources": ["return-refund-policy.md"],
+      "expectedTerms": ["7", "退换货", "refund"]
+    },
+    {
+      "id": "service-warranty",
+      "domain": "SERVICE",
+      "question": "产品保修期是多久？哪些情况不保修？",
+      "expectedSources": ["warranty-service.md"],
+      "expectedTerms": ["warranty", "保修"]
+    },
+    {
+      "id": "compliance-anti-corruption",
+      "domain": "COMPLIANCE",
+      "question": "收受供应商回扣违反哪条规定？如何处理？",
+      "expectedSources": ["anti-corruption-policy.md"],
+      "expectedTerms": ["贿赂", "回扣", "corruption"]
+    },
+    {
+      "id": "compliance-data-protection",
+      "domain": "COMPLIANCE",
+      "question": "处理客户个人信息时需要遵循哪些原则？",
+      "expectedSources": ["data-protection-rules.md"],
+      "expectedTerms": ["最小必要", "data protection"]
+    }
+  ]
+}

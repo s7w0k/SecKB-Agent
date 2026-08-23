@@ -29,6 +29,11 @@ def create_app() -> FastAPI:
             seed_data(db)
         finally:
             db.close()
+        # Phase 6（§6.1）：App-scoped 全局 ModelGateway 单例注入 app.state，
+        # 供所有 Service / Agent / AiClient 复用同一个实例。
+        from app.model_gateway import get_model_gateway
+
+        app.state.model_gateway = get_model_gateway(get_settings())
         worker = get_tool_queue_worker(get_settings())
         worker.start()
         app.state.tool_queue_worker = worker

@@ -20,6 +20,7 @@ from app.agents.autonomous import (
 from app.agents.coordinator import EventDrivenCoordinator
 from app.agents.events import AgentEvent, AgentEventType, CollaborationBlackboard
 from app.agents.registry import AgentRegistry
+from app.agents.response_artifacts import AGENT_SAFE_FALLBACK
 from app.agents.result import AgentRunResult, AgentStep
 from app.core.config import Settings
 from app.core.enums import INTENT_DOMAIN_MAP, IntentType, KnowledgeDomain, RiskLevel
@@ -53,37 +54,13 @@ class EventDrivenAgentRuntimeService:
         # model_gateway_enabled 关闭时保持旧路径兼容
         self.gateway = None
         if bool(getattr(settings, "model_gateway_enabled", False)):
-            from app.model_gateway import ModelConfig, ModelGateway, Operation
+            # Phase 6（§6.1/§6.2）：复用 App-scoped 全局 ModelGateway 单例，不在 Runtime 内 new。
+            from app.model_gateway import get_model_gateway
 
-            self.gateway = ModelGateway(settings=settings, db=db)
-            self._register_gateway_models()
+            self.gateway = get_model_gateway(settings=settings, db=db)
             self.ai = AiClient(settings, gateway=self.gateway, use_gateway=True)
 
-    def _register_gateway_models(self):
-        """把 settings 中的默认模型注册到共享 gateway。"""
-        from app.model_gateway import ModelConfig, Operation
-
-        settings = self.settings
-        provider = settings.ai_provider.lower()
-        model_id = (
-            settings.ollama_model if provider == "ollama"
-            else settings.openai_model if provider == "openai"
-            else "mock"
-        )
-        self.gateway.register_model(ModelConfig(
-            model_id=model_id,
-            provider="ollama" if provider == "ollama" else ("openai" if provider == "openai" else "mock"),
-            operation=Operation.CHAT,
-            base_url=settings.ollama_base_url if provider == "ollama" else settings.openai_base_url,
-            api_key=settings.openai_api_key if provider == "openai" else "",
-            max_context=int(getattr(settings, "agent_model_max_context", 32768)),
-            supports_streaming=True,
-            price_input_per_1k=0.0,
-            price_output_per_1k=0.0,
-        ))
-        self.gateway.register_fallback("chat", [model_id])
-
-    def run(self, user: UserAccount, session: ChatSession, original_input: str, model_input: str, scope=None) -> AgentRunResult:
+    def run(self, user: UserAccount, session: ChatSession, original_input: str, model_input: str, scope=None, *, run_id: str | None = None, deadline=None) -> AgentRunResult:
         # P5-05：route/agent 阶段 observation；其下的 retrieval / generation 自动挂为子节点
         from app.observability import get_observability_adapter
         from app.observability.privacy import capture_text
@@ -96,30 +73,9 @@ class EventDrivenAgentRuntimeService:
         with obs.span(
             name="agent.route",
             input=capture_text(original_input, enabled=self.settings.langfuse_capture_input, max_chars=300),
-            metadata={"multiDomain": self.settings.multi_domain_enabled},
+            metadata={"multiDomain": self.settings.multi_domain_enabled, "runId": run_id},
         ) as route_span:
-            services = AgentRuntimeServices(
-                db=self.db,
-                settings=self.settings,
-                user=user,
-                session=session,
-                ai=self.ai,
-                model_registry=self.model_registry,
-                memory=self.memory,
-                private_memory=self.private_memory,
-                knowledge=self.knowledge,
-                retrieval=retrieval_service,
-                scope=scope,
-                gateway=self.gateway,
-            )
-            coordinator_agent = CoordinatorAgent(services)
-            agents = [
-                UnderstandingAgent(services),
-                SafetyAgent(services),
-                ContextAgent(services),
-                ResponseAgent(services),
-                ComplianceAgent(services),
-            ]
+            services, coordinator_agent, agents = self._build_agents(user, session, scope, retrieval_service)
             board = CollaborationBlackboard(
                 turn_id=uuid.uuid4().hex,
                 user_id=user.id,
@@ -134,8 +90,7 @@ class EventDrivenAgentRuntimeService:
                     message="user turn published to shared task board",
                 )
             )
-            registry = AgentRegistry(agents)
-            final_board = EventDrivenCoordinator(registry, coordinator_agent, self.settings).run(board)
+            final_board = self._coordinate(services, coordinator_agent, agents, board, run_id=run_id, deadline=deadline, scope=scope)
             result = self._to_result(final_board, user)
             route_span.update(metadata={
                 "domain": result.domain.value if result.domain is not None else None,
@@ -148,6 +103,99 @@ class EventDrivenAgentRuntimeService:
                 "complianceApproved": result.compliance_review_approved,
             })
             return result
+
+    def resume(self, user: UserAccount, session: ChatSession, run_id: str, scope=None) -> AgentRunResult:
+        """§7.6 Runtime Resume：按 run_id 恢复 blackboard 后继续，而不是从头重新执行。"""
+        from app.observability import get_observability_adapter
+        from app.observability.privacy import capture_text
+        from app.services.retrieval_service import RetrievalService
+
+        from app.agents.durable import AgentRunRepository
+
+        repository = AgentRunRepository(self.db, self.settings)
+        run, board = repository.restore(run_id)
+        if run is None or board is None:
+            raise ValueError(f"no resumable durable agent run: {run_id}")
+        retrieval_service = RetrievalService(self.db, self.settings) if scope is not None else None
+        obs = get_observability_adapter(self.settings)
+        with obs.span(
+            name="agent.resume",
+            input=capture_text(board.user_input, enabled=self.settings.langfuse_capture_input, max_chars=300),
+            metadata={"runId": run_id, "resumedRound": run.current_round},
+        ) as resume_span:
+            services, coordinator_agent, agents = self._build_agents(user, session, scope, retrieval_service)
+            final_board = self._coordinate(
+                services, coordinator_agent, agents, board,
+                run_id=run_id, scope=scope, resumed=True,
+            )
+            result = self._to_result(final_board, user)
+            resume_span.update(metadata={
+                "domain": result.domain.value if result.domain is not None else None,
+                "intent": result.intent.value,
+                "riskLevel": result.risk_level.value,
+                "resumed": True,
+            })
+            return result
+
+    def _build_agents(self, user: UserAccount, session: ChatSession, scope, retrieval_service):
+        services = AgentRuntimeServices(
+            db=self.db,
+            settings=self.settings,
+            user=user,
+            session=session,
+            ai=self.ai,
+            model_registry=self.model_registry,
+            memory=self.memory,
+            private_memory=self.private_memory,
+            knowledge=self.knowledge,
+            retrieval=retrieval_service,
+            scope=scope,
+            gateway=self.gateway,
+        )
+        coordinator_agent = CoordinatorAgent(services)
+        agents = [
+            UnderstandingAgent(services),
+            SafetyAgent(services),
+            ContextAgent(services),
+            ResponseAgent(services),
+            ComplianceAgent(services),
+        ]
+        return services, coordinator_agent, agents
+
+    def _coordinate(self, services, coordinator_agent, agents, board, *, run_id=None, deadline=None, scope=None, resumed=False):
+        """执行协调器；durable 模式下在每个 Agent 行动后 checkpoint（§7.5）。"""
+        registry = AgentRegistry(agents)
+        repository = None
+        checkpoint_cb = None
+        if run_id:
+            from app.agents.durable import AgentRunRepository, AgentRunStatus
+
+            repository = AgentRunRepository(self.db, self.settings)
+            if not resumed:
+                repository.start(
+                    run_id,
+                    session_id=board.session_id,
+                    organization_id=getattr(scope, "organization_id", None) if scope else None,
+                    workspace_id=getattr(scope, "workspace_id", None) if scope else None,
+                    user_id=board.user_id,
+                    deadline=deadline,
+                )
+            checkpoint_cb = lambda b, rnd: repository.snapshot(run_id, b, rnd)
+
+        final_board = EventDrivenCoordinator(registry, coordinator_agent, self.settings).run(
+            board, checkpoint_cb=checkpoint_cb
+        )
+        if repository is not None:
+            run_row, _ = repository.restore(run_id)
+            repository.snapshot(
+                run_id, final_board,
+                int(run_row.current_round) if run_row is not None else 0,
+            )
+            if final_board.final_artifact_id:
+                repository.mark_status(run_id, AgentRunStatus.COMPLETED.value, completed=True)
+            else:
+                repository.mark_status(run_id, AgentRunStatus.FAILED_RETRYABLE.value)
+        return final_board
 
     def _to_result(self, board: CollaborationBlackboard, user: UserAccount) -> AgentRunResult:
         intent = self._select_intent(board)
@@ -165,6 +213,15 @@ class EventDrivenAgentRuntimeService:
             response_messages = accepted.payload.get("messages") or []
         if not response_messages:
             response_messages = self._fallback_messages(intent, risk, user.display_name, board.model_input)
+        # Phase 3（§3.10）：用户最终看到的文本 = 真正被采纳的 ResponseArtifact.text。
+        # 无采纳（含 revision 预算耗尽 / 未通过审核）→ 安全兜底，绝不外泄未审核文本。
+        final_artifact = board.accepted_artifact()
+        if final_artifact is not None:
+            final_text = final_artifact.payload.get("text")
+        elif not board.final_artifact_id:
+            final_text = AGENT_SAFE_FALLBACK
+        else:
+            final_text = None
         assessment = risk_artifact.payload.get("assessment") if risk_artifact else None
         # P3 域路由：优先从 route artifact 读取路由信息
         intent_artifact = board.latest_artifact("intent")
@@ -195,6 +252,7 @@ class EventDrivenAgentRuntimeService:
             degraded_components=degraded,
             domain_assessment=domain_assessment,
             compliance_review_approved=compliance_approved,
+            final_text=final_text,
         )
 
     def _select_domain_assessment(self, risk_artifact: AgentArtifact | None):
