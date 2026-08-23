@@ -2,7 +2,7 @@ from pathlib import Path
 
 from sqlalchemy.orm import Session
 
-from app.core.config import get_settings
+from app.core.config import Settings, get_settings
 from app.core.database import Base, engine
 from app.core.enums import KnowledgeChunkStatus, KnowledgeDomain
 from app.core.security import hash_password
@@ -10,11 +10,35 @@ from app.models.entities import UserAccount
 from app.services.knowledge import KnowledgeService
 
 
+def is_production(settings: Settings | None = None) -> bool:
+    """Phase 8（§8C）：部署环境是否为生产。未提供 settings 时读取全局默认。"""
+    settings = settings or get_settings()
+    return getattr(settings, "app_env", "dev") == "production"
+
+
+def run_production_startup_validation(settings: Settings | None = None) -> object:
+    """Phase 8（§8B）：生产环境启动门禁——severe 失败则 raise 阻止进程启动。
+
+    必须在「启动 worker / 启动 HTTP serving」之前调用（见 app.main.startup）。
+    """
+    from app.deploy.startup_validation import ProductionStartupValidator
+
+    return ProductionStartupValidator().run_or_raise(settings or get_settings())
+
+
 def create_schema() -> None:
+    # Phase 8（§8C）：生产禁止自动 create_schema（schema 由 Alembic Migration Job 管理）。
+    if is_production():
+        raise RuntimeError(
+            "create_schema() is forbidden in production; schema must come from Alembic migration job"
+        )
     Base.metadata.create_all(bind=engine)
 
 
 def seed_data(db: Session) -> None:
+    # Phase 8（§8C）：生产禁止自动建默认账号与导入示例知识。
+    if is_production():
+        raise RuntimeError("seed_data() is forbidden in production: no default accounts / demo knowledge")
     if db.query(UserAccount).count() == 0:
         admin = UserAccount(
             username="admin",

@@ -6,6 +6,16 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
+    # Phase 8（§8B-8E）：部署环境与运行模式。
+    # app_env: dev / test / production；production 时禁止 create_schema/seed、强制 Startup Validator。
+    app_env: str = "dev"
+    # run_mode: api / tool-worker / index-worker（§8E 生产 Worker 分离）。
+    run_mode: str = "api"
+    # 生产启动门禁字段（§8B ProductionStartupValidator 校验项）。
+    default_account_disabled: bool = False
+    secret_provider_configured: bool = False
+    production_db_configured: bool = False
+
     agent_framework: str = "event_driven_multi_agent"
     agent_max_rounds: int = 8
     agent_max_claims_per_round: int = 4

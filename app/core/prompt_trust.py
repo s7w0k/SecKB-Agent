@@ -376,6 +376,71 @@ def prompt_is_separated(messages: list[dict]) -> bool:
 
 
 # --------------------------------------------------------------------------- #
+# Phase 8（§8A）：检索证据 明细化 + 信任分区 + 受信回复 prompt。
+# --------------------------------------------------------------------------- #
+@dataclass
+class EvidencePartition:
+    """Phase 8（§8A Step 3/4）：检索证据的信任分区结果。
+
+    - kept：通过 sanitize（allow / warn）的可引用资料（数据 + 风险元数据）。
+    - quarantined：BLOCK（间接注入 / 高破坏性指令）被排除的 evidence_id。
+    - trust_scores：source_key -> risk_score（0-100）。
+    """
+
+    kept: list = field(default_factory=list)          # [source_key, content, risk, trace]
+    quarantined: list = field(default_factory=list)   # list[source_key]
+    trust_scores: dict = field(default_factory=dict)  # source_key -> risk
+
+    @property
+    def quarantined_evidence_ids(self) -> list[str]:
+        return list(self.quarantined)
+
+    @property
+    def evidence_ids(self) -> list[str]:
+        return [k for k, *_ in self.kept]
+
+
+def partition_contexts(contexts: list[tuple[str, str]]) -> EvidencePartition:
+    """Phase 8（§8A Step 3）：sanitize 每个检索 chunk。
+
+    BLOCK（间接注入 / 提示诱骗）→ quarantine（排除，不进 prompt）；
+    warn / allow → 保留为数据并附 risk 元数据（不删除文本）。
+    """
+    kept: list = []
+    quarantined: list = []
+    trust_scores: dict = {}
+    for source_key, content in contexts:
+        scan = sanitize_context(content, source_key=source_key)
+        if scan.action == "block":
+            quarantined.append(source_key)
+            continue
+        kept.append([source_key, content, scan.risk_score, scan.trace])
+        trust_scores[source_key] = round(scan.risk_score, 2)
+    return EvidencePartition(kept=kept, quarantined=quarantined, trust_scores=trust_scores)
+
+
+def build_trusted_answer_prompt(
+    policy: str,
+    user_input: str,
+    contexts: list[tuple[str, str]] | None = None,
+) -> tuple[list[dict], EvidencePartition]:
+    """Phase 8（§8A Step 2-4）：构造受信边界回复 prompt。
+
+    检索上下文作为独立 tool 消息（绝不拼入 system）；BLOCK 证据被隔离，不进 prompt，
+    warn 证据以数据形式保留。返回 ``(messages, partition)``，partition 记录
+    evidence_ids / trust_scores / quarantined_evidence_ids 供 Artifact 落库。
+    """
+    partition = partition_contexts(contexts) if contexts else EvidencePartition()
+    kept_contents = [item[1] for item in partition.kept]
+    messages = build_trust_boundary_prompt(
+        system_policy=policy,
+        user_input=user_input,
+        retrieved_context=kept_contents,
+    )
+    return messages, partition
+
+
+# --------------------------------------------------------------------------- #
 # 兼容层：提供给 risk_control.scan_prompt_injection 的旧版字段映射。
 # --------------------------------------------------------------------------- #
 @dataclass

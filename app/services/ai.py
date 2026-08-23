@@ -111,6 +111,40 @@ class PromptTemplates:
         return PromptTemplates.answer_system_prompt(intent, risk, context, display_name, skill_context)
 
     @staticmethod
+    def trusted_answer_prompt(
+        policy: str,
+        user_input: str,
+        retrieved_contexts: list[tuple[str, str]] | None = None,
+    ) -> tuple[list[AiMessage], dict]:
+        """Phase 8（§8A）：Trust Boundary 回复 Prompt。
+
+        检索上下文作为独立 tool 消息（SYSTEM=平台策略 / TOOL=检索资料·不可信 / USER=用户输入），
+        BLOCK 证据被隔离。替代把 RAG 拼进 system 的旧式 ``answer_system_prompt`` 主链。
+        返回 ``(messages, evidence_meta)``。
+        """
+        from app.core.prompt_trust import (
+            build_trust_boundary_prompt,
+            partition_contexts,
+        )
+
+        if retrieved_contexts is None:
+            retrieved_contexts = []
+        partition = partition_contexts(list(retrieved_contexts))
+        kept_contents = [item[1] for item in partition.kept]
+        raw = build_trust_boundary_prompt(
+            system_policy=policy,
+            user_input=user_input,
+            retrieved_context=kept_contents if kept_contents else None,
+        )
+        messages = [AiMessage(role=m["role"], content=m["content"]) for m in raw]
+        meta = {
+            "evidence_ids": partition.evidence_ids,
+            "trust_scores": partition.trust_scores,
+            "quarantined_evidence_ids": partition.quarantined_evidence_ids,
+        }
+        return messages, meta
+
+    @staticmethod
     def _service_prompt(risk: RiskLevel, context: str, display_name: str, skill_context: str) -> AiMessage:
         escalation_rule = ""
         if risk == RiskLevel.HIGH:

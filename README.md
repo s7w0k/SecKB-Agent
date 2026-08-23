@@ -613,6 +613,16 @@ AI_PROVIDER=mock KNOWLEDGE_VECTOR_ENABLED=false python -m unittest discover -s t
 - §7.4 Step 8：`rollback_drill()`——Publish candidate → 故障 → Rollback → 恢复上一 Generation 且 settings 同步回退（缓存键随之失效）。
 - 用例位于 `tests/test_p7_rag_serving_closure.py`：embedding 生产守卫、数据面完整性、端到端不发布、ServingIndexBackend 接口/原子激活/回滚演练/GC 守卫。
 
+### Phase 8（剩余 8 问题）：Prompt Trust 与生产部署接线
+
+- §8A：Trust Boundary 回复 Prompt——`PromptTemplates.trusted_answer_prompt()`（`app/services/ai.py`）与 `build_trusted_answer_prompt()/partition_contexts()`（`app/core/prompt_trust.py`）：检索证据作为独立 tool 消息（SYSTEM=平台策略 / TOOL=检索资料·不可信 / USER=用户输入），BLOCK 证据被隔离（quarantined）不进 prompt，记录 `evidence_ids/trust_scores/quarantined_evidence_ids`。
+- §8B：`ProductionStartupValidator().run_or_raise()`（`app/deploy/startup_validation.py`）在 `app/main.startup()` 生产环境先于 worker/HTTP serving 执行，severe 失败 raise 阻止启动。
+- §8C：`app/core/bootstrap.py` 的 `create_schema()/seed_data()` 生产禁止（schema 走 Alembic Migration Job、不建默认账号）；`is_production()` 依据 `app_env`。
+- §8D：`/health/live`（只判进程存活、不依赖 DB）与 `/health/ready`（DB / Redis 关键模式 / 必需迁移 / Startup Validation，不可用返回 503）——`app/core/probes.py` + `app/api/health.py`，与 deploy/k8s/manifests.yaml 对齐。
+- §8E：`run_mode`（api / tool-worker / index-worker）门控 tool queue worker 启动；API 部署不再无条件拉起 worker。
+- §8F：CI Release Gate（`app/ci/release_gate.py`）保留 L0/L1 hard gate，baseline 链路既有。
+- 用例位于 `tests/test_p8_production_closure.py`：信任边界隔离、启动门禁、schema/seed 生产隔离、health 探针状态码、run_mode 门控、Release Gate 硬门槛。
+
 ### Phase 10：RAG Index Generation
 
 - §10.1-§10.3：`IndexGenerationManager`（`app/services/index_generation.py`）以单例行 `index_generations` 持久化 current/previous generation，作为候选索引构建状态源。
