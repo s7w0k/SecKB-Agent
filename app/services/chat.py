@@ -112,18 +112,13 @@ class ChatService:
                 blocked = False
                 block_reasons: list[str] = []
                 decisions: list[OutputDecision] = []
-                if outcome.final_text:
-                    # Phase 3（§3.8/3.10）：ChatService 不再负责最终生成 —— 直接播放
-                    # Safety / Compliance 已审核采纳的 ResponseArtifact.text，仍经 DLP 缓冲做末层防线。
-                    decisions = [buf.push(outcome.final_text), buf.flush()]
-                else:
-                    # 回退：无已采纳文本（旧链路/异常）时流式生成并经同一缓冲播放。
-                    async for token in self.ai.stream(outcome.response_messages, operation="response-generation"):
-                        decisions.append(buf.push(token))
-                        if decisions[-1].action == GateAction.BLOCK:
-                            break
-                    if not decisions or decisions[-1].action != GateAction.BLOCK:
-                        decisions.append(buf.flush())
+                # Phase 1（§1.2）：强不变量 "No accepted ResponseArtifact = No model-generated user output"。
+                # ChatService 绝不承担回答生成职责；无已采纳文本（异常/空/未过审）时只发射确定性安全模板，
+                # 不再调用 self.ai.stream 做未审核生成旁路。
+                from app.agents.response_artifacts import AGENT_SAFE_FALLBACK
+
+                text = outcome.final_text or AGENT_SAFE_FALLBACK
+                decisions = [buf.push(text), buf.flush()]
                 for decision in decisions:
                     if decision.action == GateAction.BLOCK:
                         blocked = True

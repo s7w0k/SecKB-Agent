@@ -218,6 +218,42 @@ class DistributedRateLimiter:
             return self._local.allow()
 
 
+class _JobLeaseHeartbeat:
+    """剩余 8 问题计划 · Phase 5（§5.4 Step 2）：长任务执行期间的持续续租心跳。
+
+    在 ToolQueueWorker._run_job 提交到 ThreadPoolExecutor 后启动一个轻量 daemon 线程，
+    周期调用 owner 的原子续租（owner 校验）。任一续租失败即置 lost=True，
+    主执行线程在结果提交前据此决定不写 SUCCESS（避免重复副作用）。
+    """
+
+    def __init__(self, owner: "ToolQueueWorker", job_id: int):
+        self._owner = owner
+        self._job_id = job_id
+        self._stop = threading.Event()
+        self.lost = False
+        self._thread: threading.Thread | None = None
+
+    def start(self) -> None:
+        self._thread = threading.Thread(
+            target=self._run, name=f"tool-lease-heartbeat-{self._job_id}", daemon=True
+        )
+        self._thread.start()
+
+    def stop(self) -> None:
+        self._stop.set()
+        if self._thread is not None:
+            self._thread.join(timeout=self._owner.heartbeat_interval() + 1.0)
+
+    def _run(self) -> None:
+        interval = self._owner.heartbeat_interval()
+        while not self._stop.is_set():
+            if self._stop.wait(interval):
+                break
+            if not self._owner._heartbeat_lease(self._job_id):
+                self.lost = True
+                break
+
+
 class ToolQueueWorker:
     def __init__(self, settings: Settings, *, session_factory=None, worker_id: str | None = None,
                  redis_client=None):
@@ -314,6 +350,7 @@ class ToolQueueWorker:
 
     def _run_job(self, job_id: int) -> None:
         db = self._session_factory()
+        heartbeat: _JobLeaseHeartbeat | None = None
         try:
             job = db.get(ToolJob, job_id)
             if job is None or job.status != ToolJobStatus.RUNNING.value:
@@ -337,11 +374,20 @@ class ToolQueueWorker:
                     return
             job.attempts += 1
             job.updated_at = datetime.utcnow()
-            # §8.4：执行前心跳续租。
+            # §8.4 + Phase 5：执行前一次续租，随后开启后台心跳线程持续续租。
             self._extend_lease(db, job)
             db.add(job)
             db.commit()
-            self._execute(db, job)
+            heartbeat = _JobLeaseHeartbeat(owner=self, job_id=job.id)
+            heartbeat.start()
+            try:
+                self._execute(db, job)
+            finally:
+                heartbeat.stop()
+            # Phase 5（§5.4）：提交结果前再次确认 lease，避免 worker 已失去租约仍写 SUCCESS。
+            if heartbeat.lost:
+                self._requeue(db, job, "执行期间失去租约，交由新 worker 接管", 2.0)
+                return
             job.status = ToolJobStatus.SUCCESS.value
             job.last_error = ""
             job.updated_at = datetime.utcnow()
@@ -351,6 +397,15 @@ class ToolQueueWorker:
             db.add(job)
             db.commit()
         except Exception as exc:
+            if heartbeat is not None and heartbeat.lost:
+                # 已失去租约：不写 DEAD/FAILED（可能有新 worker 在处理），交还为新 worker 兜底。
+                try:
+                    lost_job = db.get(ToolJob, job_id)
+                    if lost_job is not None:
+                        self._requeue(db, lost_job, "执行期间失去租约，交由新 worker 接管", 2.0)
+                except Exception:
+                    logger.exception("Failed to requeue lost-lease job")
+                return
             try:
                 self._fail_or_dead_letter(db, job_id, exc)
             except Exception:
@@ -371,6 +426,42 @@ class ToolQueueWorker:
         job.lease_owner = self.worker_id
         job.lease_deadline = now + timedelta(seconds=lease_seconds)
         job.heartbeat_at = now
+
+    # --- 剩余 8 问题计划 · Phase 5（§5.4 Step 3）：持续心跳续租 ---
+    def heartbeat_interval(self) -> float:
+        """心跳间隔。原则 heartbeat_interval <= lease_seconds / 3。"""
+        lease_seconds = max(1, int(getattr(self.settings, "tool_queue_lease_seconds", 300)))
+        configured = max(1.0, float(getattr(self.settings, "tool_queue_heartbeat_interval_seconds", 60)))
+        return min(configured, lease_seconds / 3.0)
+
+    def _heartbeat_lease(self, job_id: int) -> bool:
+        """原子续租：仅当本 worker 仍是 lease_owner 才顺延，否则返回 False（已失去租约）。
+
+        SQL 语义：UPDATE tool_jobs SET lease_deadline=?, heartbeat_at=? WHERE id=? AND
+        status=RUNNING AND lease_owner=current_worker。更新行数为 0 即说明租约已被
+        其他 worker 接管，必须立即停止后续 commit。
+        """
+        db = self._session_factory()
+        try:
+            now = datetime.utcnow()
+            lease_seconds = max(1, int(getattr(self.settings, "tool_queue_lease_seconds", 300)))
+            result = db.execute(
+                update(ToolJob)
+                .where(
+                    ToolJob.id == job_id,
+                    ToolJob.status == ToolJobStatus.RUNNING.value,
+                    ToolJob.lease_owner == self.worker_id,
+                )
+                .values(
+                    lease_deadline=now + timedelta(seconds=lease_seconds),
+                    heartbeat_at=now,
+                    updated_at=now,
+                )
+            )
+            db.commit()
+            return result.rowcount > 0
+        finally:
+            db.close()
 
     def _execute(self, db: Session, job: ToolJob) -> None:
         report = db.get(PsychologicalReport, job.report_id)

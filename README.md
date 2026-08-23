@@ -597,6 +597,22 @@ AI_PROVIDER=mock KNOWLEDGE_VECTOR_ENABLED=false python -m unittest discover -s t
 - §9.7：预算驱动降级路径 `degraded_no_rerank` / `degraded_fast_path` / `degraded_budget_out`，超时不回退全库扫描。
 - 用例位于 `tests/test_phase9_retrieval_cache_budget.py`：预算分档、缓存引用/补水、缓存键含 generation、负缓存、降级路径、L2 共享引用。
 
+#### Phase 6（剩余 8 问题）：RetrievalCache 生产接线
+
+- §6.4 Step 1/2：`get_retrieval_cache(settings)`（`app/services/retrieval_cache.py`）——进程级 singleton（仿 ModelGateway），`redis_cache_enabled=True` 时注入 `RedisCacheBackend`（L2 Redis Adapter，仅暴露 `get/set/delete/scan_by_tag/health`，不直接绑定 redis-py），Redis 不可用自动 fail-open 回退 L1。
+- §6.4 Step 3/4：`RetrievalService(db, settings, cache=shared)` 注入共享 cache；`EventDrivenAgentRuntimeService.run()/resume()` 每请求新建 RetrievalService 但复用 App-scoped 共享 cache。
+- §6.4 Step 5：`_rehydrate(refs, scope)` 重补水时对每个 chunk 二次校验 workspace/organization/classification/status/ACL，权限不匹配判定缓存陈旧触发重检索（不越权泄漏正文）。
+- §6.4 Step 6：`invalidate_tag` 同步清除 L2 Redis 键（紧急权限撤销 / Index publish 跨 Pod 立即失效）；缓存键已含 acl_version + index_generation。
+- 用例位于 `tests/test_p6_retrieval_cache_production.py`：singleton、Redis Backend 语义、共享 cache 命中、L2 跨 Pod 命中、rehydrate Scope 校验、invalidate_tag → L2。
+
+### Phase 7（剩余 8 问题）：RAG Index Generation 真实 Serving 闭环
+
+- §7.4 Step 1：`ServingIndexBackend`（`app/services/index_generation.py`）——真实 Serving 数据面统一接口（build / validate / activate / rollback / delete_generation）；`IndexGenerationServingBackend` 基于 `IndexGenerationManager` 原子激活并同步 `settings.index_generation`（驱动缓存键失效）。
+- §7.4 Step 4：`index_pipeline.process_job` 的 INDEXED 必须依赖真实数据面完成——`_pending_embeddings()` 校验全部 ACTIVE chunk 已 `EMBEDDED` 且有向量/embedding_hash，否则 raise → 重试/死信且不发布该候选（保留上一 Generation serve）。
+- §7.4 Step 7：`_default_embed` 生产禁止 hash embedding——真实 embedding 失败时在 `allow_deterministic_embedding=False` 下直接 raise `EmbeddeddingGuardError`，不再静默回退确定性向量。
+- §7.4 Step 8：`rollback_drill()`——Publish candidate → 故障 → Rollback → 恢复上一 Generation 且 settings 同步回退（缓存键随之失效）。
+- 用例位于 `tests/test_p7_rag_serving_closure.py`：embedding 生产守卫、数据面完整性、端到端不发布、ServingIndexBackend 接口/原子激活/回滚演练/GC 守卫。
+
 ### Phase 10：RAG Index Generation
 
 - §10.1-§10.3：`IndexGenerationManager`（`app/services/index_generation.py`）以单例行 `index_generations` 持久化 current/previous generation，作为候选索引构建状态源。

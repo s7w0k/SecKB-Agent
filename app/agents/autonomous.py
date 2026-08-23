@@ -73,6 +73,8 @@ class AgentRuntimeServices:
     scope: Any = None
     # v2 阶段 4（9.1）：共享 ModelGateway（model_gateway_enabled 时注入）
     gateway: Any = None
+    # 剩余 8 问题计划 · Phase 4（§4.4）：本次 Agent 执行的持久化身份
+    run_id: str | None = None
 
 
 class AgentPrivateMemory:
@@ -107,6 +109,25 @@ class BaseAutonomousAgent:
         # v2 阶段 4（9.1）：主链路经共享 ModelGateway（model_gateway_enabled 时复用）
         gateway = getattr(self.services, "gateway", None)
         return self.services.model_registry.client_for(self.name, gateway=gateway)
+
+    def model_context(self, **overrides) -> "ModelExecutionContext":
+        """剩余 8 问题计划 · Phase 4（§4.4）：为本次模型调用构造归因上下文。
+
+        AgentRuntimeServices 统一提供 Factory，避免每个 Agent 各拼 scope/run_id/trace。
+        """
+        from app.model_gateway import ModelExecutionContext
+
+        scope = self.services.scope
+        return ModelExecutionContext(
+            run_id=getattr(self.services, "run_id", None),
+            organization_id=scope.organization_id if scope else None,
+            workspace_id=scope.workspace_id if scope else None,
+            user_id=self.services.user.id,
+            agent=self.name,
+            risk=(self.services.scope.risk_level if scope else None) or "LOW",
+            capability=self.profile.model_profile or "",
+            **overrides,
+        )
 
     def private_memory(self) -> list[AiMessage]:
         return self.services.private_memory.load(self.name, self.services.session.public_id)
@@ -398,8 +419,12 @@ class SafetyAgent(BaseAutonomousAgent):
         risk = _risk_level(board)
         domain = _domain_from_board(board) if self.services.settings.multi_domain_enabled else None
         # Phase 3（§3.3/3.5）：审核对象是 ResponseArtifact.text，而非 prompt messages。
-        text = response.payload.get("text") or _messages_to_text(response.payload.get("messages", []))
-        review = artifact_safety_review(text, risk, domain)
+        raw_text = response.payload.get("text")
+        if not isinstance(raw_text, str) or not raw_text.strip():
+            # Phase 1（§1.2 Step 2）：text 缺失 = Reject，禁止回退审核 prompt。
+            review = _missing_text_review("safety")
+        else:
+            review = artifact_safety_review(raw_text, risk, domain)
         approved = bool(review["approved"])
         reason = str(review["reason"])
         payload = {
@@ -764,9 +789,13 @@ class ComplianceAgent(BaseAutonomousAgent):
 
     def _review_compliance(self, task: AgentTask, board: CollaborationBlackboard, response: AgentArtifact) -> AgentTurnResult:
         # Phase 3（§3.3/3.6）：审核对象是 ResponseArtifact.text，而非 prompt messages。
-        text = response.payload.get("text") or _messages_to_text(response.payload.get("messages", []))
         risk = _risk_level(board)
-        review = artifact_compliance_review(text, risk)
+        raw_text = response.payload.get("text")
+        if not isinstance(raw_text, str) or not raw_text.strip():
+            # Phase 1（§1.2 Step 2）：text 缺失 = Reject，禁止回退审核 prompt。
+            review = _missing_text_review("compliance")
+        else:
+            review = artifact_compliance_review(raw_text, risk)
         approved = bool(review["approved"])
         reason = str(review["reason"])
 
@@ -883,6 +912,27 @@ def _messages_to_text(messages: list[Any] | None) -> str:
     if not messages:
         return ""
     return "\n".join(getattr(message, "content", str(message)) for message in messages)
+
+
+def _missing_text_review(reviewer: str) -> dict[str, Any]:
+    """Phase 1（§1.2 Step 2）：ResponseArtifact.text 缺失/为空 = 审核 Reject。
+
+    强不变量 "ResponseArtifact.text missing = Safety Reject"：不回退审核 prompt messages，
+    只返回确定性拒绝审核，由协调器回落到安全兜底。
+    """
+    if reviewer == "compliance":
+        return {
+            "approved": False,
+            "reason": "ResponseArtifact.text missing/empty — no model-generated answer to review",
+            "kind": "compliance_critique",
+            "violations": ["missing_generation"],
+        }
+    return {
+        "approved": False,
+        "reason": "ResponseArtifact.text missing/empty — generation required before safety review",
+        "kind": "critique",
+        "risk_level": "",
+    }
 
 
 def _risk_level(board: CollaborationBlackboard) -> RiskLevel:

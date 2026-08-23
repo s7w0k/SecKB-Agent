@@ -85,18 +85,25 @@ class OutputSecurityBuffer:
         return self._drain()
 
     def flush(self) -> OutputDecision:
-        """扫描并释放全部剩余内容，防止结尾绕过。"""
+        """扫描并释放全部剩余内容，防止结尾绕过（§2.4 Phase 2 修复）。
+
+        - ALLOW  -> 尾部完整输出
+        - REDACT -> 尾部脱敏输出
+        - BLOCK  -> 尾部 0 字符输出（任何敏感字符不离开服务器）
+        """
         if self._blocked or not self._pending:
             return OutputDecision(GateAction.ALLOW, "")
-        decision: GateDecision = self.security.check_output_window(self._pending, domain=self.domain)
+        # 先保存待扫描尾部，再清空缓冲，避免清空后读到的 pending 为空导致尾部丢失。
+        pending = self._pending
+        decision = self.security.check_output_window(pending, domain=self.domain)
         self._pending = ""
         if decision.action == GateAction.BLOCK:
             self._blocked = True
             return OutputDecision(GateAction.BLOCK, "", reasons=list(decision.reasons))
         if decision.action == GateAction.REDACT:
-            redacted = decision.redacted_content or self._pending or ""
+            redacted = decision.redacted_content or ""
             return OutputDecision(GateAction.REDACT, redacted)
-        return OutputDecision(GateAction.ALLOW, self._pending or "")
+        return OutputDecision(GateAction.ALLOW, pending)
 
     def _drain(self) -> OutputDecision:
         """在单次 push 内尽量多释放，聚合为一次决策；BLOCK 则丢弃全部并终止。"""

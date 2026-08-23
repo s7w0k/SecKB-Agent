@@ -33,6 +33,8 @@ class ReconciliationTests(unittest.TestCase):
 
         self.settings = get_settings()
         self.settings.database_url = "sqlite:///:memory:"
+        # test/dev 允许确定性 embedding（生产默认关闭，Phase 7 §7.4 Step 7 守卫）
+        self.settings.allow_deterministic_embedding = True
         self.engine = create_engine("sqlite:///:memory:")
         Base.metadata.create_all(bind=self.engine)
         self.db = SessionLocal()

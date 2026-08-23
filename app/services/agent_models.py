@@ -48,8 +48,9 @@ class AgentModelRegistry:
             settings.openai_model = profile.model
         else:
             settings.ollama_model = profile.model
-        # v2 阶段 4（9.1）：主链路经 ModelGateway；共享 gateway 传入时复用
-        return AiClient(settings, gateway=gateway)
+        # v2 阶段 4（9.1）：主链路经 ModelGateway；共享 gateway 传入时复用。
+        # 剩余 8 问题计划 · Phase 4：把 agent 名绑定到 client，作为 usage 归因基准。
+        return AiClient(settings, gateway=gateway, agent=agent_name)
 
     def _setting(self, name: str, fallback: Any) -> Any:
         value = getattr(self.settings, name, None)

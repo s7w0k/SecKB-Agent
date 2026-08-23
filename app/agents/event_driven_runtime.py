@@ -30,6 +30,7 @@ from app.services.agent_models import AgentModelRegistry
 from app.services.ai import AiClient, PromptTemplates
 from app.services.knowledge import KnowledgeService, SearchResult
 from app.services.memory import RedisShortTermMemoryStore
+from app.services.retrieval_cache import get_retrieval_cache as get_shared_retrieval_cache
 
 
 class EventDrivenAgentRuntimeService:
@@ -67,7 +68,11 @@ class EventDrivenAgentRuntimeService:
         from app.services.retrieval_service import RetrievalService
 
         # v2 阶段 3（8.4）：注入统一检索服务（Scope 感知）；未提供 scope 时回退 None（旧路径兼容）
-        retrieval_service = RetrievalService(self.db, self.settings) if scope is not None else None
+        # Phase 6（§6.4 Step 3/4）：复用 App-scoped 共享缓存，请求级仅新建 RetrievalService。
+        retrieval_service = (
+            RetrievalService(self.db, self.settings, cache=get_shared_retrieval_cache(self.settings))
+            if scope is not None else None
+        )
 
         obs = get_observability_adapter(self.settings)
         with obs.span(
@@ -75,7 +80,7 @@ class EventDrivenAgentRuntimeService:
             input=capture_text(original_input, enabled=self.settings.langfuse_capture_input, max_chars=300),
             metadata={"multiDomain": self.settings.multi_domain_enabled, "runId": run_id},
         ) as route_span:
-            services, coordinator_agent, agents = self._build_agents(user, session, scope, retrieval_service)
+            services, coordinator_agent, agents = self._build_agents(user, session, scope, retrieval_service, run_id=run_id)
             board = CollaborationBlackboard(
                 turn_id=uuid.uuid4().hex,
                 user_id=user.id,
@@ -116,14 +121,20 @@ class EventDrivenAgentRuntimeService:
         run, board = repository.restore(run_id)
         if run is None or board is None:
             raise ValueError(f"no resumable durable agent run: {run_id}")
-        retrieval_service = RetrievalService(self.db, self.settings) if scope is not None else None
+        # Phase 6（§6.4 Step 4）：resume 也复用 App-scoped 共享缓存。
+        retrieval_service = (
+            RetrievalService(self.db, self.settings, cache=get_shared_retrieval_cache(self.settings))
+            if scope is not None else None
+        )
         obs = get_observability_adapter(self.settings)
         with obs.span(
             name="agent.resume",
             input=capture_text(board.user_input, enabled=self.settings.langfuse_capture_input, max_chars=300),
             metadata={"runId": run_id, "resumedRound": run.current_round},
         ) as resume_span:
-            services, coordinator_agent, agents = self._build_agents(user, session, scope, retrieval_service)
+            services, coordinator_agent, agents = self._build_agents(
+                user, session, scope, retrieval_service, run_id=run_id
+            )
             final_board = self._coordinate(
                 services, coordinator_agent, agents, board,
                 run_id=run_id, scope=scope, resumed=True,
@@ -137,7 +148,7 @@ class EventDrivenAgentRuntimeService:
             })
             return result
 
-    def _build_agents(self, user: UserAccount, session: ChatSession, scope, retrieval_service):
+    def _build_agents(self, user: UserAccount, session: ChatSession, scope, retrieval_service, *, run_id=None):
         services = AgentRuntimeServices(
             db=self.db,
             settings=self.settings,
@@ -151,6 +162,7 @@ class EventDrivenAgentRuntimeService:
             retrieval=retrieval_service,
             scope=scope,
             gateway=self.gateway,
+            run_id=run_id,
         )
         coordinator_agent = CoordinatorAgent(services)
         agents = [

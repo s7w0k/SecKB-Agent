@@ -319,9 +319,15 @@ def process_job(
         version.status = EMBEDDED
         db.flush()
 
-        # ---- EMBEDDED -> INDEXED（候选 generation 构建；当前仅记录状态） ----
-        # 真实生产索引写入在 index_pipeline 之外由向量存储层执行；此处标记状态，
-        # 确保候选数据（document_version_chunks）已在 DB 中落盘可校验。
+        # ---- EMBEDDED -> INDEXED（候选 generation 构建） ----
+        # Phase 7（§7.4 Step 4）：INDEXED 必须依赖真实数据面完成，不能只是 DB chunk 存在。
+        # 校验 vector_build_ok（全部 chunk 已 EMBEDDED 且有向量）与 metadata_build_ok；
+        # 不满足则 raise → 上层 transient 重试→死信，且不发布该候选（保留上一 Generation serve）。
+        incomplete = _pending_embeddings(db, version_id=job.document_version_id)
+        if incomplete:
+            raise RuntimeError(
+                f"INDEXED blocked: data plane incomplete, {len(incomplete)} chunks lack embeddings/vector"
+            )
         version.status = INDEXED
         db.flush()
 
@@ -368,16 +374,27 @@ def _do_embed(contents: list[str], settings: Settings, embed_fn=None) -> list[li
 
 
 def _default_embed(contents: list[str], settings: Settings) -> list[list[float]]:
-    """默认 embedding 实现：通过 vector_store（若可用）或确定性 fallback。"""
+    """默认 embedding 实现：通过 vector_store（若可用）或确定性 fallback。
+
+    Phase 7（§7.4 Step 7）：真实 embedding 失败时**生产环境禁止**回退到确定性 hash 向量，
+    直接 raise（上层→重试→死信→保留上一 Generation serving）。仅显式
+    ``allow_deterministic_embedding=True``（test/dev）才允许 hash 向量。
+    """
     from app.core.database import SessionLocal
     from app.services.knowledge import KnowledgeService
+    from app.services.index_generation import EmbeddeddingGuardError
 
     ks = KnowledgeService(SessionLocal(), settings)
     try:
         if ks.vector_store.can_embed:
             return ks.vector_store.embed_texts(contents)
     except Exception as exc:
-        logger.warning("embedding call failed, using deterministic fallback: %s", exc)
+        logger.warning("embedding call failed: %s", exc)
+    if not getattr(settings, "allow_deterministic_embedding", False):
+        raise EmbeddeddingGuardError(
+            "deterministic (hash) embedding prohibited in production: "
+            "candidate will not be served; keep previous serving generation"
+        )
     return _deterministic_embed(contents)
 
 
@@ -498,6 +515,32 @@ def _archive_version_chunks(db: Session, *, version_id: int) -> None:
     )
     for link in old_links:
         link.status = "ARCHIVED"
+
+
+def _pending_embeddings(db: Session, *, version_id: int) -> list[int]:
+    """Phase 7（§7.4 Step 4）：返回候选版本中尚未完成真实向量构建的 chunk（source_index）。
+
+    数据面完整性即：每个 ACTIVE ``document_version_chunk`` 都关联到一张
+    ``embedding_status == EMBEDDED`` 且有向量 JSON 与 embedding_hash 的 ``chunk_revision``。
+    空列表表示 vector_build_ok（可进入 INDEXED），否则候选不得 Serving。
+    """
+    links = (
+        db.query(DocumentVersionChunk)
+        .filter(DocumentVersionChunk.document_version_id == version_id)
+        .filter(DocumentVersionChunk.status == "ACTIVE")
+        .all()
+    )
+    pending: list[int] = []
+    for link in links:
+        rev = db.get(ChunkRevision, link.revision_id) if link.revision_id is not None else None
+        if (
+            rev is None
+            or rev.embedding_status != "EMBEDDED"
+            or not rev.embedding_json
+            or not rev.embedding_hash
+        ):
+            pending.append(link.source_index)
+    return pending
 
 
 def _validate_version(

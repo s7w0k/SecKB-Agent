@@ -89,11 +89,12 @@ class RetrievalService:
     后续阶段：替换为生产检索引擎（OpenSearch 等）。
     """
 
-    def __init__(self, db: Session, settings: Settings):
+    def __init__(self, db: Session, settings: Settings, cache: Optional[RetrievalCache] = None):
         self.db = db
         self.settings = settings
         self.knowledge_service = KnowledgeService(db, settings)
-        self._cache = RetrievalCache(settings)
+        # Phase 6（§6.4 Step 3）：注入 App-scoped 共享缓存；未注入时新建实例（兼容并用于单测）。
+        self._cache = cache if cache is not None else RetrievalCache(settings)
         self._budget_thresholds = BudgetThresholds(
             rerank_ms=int(getattr(settings, "retrieval_budget_rerank_ms", 500)),
             full_ms=int(getattr(settings, "retrieval_budget_full_ms", 200)),
@@ -146,7 +147,7 @@ class RetrievalService:
             # Phase 9（§9.2）：缓存只存引用，命中后经 DB 重补水正文（Scope 再次校验）
             refs = self._cache.get_refs(cache_key)
             if refs is not None:
-                hydrated = self._rehydrate(refs)
+                hydrated = self._rehydrate(refs, scope)
                 if hydrated is not None:
                     return self._response(
                         results=hydrated, retrieval_path="cache_hit", cache_hit=True,
@@ -327,11 +328,12 @@ class RetrievalService:
             enable_rerank=enable_rerank, enable_vector=enable_vector,
         )
 
-    def _rehydrate(self, refs: list[RetrievalCacheRef]) -> list[SearchResult] | None:
+    def _rehydrate(self, refs: list[RetrievalCacheRef], scope: RequestScope) -> list[SearchResult] | None:
         """缓存命中后的重补水：按 chunk_id 从 DB 取正文并再次校验 Scope。
 
-        任一 chunk 已不存在（被删除/归档）时视为缓存陈旧，返回 None 触发重新检索。
-        返回值为 None 表示缓存失效，应回退一次完整检索。
+        Phase 6（§6.4 Step 5）：每个 chunk 重新检查 workspace/organization/classification
+        /status/ACL。任一 chunk 已不存在（被删除/归档）或权限不再匹配时视为缓存陈旧，
+        返回 None 触发重新检索（避免缓存越权泄漏正文）。
         """
         if not refs:
             return None
@@ -339,6 +341,9 @@ class RetrievalService:
         for ref in refs:
             chunk = self.db.get(KnowledgeChunk, ref.chunk_id) if ref.chunk_id is not None else None
             if chunk is None or chunk.status != KnowledgeChunkStatus.PUBLISHED.value:
+                return None
+            # Phase 6：二次 Scope 校验（与 KnowledgeService._filters 相同的隔离约束）
+            if not self._scope_ok(chunk, scope):
                 return None
             hydrated.append(
                 SearchResult(
@@ -348,6 +353,20 @@ class RetrievalService:
                 )
             )
         return hydrated
+
+    @staticmethod
+    def _scope_ok(chunk: KnowledgeChunk, scope: RequestScope) -> bool:
+        """重补水时按当前 Scope/ACL 复核 chunk 是否仍可访问。"""
+        if chunk.workspace_id != scope.workspace_id:
+            return False
+        if chunk.organization_id is not None and chunk.organization_id != scope.organization_id:
+            return False
+        limit = scope.classification_limit
+        if limit and chunk.classification:
+            rank = lambda c: {"INTERNAL": 0, "RESTRICTED": 1, "CONFIDENTIAL": 2}.get((c or "").upper(), 99)
+            if rank(chunk.classification) > rank(limit):
+                return False
+        return True
 
     def _cache_key(
         self,

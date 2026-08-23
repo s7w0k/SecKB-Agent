@@ -12,6 +12,9 @@ class Settings(BaseSettings):
     agent_max_claims_per_agent: int = 3
     agent_final_acceptance_min_confidence: float = 0.6
     agent_max_revision_attempts: int = 3
+    # 剩余 8 问题计划 Phase 3：Durable Agent Runtime 默认进入主 Chain。
+    # 每次 Chat 都创建 AgentRun + 至少一个 checkpoint；关闭则以恢复旧路径（测试/降级）。
+    agent_durable_enabled: bool = True
     # Phase 4（§4.5）：服务端数据分级上限（DB/JWT/IAM）；None=不限，客户端只能降低不能提高。
     classification_server_clearance: Optional[str] = None
     agent_model_default_provider: str = ""
@@ -181,6 +184,9 @@ class Settings(BaseSettings):
     alert_email_rate_limit_per_minute: int = 30
     # Phase 8（§8.4）：worker 认领 ToolJob 的 lease 时长（秒），心跳在此内续租。
     tool_queue_lease_seconds: int = 300
+    # 剩余 8 问题计划 · Phase 5（§5.4）：长任务执行期间持续心跳续租。
+    # 原则：heartbeat_interval <= lease_seconds / 3，避免 worker 被其他实例 reclaim。
+    tool_queue_heartbeat_interval_seconds: float = 60.0
     # Phase 8（§8.7）：通知限流是否走 Redis 分布式（避免 N 个 worker 各自本地限流）。
     # Redis 不可用时自动回退本进程本地限流，单实例行为不变。
     tool_queue_distributed_enabled: bool = False

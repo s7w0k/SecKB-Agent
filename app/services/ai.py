@@ -18,6 +18,7 @@ from app.core.enums import (
 )
 from app.agents.routing import RoutingDecision
 from app.schemas.dtos import AiMessage
+from app.model_gateway import ModelExecutionContext
 
 
 class PromptTemplates:
@@ -145,7 +146,8 @@ class PromptTemplates:
 
 
 class AiClient:
-    def __init__(self, settings: Settings, gateway=None, use_gateway: bool | None = None):
+    def __init__(self, settings: Settings, gateway=None, use_gateway: bool | None = None,
+                 agent: str | None = None):
         self.settings = settings
         # 阶段 4（9.1）：主链路可切换为 ModelGateway 执行（路由/熔断/预算/账本）。
         # 默认跟随 settings.model_gateway_enabled；测试环境保持旧路径兼容。
@@ -153,10 +155,15 @@ class AiClient:
             use_gateway = bool(getattr(settings, "model_gateway_enabled", False))
         self.use_gateway = use_gateway
         self._gateway = gateway
+        # 剩余 8 问题计划 · Phase 4：Agent 名（归因基准，可由调用方每次覆盖）
+        self.agent = agent
         if use_gateway and gateway is None:
             self._gateway = self._build_default_gateway()
         self._loop = None
         self._loop_thread = None
+
+    def _base_context(self) -> ModelExecutionContext:
+        return ModelExecutionContext(agent=self.agent)
 
     def _build_default_gateway(self):
         # Phase 6（§6.1）：复用 App-scoped 全局唯一 ModelGateway 单例，
@@ -175,7 +182,8 @@ class AiClient:
             self._loop_thread.start()
         return asyncio.run_coroutine_threadsafe(coro, self._loop).result()
 
-    def complete(self, messages: list[AiMessage], *, operation: str | None = None) -> str:
+    def complete(self, messages: list[AiMessage], *, operation: str | None = None,
+                 execution_context=None) -> str:
         # P5-06：同步 generation observation（区分 route/summary/rewrite 等 operation）
         from app.observability import get_observability_adapter
         from app.observability.privacy import capture_text
@@ -191,12 +199,14 @@ class AiClient:
                 # 阶段 4（9.1）：统一经 ModelGateway（路由/熔断/预算/账本/fallback）
                 from app.model_gateway import Operation
 
+                ctx = execution_context or self._base_context()
                 result = self._run_in_loop(
                     self._gateway.execute_complete(
                         Operation.CHAT,
                         messages,
                         operation_key=operation or "chat",
                         timeout_seconds=self.settings.http_request_timeout_seconds,
+                        execution_context=ctx,
                     )
                 )
                 content = result.get("content", "")
@@ -214,7 +224,8 @@ class AiClient:
             gen.end(output=capture_text(result, enabled=self.settings.langfuse_capture_output))
             return result
 
-    async def stream(self, messages: list[AiMessage], *, operation: str | None = None):
+    async def stream(self, messages: list[AiMessage], *, operation: str | None = None,
+                     execution_context=None):
         # P5-06：流式 response-generation observation（TTFT / 状态 / 未完整消费时关闭）
         from app.observability import get_observability_adapter
         from app.observability.privacy import capture_text
@@ -235,9 +246,11 @@ class AiClient:
                 from app.model_gateway import Operation
                 from app.model_gateway.adapters import StreamEvent, StreamEventType
 
+                ctx = execution_context or self._base_context()
                 async for event in self._gateway.execute_stream(
                     Operation.CHAT, messages, operation_key=operation or "chat",
                     timeout_seconds=self.settings.http_request_timeout_seconds,
+                    execution_context=ctx,
                 ):
                     if event.type == StreamEventType.TOKEN.value:
                         if first_token:

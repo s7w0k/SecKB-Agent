@@ -207,3 +207,92 @@ def _now():
     from datetime import datetime
 
     return datetime.utcnow()
+
+
+class ServingIndexBackend:
+    """§7.4 Step 1：真实 Serving Data Plane 的统一后端接口。
+
+    把 Generation 生命周期（构建 / 校验 / 激活 / 回滚 / 删除）与具体 Serving 数据面解耦。
+    计划目标是 vector/sparse/metadata 三个数据面都实现该接口，保证发布/回滚原子。
+    """
+
+    def build_generation(self, *, generation_id: str, version, embeddings) -> None:
+        """构建候选 Generation 的 vector/sparse/metadata 数据面入口。"""
+        raise NotImplementedError
+
+    def validate_generation(self, *, generation_id: str, **metrics) -> ValidationReport:
+        """对真实候选索引做 Validation（chunk/embedding/checksum/ACL/recall）。"""
+        raise NotImplementedError
+
+    def activate_generation(self, *, generation_id: str, previous_generation: str | None) -> dict:
+        """原子激活：一轮请求只看到一个 Generation（DB 指针 / index alias 切换）。"""
+        raise NotImplementedError
+
+    def rollback_generation(self, *, generation_id: str, previous_generation: str | None) -> bool:
+        """一次操作恢复上一 Generation。"""
+        raise NotImplementedError
+
+    def delete_generation(self, *, generation_id: str) -> bool:
+        """GC 删除不再 Serving 且已确认稳定的旧 Generation。"""
+        raise NotImplementedError
+
+
+class IndexGenerationServingBackend(ServingIndexBackend):
+    """基于 ``IndexGenerationManager`` 的原子 Serving 后端（§7.4 Step 1/6/8）。
+
+    - ``activate_generation``：校验通过后一趟事务原子切换 current/previous 指针，
+      并同步 ``settings.index_generation``，使检索缓存键（§9.3）随版本变化自动失效。
+    - ``rollback_generation / rollback_drill``：一次操作恢复上一 Generation，供演练与故障恢复。
+    """
+
+    def __init__(self, db: Session, settings: Settings):
+        self.db = db
+        self.settings = settings
+        self.mgr = IndexGenerationManager(db, settings)
+
+    def build_generation(self, *, generation_id: str, version, embeddings) -> None:
+        """骨架：候选 Generation 的数据面构建由向量存储层完成；此处仅形态化标记。"""
+        return None
+
+    def validate_generation(self, *, generation_id: str, **metrics) -> ValidationReport:
+        return self.mgr.validate(**metrics)
+
+    def activate_generation(self, *, generation_id: str, previous_generation: str | None = None) -> dict:
+        state = self.mgr.publish(generation_id)
+        # 激活后立即同步 current 到 settings，供检索缓存键（§9.3）失效旧版本。
+        self.mgr.sync_settings()
+        return state
+
+    def rollback_generation(self, *, generation_id: str, previous_generation: str | None = None) -> bool:
+        ok = self.mgr.rollback()
+        if ok:
+            self.mgr.sync_settings()
+        return ok
+
+    def delete_generation(self, *, generation_id: str) -> bool:
+        """只有既非 current 也非 previous 的旧 Generation 才可 GC 删除。"""
+        row = self.db.query(IndexGeneration).filter(IndexGeneration.id == 1).first()
+        if row is None:
+            return False
+        if generation_id in (row.current_generation, row.previous_generation):
+            return False
+        return True
+
+    # ---- §7.4 Step 8：Rollback 演练 ----
+    def rollback_drill(self, *, candidate: str, **validate_metrics) -> dict:
+        """演练：Publish candidate → 模拟故障 → Rollback → 恢复上一 Generation，
+        并确认 current 还原且 ``settings.index_generation`` 随版本回退（缓存键随之失效）。
+        """
+        if self.mgr.current()["generation"] == candidate:
+            raise ValueError(f"candidate {candidate} is already current")
+        report = self.mgr.validate(**validate_metrics)
+        state_after_publish = self.mgr.publish(candidate, report=report)
+        rolled_back = self.mgr.rollback()
+        state = self.mgr.current()
+        return {
+            "candidate": candidate,
+            "published": state_after_publish,
+            "rolled_back": rolled_back,
+            "current": state["generation"],
+            "settings_generation": self.settings.index_generation,
+        }

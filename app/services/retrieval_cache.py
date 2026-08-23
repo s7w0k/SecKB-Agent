@@ -15,12 +15,15 @@
 from __future__ import annotations
 
 import json
+import logging
 import time
 from dataclasses import dataclass
 from typing import Any, Callable
 
 from app.core.config import Settings
 from app.services.knowledge import SearchResult
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -182,11 +185,24 @@ class RetrievalCache:
 
     # ---- 失效 ----
     def invalidate_tag(self, tag: str) -> int:
-        """按 tag（如 ws<id>）精确失效正缓存与负缓存，返回失效条数。"""
+        """按 tag（如 ws<id>）精确失效正缓存与负缓存，返回 L1 失效条数。
+
+        Phase 6（§6.4 Step 6）：同时按 tag 扫描删除 L2 Redis 中的缓存，
+        保证紧急权限撤销 / Index publish 后跨 Pod 立即失效。L2 失效数不并入
+        返回计数，以维持既有测试的 L1 键集语义。
+        """
         matched = [k for k in self._l1_keys() if self._key_has_tag(k, tag)]
         for k in matched:
             self._l1.delete(k)
             self._negative.delete(k)
+        # L2 Redis：按 tag 扫描删除（scan+delete），可能抛异常，不阻塞 L1 失效。
+        if self._l2 is not None and hasattr(self._l2, "scan_by_tag"):
+            try:
+                remote = self._l2.scan_by_tag(tag) or []
+                for k in remote:
+                    self._l2.delete(k)
+            except Exception as exc:  # noqa: BLE001 - L2 失效失败 fail-open
+                logger.warning("RetrievalCache L2 invalidate_tag failed: %s", exc)
         return len(matched)
 
     def invalidate_all(self) -> int:
@@ -226,6 +242,125 @@ class RetrievalCache:
             return None
         refs = [RetrievalCacheRef.from_json(item) for item in items]
         return [r for r in refs if r is not None]
+
+
+# --------------------------------------------------------------------------- #
+# Phase 6（§6.4 Step 1/2）：L2 Redis Backend Adapter + App-scoped 单例
+# --------------------------------------------------------------------------- #
+class RedisCacheBackend:
+    """L2 Redis 后端适配器：薄封装 redis-py，为业务层提供稳定接口。
+
+    不把 redis-py API 直接暴露给业务层，只暴露 ``get/set/delete/scan_by_tag/health``。
+    Redis 不可用 / 依赖缺失时连接为 None，业务层据此 fail-open 回退到 L1。
+    支持注入测试 Fake（``redis_client``），避免测试依赖真实 Redis。
+    """
+
+    PREFIX = "ret-cache:"
+
+    def __init__(self, settings: Settings, *, redis_client: Any | None = None) -> None:
+        self._settings = settings
+        self._client = redis_client
+        if self._client is None:
+            self._client = self._connect(settings)
+
+    @staticmethod
+    def _connect(settings: Settings):
+        try:
+            from importlib import import_module
+            redis_module = import_module("redis")
+        except ModuleNotFoundError as exc:  # noqa: BLE001
+            logger.warning("RetrievalCache L2 disabled (redis 未安装): %s", exc)
+            return None
+        try:
+            client = redis_module.Redis.from_url(
+                settings.redis_url,
+                decode_responses=True,
+                socket_timeout=settings.redis_socket_timeout_seconds,
+                socket_connect_timeout=settings.redis_socket_timeout_seconds,
+            )
+            client.ping()
+            return client
+        except Exception as exc:  # noqa: BLE001 - Redis 不可用自动回退 L1
+            logger.warning("RetrievalCache L2 disabled: %s", exc)
+            return None
+
+    def get(self, key: str) -> str | None:
+        if self._client is None:
+            return None
+        return self._client.get(self.PREFIX + key)
+
+    def set(self, key: str, value: str, ttl: int | None) -> None:
+        if self._client is None:
+            return
+        self._client.set(self.PREFIX + key, value, ex=ttl)
+
+    def delete(self, key: str) -> int:
+        if self._client is None:
+            return 0
+        return int(self._client.delete(self.PREFIX + key) or 0)
+
+    def scan_by_tag(self, tag: str) -> list[str]:
+        """按 workspace 明文 tag（如 ``ws7``）扫描 Redis 中的缓存键，返回去掉前缀的键。"""
+        if self._client is None:
+            return []
+        prefix_len = len(self.PREFIX)
+        pattern = f"{self.PREFIX}ret:{tag}:*"
+        keys: list[str] = []
+        cursor = "0"
+        try:
+            while True:
+                cursor, batch = self._client.scan(cursor=cursor, match=pattern, count=500)
+                for k in batch:
+                    keys.append(str(k)[prefix_len:])
+                if not cursor or cursor == "0":
+                    break
+        except Exception as exc:  # noqa: BLE001
+            logger.warning("RetrievalCache L2 scan failed: %s", exc)
+            return []
+        return keys
+
+    def health(self) -> bool:
+        if self._client is None:
+            return False
+        try:
+            return bool(self._client.ping())
+        except Exception:  # noqa: BLE001
+            return False
+
+
+_cache_singleton: RetrievalCache | None = None
+_cache_singleton_key: str = ""
+
+
+def get_retrieval_cache(settings: Settings | None = None) -> RetrievalCache:
+    """App-scoped 全局唯一 RetrievalCache 单例（仿 ModelGateway.get_model_gateway）。
+
+    进程内共享一颗缓存；``redis_cache_enabled=True`` 时注入 L2 Redis Backend，
+    否则纯 L1。Redis 不可用时 backend 内部回退为 None（fail-open）。
+    """
+    global _cache_singleton, _cache_singleton_key
+    settings = settings or get_settings()
+    enabled = bool(getattr(settings, "redis_cache_enabled", False))
+    # 单例缓存键：L2 开关 / settings 实例变化时重建，避免 Redis 依赖被错误复用。
+    key = f"{id(settings)}:l2={enabled}"
+    if _cache_singleton is None or _cache_singleton_key != key:
+        backend: Any = RedisCacheBackend(settings) if enabled else None
+        _cache_singleton = RetrievalCache(settings, redis_backend=backend, enabled=True)
+        _cache_singleton_key = key
+    return _cache_singleton
+
+
+def reset_retrieval_cache_singleton() -> None:
+    """测试用：清空 App-scoped 单例（配合不同 settings/Redis 开关）。"""
+    global _cache_singleton, _cache_singleton_key
+    _cache_singleton = None
+    _cache_singleton_key = ""
+
+
+def get_settings():
+    from app.core.config import get_settings as _get
+
+    return _get()
 
 
 # 向上兼容曾定义在 retrieval_service 的内部名（避免破坏既有导入）。

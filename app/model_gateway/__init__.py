@@ -82,6 +82,25 @@ class ModelConfig:
     max_concurrent: int = 20
 
 
+@dataclass(frozen=True)
+class ModelExecutionContext:
+    """剩余 8 问题计划 · Phase 4（§4.4）：一次模型调用的完整归因上下文。
+
+    由 Agent Runtime 统一构造，贯穿到 ModelGateway 的 usage ledger 与 trace，
+    避免每个 Agent 各拼 scope/run_id/trace_id。字段与 ModelGateway 的
+    execute_complete/execute_stream 归参数一一对应。
+    """
+
+    trace_id: str | None = None
+    run_id: str | None = None
+    organization_id: int | None = None
+    workspace_id: int | None = None
+    user_id: int | None = None
+    agent: str | None = None
+    risk: str = "LOW"
+    capability: str = ""
+
+
 @dataclass
 class UsageRecord:
     """单次调用的用量记录。"""
@@ -137,7 +156,11 @@ class HealthTracker:
 
         Phase 6（§6.5）：提供 limit 时先行向分布式信号量申请一个 lease 槽位；
         槽位占满则拒绝（原子 DECR 回滚），避免跨 Pod 超限。
+
+        剩余 8 问题计划 · Phase 4（§4.6）：每次 acquire 前同步 Redis 中的
+        circuit 状态，使其他 Pod 的熔断在本 Pod 下一次调用时立即生效。
         """
+        self._sync_distributed_circuit(model_id)
         state = self._circuit[model_id]
         if state == CircuitState.OPEN:
             # 检查是否到了半开时间
@@ -166,6 +189,27 @@ class HealthTracker:
             self._semaphore.release(model_id)
         if self._concurrent[model_id] > 0:
             self._concurrent[model_id] -= 1
+
+    def _sync_distributed_circuit(self, model_id: str) -> None:
+        """剩余 8 问题计划 · Phase 4（§4.6 方案 A）：每次 acquire 前同步 Redis circuit。
+
+        任意 Pod OPEN 后，其他 Pod 在本机下一次调用时先读取共享状态再做判断，
+        从而避免分布式熔断时滞。Redis 不可用时 `_circuit_coordinator.read` 返回 None，
+        保持本进程内行为不变。
+        """
+        if self._circuit_coordinator is None:
+            return
+        snapshot = self._circuit_coordinator.read(model_id)
+        if snapshot is None:
+            return
+        state_raw = snapshot.get("state") or CircuitState.CLOSED.value
+        self._circuit[model_id] = CircuitState(state_raw)
+        opened = snapshot.get("opened_at")
+        if opened:
+            try:
+                self._circuit_opened_at[model_id] = datetime.fromisoformat(opened)
+            except ValueError:
+                pass
 
     def close_circuit(self, model_id: str):
         """半开探针成功后恢复为 CLOSED。"""
@@ -634,13 +678,25 @@ class ModelGateway:
         workspace_id=None,
         user_id=None,
         agent: str | None = None,
+        execution_context: ModelExecutionContext | None = None,
     ):
         """完整执行一次完成调用：路由 → 预算预留 → adapter → 结算/释放 → fallback。
 
         fallback 链：primary → same-provider alternate → secondary provider → template/failure。
         已消耗总时长不得超过原始超时（防重试风暴）。
+
+        剩余 8 问题计划 · Phase 4：`execution_context` 一次性携带完整归因，
+        未单独指定 run_id/org/workspace/user/agent 时以其填充。
         """
         from app.model_gateway.adapters import CompletionRequest
+
+        if execution_context is not None:
+            run_id = run_id or execution_context.run_id
+            org_id = org_id if org_id is not None else execution_context.organization_id
+            workspace_id = workspace_id if workspace_id is not None else execution_context.workspace_id
+            user_id = user_id if user_id is not None else execution_context.user_id
+            agent = agent or execution_context.agent
+            trace_id = trace_id or execution_context.trace_id
 
         start = time.monotonic()
         chain = self._fallback_chain(operation, model_id, operation_key)
@@ -652,8 +708,8 @@ class ModelGateway:
             config = self.registry.get(candidate)
             if config is None:
                 continue
-            # 熔断/并发检查
-            if not self.health.acquire(candidate):
+            # 熔断/并发检查（§4.6 启用分布式信号量：limit 来自模型配置，为全局上限）
+            if not self.health.acquire(candidate, limit=config.max_concurrent):
                 fallback_reason = f"circuit_open:{candidate}"
                 logger.warning("Skip %s (circuit/concurrency)", candidate)
                 continue
@@ -738,13 +794,25 @@ class ModelGateway:
         budget_key: str | None = None,
         is_safety: bool = False,
         timeout_seconds: float = 60.0,
+        execution_context: ModelExecutionContext | None = None,
     ):
-        """流式执行。9.2：首 token 前可切换；已发送 token 后发 INTERRUPT，不拼接另一模型输出。"""
+        """流式执行。9.2：首 token 前可切换；已发送 token 后发 INTERRUPT，不拼接另一模型输出。
+
+        剩余 8 问题计划 · Phase 4：启用分布式信号量（limit=config.max_concurrent），
+        并接受 execution_context 传播归因。
+        """
         from app.model_gateway.adapters import (
             CompletionRequest,
             StreamEvent,
             StreamEventType,
         )
+
+        run_id = execution_context.run_id if execution_context is not None else None
+        org_id = execution_context.organization_id if execution_context is not None else None
+        workspace_id = execution_context.workspace_id if execution_context is not None else None
+        user_id = execution_context.user_id if execution_context is not None else None
+        agent = execution_context.agent if execution_context is not None else None
+        trace_id = execution_context.trace_id if execution_context is not None else None
 
         start = time.monotonic()
         chain = self._fallback_chain(operation, model_id, operation_key)
@@ -755,7 +823,8 @@ class ModelGateway:
             config = self.registry.get(candidate)
             if config is None:
                 continue
-            if not self.health.acquire(candidate):
+            # 熔断/并发检查（§4.6 启用分布式信号量）
+            if not self.health.acquire(candidate, limit=config.max_concurrent):
                 yield StreamEvent(type=StreamEventType.SWITCH.value, model_id=candidate,
                                   error="circuit_open")
                 continue

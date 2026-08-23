@@ -315,14 +315,15 @@ class ComplianceAgentTest(unittest.TestCase):
             payload={"domain": KnowledgeDomain.COMPLIANCE.value},
             confidence=1.0,
         )
-        # 模拟一个合规的回复（低风险，无事实定性）
+        # 模拟一个合规的回复（低风险，无事实定性）。Phase 2：Review 对象是 text，不能再回退 messages。
         from app.schemas.dtos import AiMessage
 
         response = AgentArtifact(
             id="test:response",
             owner="ResponseAgent",
             kind="response_proposal",
-            payload={"messages": [AiMessage(role="assistant", content="根据公司合规政策，请参考员工手册。")]},
+            payload={"messages": [AiMessage(role="assistant", content="根据公司合规政策，请参考员工手册。")],
+                     "text": "根据公司合规政策，请参考员工手册。"},
             confidence=0.86,
         )
         board = board.add_artifact(route).add_artifact(response)
@@ -350,7 +351,8 @@ class ComplianceAgentTest(unittest.TestCase):
             id="test:response",
             owner="ResponseAgent",
             kind="response_proposal",
-            payload={"messages": [AiMessage(role="assistant", content="经查实，确认违规，对方确实收受回扣。")]},
+            payload={"messages": [AiMessage(role="assistant", content="经查实，确认违规，对方确实收受回扣。")],
+                     "text": "经查实，确认违规，对方确实收受回扣。"},
             confidence=0.86,
         )
         board = board.add_artifact(route).add_artifact(response)
@@ -386,7 +388,8 @@ class ComplianceAgentTest(unittest.TestCase):
             id="test:response",
             owner="ResponseAgent",
             kind="response_proposal",
-            payload={"messages": [AiMessage(role="assistant", content="已了解您的举报。")]},
+            payload={"messages": [AiMessage(role="assistant", content="已了解您的举报。")],
+                     "text": "已了解您的举报。"},
             confidence=0.86,
         )
         board = board.add_artifact(route).add_artifact(risk).add_artifact(response)

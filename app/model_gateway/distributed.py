@@ -180,6 +180,25 @@ class DistributedCircuitCoordinator:
         except Exception:  # noqa: BLE001
             return {}
 
+    def read(self, model_id: str) -> dict[str, str] | None:
+        """读取单个模型的 circuit 快照。
+
+        剩余 8 问题计划 · Phase 4（§4.6 方案 A）：每次 acquire 前读取，
+        使 Pod B 在 Pod A OPEN 后下一次 acquire 立即感知（实时同步）。
+        """
+        client = self._conn()
+        if client is None:
+            return None
+        key = f"{self.PREFIX}{model_id}"
+        try:
+            raw = client.get(key)
+            if not raw:
+                return None
+            state, _, opened = str(raw).partition(";")
+            return {"state": state, "opened_at": opened}
+        except Exception:  # noqa: BLE001
+            return None
+
 
 # 便捷构造：复用限流程的 redis URL
 def build_distributed_coordinator(settings=None, redis_url: str = "", redis_client=None):

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import uuid
 from dataclasses import dataclass
 
 from sqlalchemy.orm import Session
@@ -48,6 +49,8 @@ class AgentHarnessOutcome:
     trace_id: int | None
     # Phase 3（§3.10）：最终被审核并采纳的文本（可由 ChatService 直接播放）。
     final_text: str | None = None
+    # 剩余 8 问题计划 Phase 3：本次 Agent 执行的持久化身份（与 observability trace_id 独立）。
+    run_id: str | None = None
 
 
 class MindBridgeAgentHarness:
@@ -71,7 +74,11 @@ class MindBridgeAgentHarness:
         session = SessionService(self.db, self.settings).resolve_or_create(
             user, request.sessionId, original_input, scope=scope
         )
-        agent_run = create_agent_runtime(self.db, self.settings).run(user, session, original_input, model_input, scope=scope)
+        # 剩余 8 问题计划 Phase 3：每次 Chat 都创建持久化 run_id，默认进入 Durable 主链。
+        run_id = uuid.uuid4().hex if bool(getattr(self.settings, "agent_durable_enabled", True)) else None
+        agent_run = create_agent_runtime(self.db, self.settings).run(
+            user, session, original_input, model_input, scope=scope, run_id=run_id
+        )
         self.save_message(user, session, MessageRole.USER, original_input, scope=scope)
 
         report = self._create_report(user, session, original_input, agent_run)
@@ -104,6 +111,7 @@ class MindBridgeAgentHarness:
             tool_plan=tool_plan,
             trace_id=trace.id,
             final_text=getattr(agent_run, "final_text", None),
+            run_id=run_id,
         )
 
     def save_assistant_message(self, user: UserAccount, session: ChatSession, content: str, scope=None) -> None:
