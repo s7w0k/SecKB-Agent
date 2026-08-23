@@ -1,0 +1,215 @@
+{
+  "schemaVersion": "2.0",
+  "kind": "smoke",
+  "cases": [
+    {
+      "id": "smoke-service-gateway-deploy",
+      "domain": "SERVICE",
+      "scenario": "deployment",
+      "risk": "LOW",
+      "question": "AegisGate 大模型安全网关支持哪几种部署方式？",
+      "referenceAnswer": "AegisGate 支持 Kubernetes、裸金属集群、边车 Sidecar、一体机及双活部署。",
+      "referenceContextIds": [
+        "SERVICE:llm-security-gateway/04-deployment-and-integration.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/llm-security-gateway/04-deployment-and-integration.md",
+        "reviewStatus": "approved"
+      }
+    },
+    {
+      "id": "smoke-service-iam-capability",
+      "domain": "SERVICE",
+      "scenario": "iam",
+      "risk": "LOW",
+      "question": "Agent 身份与访问管理（IAM）支持哪些能力？",
+      "referenceAnswer": "Agent IAM 提供身份认证、访问控制与权限管理能力：为每个 Agent 颁发独立身份令牌，实现\u201c人—Agent—任务\u201d的完整身份映射；提供基于 RBAC 的细粒度权限模型，支持最小权限自动收敛与动态授权；支持 mTLS 双向认证与短时令牌，降低凭据泄露影响面；与隔离沙箱、审计产品联动，形成身份驱动的安全闭环。",
+      "referenceContextIds": [
+        "SERVICE:agent-iam/01-product-overview.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/agent-iam",
+        "reviewStatus": "pending",
+        "note": "金标答案已按参考片段扩充事实点（原答案仅一句话致 factual_correctness 失真），待领域专家复核"
+      }
+    },
+    {
+      "id": "smoke-compliance-gift-threshold",
+      "domain": "COMPLIANCE",
+      "scenario": "gift-approval",
+      "risk": "MEDIUM",
+      "question": "礼品招待超过什么金额需要申报或审批？",
+      "referenceAnswer": "礼品或招待价值合计超过人民币 200 元的，须在 5 个工作日内向合规部门申报；严禁现金、现金等价物、购物卡、有价证券、代金券等礼品；单次价值超过 1,000 元的，须经部门负责人及合规部门双重审批；单次超过 3,000 元的，须报公司管理层审批；涉及政府官员、监管人员的一律从严管控。",
+      "referenceContextIds": [
+        "COMPLIANCE:gifts-hospitality-declaration.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/compliance/gifts-hospitality-declaration.md",
+        "reviewStatus": "pending",
+        "note": "金标答案已按参考片段（gifts-hospitality-declaration）修正并扩充；原答案引用了 anti-corruption 的 800 元规则，与参考片段不符"
+      }
+    },
+    {
+      "id": "smoke-compliance-access-control",
+      "domain": "COMPLIANCE",
+      "scenario": "access-control",
+      "risk": "MEDIUM",
+      "question": "系统访问控制有哪些合规要求？",
+      "referenceAnswer": "系统访问控制要求：员工、外包及第三方访问系统须使用唯一账号，禁止共享账号、冒用身份；账号开通实行\u201c申请—审批—开通\u201d流程并由直属上级及系统管理员双人审批，遵循最小权限原则；口令须满足复杂度要求（至少 8 位、含大小写字母、数字与特殊字符），有效期最长 90 天，到期强制更换；高权限系统访问须启用多因素认证（MFA）；机密及以上数据、批量导出、数据库后台、超级管理员等高危权限须单独审批并留存记录；权限按岗位职责所必需授予，30 天未用闲置账号冻结、90 天未用高危权限回收，每季度复核权限；离职账号 24 小时内停用、高危权限离职前撤销，外包及第三方账号合作到期 3 个工作日内注销；对登录、权限变更、数据访问、批量下载记录审计日志，保存不少于 6 个月。",
+      "referenceContextIds": [
+        "COMPLIANCE:access-control-and-identity.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/compliance/access-control-and-identity.md",
+        "reviewStatus": "pending",
+        "note": "金标答案已按参考片段补全事实点（含权限分级/闲置冻结/离职回收/审计留存），待领域专家复核"
+      }
+    },
+    {
+      "id": "smoke-mental-high-risk-response",
+      "domain": "MENTAL",
+      "scenario": "high-risk",
+      "risk": "HIGH",
+      "question": "学生明确表示想自杀时，系统应如何响应？",
+      "referenceAnswer": "当学生明确表示想自杀时，系统应判定为 HIGH 高风险：记录心理报告、写入 Excel 台账，并通过 MCP 工具向辅导员或管理员发送 alert 预警；回复要短、直接、稳定和共情，建议立即联系当地紧急电话、校园保卫、心理危机热线、辅导员或身边可信任的人；不应只给出冥想、睡一觉等普通建议，不应承诺保密到阻碍救助，不应进行长篇追问导致延误。",
+      "referenceContextIds": [
+        "MENTAL:risk-policy.md:1:3",
+        "MENTAL:risk-policy.md:1:1"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/mental/risk-policy.md",
+        "reviewStatus": "pending",
+        "note": "金标答案已按参考片段扩充事实点（原答案仅一句话致 factual_correctness 失真），待领域专家复核"
+      }
+    },
+    {
+      "id": "smoke-mental-sleep-support",
+      "domain": "MENTAL",
+      "scenario": "sleep",
+      "risk": "LOW",
+      "question": "学生睡眠不好应该给什么建议？",
+      "referenceAnswer": "建议优先固定起床时间、白天晒太阳或户外活动，午睡控制在 20-30 分钟；睡前 30 分钟建立降速流程（洗漱、调暗灯光、把手机放远、做轻微拉伸或呼吸练习）；减少咖啡、浓茶、能量饮料摄入；躺下 20-30 分钟仍清醒时短暂离开床做低刺激活动；若连续多周严重失眠、白天功能明显受损或出现自伤自杀想法，应尽快联系校医院、心理中心或专业医生。",
+      "referenceContextIds": [
+        "MENTAL:sleep-routine-self-care.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/mental/sleep-routine-self-care.md",
+        "reviewStatus": "pending",
+        "note": "金标答案已按参考片段扩充事实点（原答案仅一句话致 factual_correctness 失真），待领域专家复核"
+      }
+    },
+    {
+      "id": "smoke-service-privacy-computing",
+      "domain": "SERVICE",
+      "scenario": "privacy",
+      "risk": "LOW",
+      "question": "隐私计算产品的主要技术路线有哪些？",
+      "referenceAnswer": "隐私计算支持联邦学习、差分隐私和可信执行环境（TEE）等技术路线。",
+      "referenceContextIds": [
+        "SERVICE:privacy-computing/01-product-overview.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/privacy-computing",
+        "reviewStatus": "pending",
+        "note": "修正：原答案误写“多方安全计算(MPC)”，与参考片段不符；文档实际为联邦学习/差分隐私/TEE。"
+      }
+    },
+    {
+      "id": "smoke-compliance-whistleblower",
+      "domain": "COMPLIANCE",
+      "scenario": "whistleblower",
+      "risk": "MEDIUM",
+      "question": "举报人保护政策的核心内容是什么？",
+      "referenceAnswer": "确保举报人身份保密、禁止打击报复，为善意举报提供法律保护。",
+      "referenceContextIds": [
+        "COMPLIANCE:whistleblower-protection-policy.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/compliance/whistleblower-protection-policy.md",
+        "reviewStatus": "approved"
+      }
+    },
+    {
+      "id": "smoke-mental-anxiety-grounding",
+      "domain": "MENTAL",
+      "scenario": "anxiety",
+      "risk": "MEDIUM",
+      "question": "学生焦虑发作时有哪些 grounding 技巧可以使用？",
+      "referenceAnswer": "五感着陆法、深呼吸练习、短暂散步等 grounding 技巧可帮助缓解焦虑。",
+      "referenceContextIds": [
+        "MENTAL:anxiety-panic-grounding.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/mental/anxiety-panic-grounding.md",
+        "reviewStatus": "approved"
+      }
+    },
+    {
+      "id": "smoke-service-gateway-iam-identity",
+      "domain": "SERVICE",
+      "scenario": "integration",
+      "risk": "LOW",
+      "question": "AegisGate 大模型安全网关如何与 Agent IAM 联动，实现身份驱动的安全闭环？",
+      "referenceAnswer": "部署 AegisGate 时支持 SSO 集成（OAuth2.0 / SAML / LDAP）以统一身份认证与调用者识别；Agent IAM 为每个 Agent 颁发独立身份令牌，实现“人—Agent—任务”完整身份映射，提供基于 RBAC 的细粒度权限模型并支持最小权限自动收敛与动态授权；两者联动后，网关负责流量与请求的统一身份识别，IAM 负责 Agent 级身份与权限治理，形成身份驱动的安全闭环。",
+      "referenceContextIds": [
+        "SERVICE:llm-security-gateway/04-deployment-and-integration.md:1:1",
+        "SERVICE:agent-iam/01-product-overview.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/{llm-security-gateway,agent-iam}",
+        "reviewStatus": "pending",
+        "note": "多跳 case：需跨 llm-security-gateway 部署文档与 agent-iam 产品概述两篇文档综合回答，待领域专家复核"
+      }
+    },
+    {
+      "id": "smoke-compliance-cross-border-minimization",
+      "domain": "COMPLIANCE",
+      "scenario": "cross-border",
+      "risk": "MEDIUM",
+      "question": "在数据跨境传输场景下，如何落实个人信息的“最小必要”原则？",
+      "referenceAnswer": "数据跨境传输遵循最小必要原则，仅传输实现业务目的所必需的数据，并优先选择本地化处理方案；收集个人信息本身也应遵循最小必要原则，仅收集与业务目的直接相关且必需的最少信息，对可不用、可不存的字段原则上不收集；因此出境前既要评估出境数据的必要性，也要确保仅携带满足业务目的的最少个人信息，并优先考虑本地化处理。",
+      "referenceContextIds": [
+        "COMPLIANCE:cross-border-data-transfer.md:1:0",
+        "COMPLIANCE:data-minimization-policy.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/compliance/{cross-border-data-transfer,data-minimization-policy}.md",
+        "reviewStatus": "pending",
+        "note": "多跳 case：需跨数据出境与数据最小化两篇策略综合回答“出境场景下的最小必要”，待领域专家复核"
+      }
+    },
+    {
+      "id": "smoke-compliance-data-grade-response",
+      "domain": "COMPLIANCE",
+      "scenario": "incident",
+      "risk": "HIGH",
+      "question": "发生机密数据泄露时，应按什么时限响应并及时上报？",
+      "referenceAnswer": "机密数据属于个人信息或商业秘密，需授权访问并记录日志；发生数据泄露后，应在发现后 1 小时内上报安全团队和合规部门，24 小时内完成影响范围评估，72 小时内按法规要求向监管部门报告，并及时通知受影响的个人信息主体，采取补救措施并出具事件报告；涉及敏感数据（含健康、生物识别等）泄露的应按较高级别响应。",
+      "referenceContextIds": [
+        "COMPLIANCE:data-security-and-privacy.md:1:0",
+        "COMPLIANCE:privacy-breach-response.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/compliance/{data-security-and-privacy,privacy-breach-response}.md",
+        "reviewStatus": "pending",
+        "note": "多跳 case：需跨数据安全分级与隐私泄露响应两篇文档综合回答响应时限，待领域专家复核"
+      }
+    },
+    {
+      "id": "smoke-mental-exam-stress",
+      "domain": "MENTAL",
+      "scenario": "academic",
+      "risk": "LOW",
+      "question": "考试季学生压力大，有什么建议？",
+      "referenceAnswer": "考试季帮助学生从\u201c必须完美\u201d切换到\u201c优先稳住并完成考试\u201d：考前一周制定现实计划，把复习内容分为高频重点、基础保分、低优先级三层，先覆盖高频和基础，每天安排固定休息与吃饭，不用熬夜换安全感；复习走神可用番茄钟或 25 分钟块（低状态 10 分钟也算开始），每个学习块只设一个具体目标；考前一天降低变量（准备证件、文具、准考信息、路线、闹钟），睡前不大量摄入刺激内容，睡不着可慢呼气和低刺激活动，并提醒考前失眠不等于次日不能发挥；考试当天心慌、手抖、脑子空白时先做 3 轮慢呼气、双脚踩稳、先写会做的题、跳过卡住的题，目标是拿到能拿的分；考后限定复盘时间（如 15 分钟记录客观问题）后停止反复查答案，把担心分成可行动部分与不可控制部分；若出现\u201c挂科不如死了\u201d等强烈绝望表达，需评估自伤/自杀计划，有具体计划或无法保证安全按 HIGH 处理，无计划但持续崩溃按 MEDIUM 尽快联系辅导员或心理中心。",
+      "referenceContextIds": [
+        "MENTAL:exam-season-guidance.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/mental/exam-season-guidance.md",
+        "reviewStatus": "pending",
+        "note": "金标答案由一句话扩充为按参考片段提炼的完整建议（原答案过简致 factual_correctness 失真），待领域专家复核"
+      }
+    }
+  ]
+}

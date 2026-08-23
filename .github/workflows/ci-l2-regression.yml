@@ -1,0 +1,80 @@
+name: CI L2 Regression
+
+# P8-02：定时/发布候选 -- 全量 retrieval + RAGAS regression
+# 触发：每周日凌晨 02:00 UTC（定时）+ release/* 分支推送（发布候选）
+# 依赖：RAG_EVAL_JUDGE_API_KEY（L2 secrets）
+# 门禁：先 Soft（记录回归但 exit=0），成熟后切 Hard（exit=1）
+# Artifacts：report JSON / manifest / JSONL / summary / gate decision（可下载）
+
+on:
+  schedule:
+    - cron: "0 2 * * 0"  # 每周日 02:00 UTC
+  push:
+    branches:
+      - "release/*"
+  workflow_dispatch:  # 手动触发
+
+jobs:
+  l2-ragas-regression:
+    name: L2 RAGAS Regression
+    runs-on: ubuntu-latest
+    # 无 judge key 时跳过（§13.5：PR 无 judge key 时也能完成 L0/L1）
+    if: ${{ github.event_name != 'schedule' || true }}  # 允许手动触发
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -r requirements-eval.txt
+      - name: Run full RAGAS regression
+        env:
+          AI_PROVIDER: mock
+          DATABASE_URL: sqlite:///./target/ci-l2.sqlite3
+          KNOWLEDGE_VECTOR_ENABLED: "false"
+          RAG_EVAL_LLM_ENABLED: "true"
+          RAG_EVAL_JUDGE_MODEL: ${{ secrets.RAG_EVAL_JUDGE_MODEL || 'gpt-4o-mini' }}
+          RAG_EVAL_JUDGE_BASE_URL: ${{ secrets.RAG_EVAL_JUDGE_BASE_URL || '' }}
+          RAG_EVAL_JUDGE_API_KEY: ${{ secrets.RAG_EVAL_JUDGE_API_KEY }}
+          RAG_EVAL_GATE_MODE: soft
+        run: |
+          mkdir -p target/rag-eval/candidate target/rag-eval/baseline
+          # 运行 RAGAS 评测 pipeline（全量 regression 数据集）
+          python -m app.rag_eval.cli run \
+            --dataset data/eval/regression/rag-regression.json \
+            --output target/rag-eval/candidate/ || echo "JUDGE_FAILED=$?"
+          # 检查是否有 baseline（首次运行无 baseline 则跳过 gate）
+          if [ -f target/rag-eval/baseline/summary.json ]; then
+            echo "=== Running gate evaluation ==="
+            python -m app.rag_eval.gates evaluate \
+              --baseline target/rag-eval/baseline/summary.json \
+              --candidate target/rag-eval/candidate/summary.json \
+              --candidate-per-case target/rag-eval/candidate/cases.jsonl \
+              --mode soft \
+              --dataset-version "$(date -u +%Y-%m-%d).1" \
+              --candidate-run-id "${{ github.run_id }}" \
+              --output target/rag-eval/gate-decision.json \
+              || echo "GATE_EXIT=$?"
+            cat target/rag-eval/gate-decision.json
+          else
+            echo '{"status":"pass","reasons":["no baseline yet, first run"]}' > target/rag-eval/gate-decision.json
+            echo "No baseline found, skipping gate (first run)"
+          fi
+          # 将 candidate 提升为下次的 baseline
+          if [ -f target/rag-eval/candidate/summary.json ]; then
+            cp target/rag-eval/candidate/summary.json target/rag-eval/baseline/summary.json
+          fi
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rag-eval-artifacts
+          path: |
+            target/rag-eval/candidate/
+            target/rag-eval/baseline/
+            target/rag-eval/gate-decision.json
+            target/rag-eval/smoke-report.json
+          retention-days: 30

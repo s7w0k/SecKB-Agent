@@ -1,0 +1,43 @@
+{
+  "schemaVersion": "2.0",
+  "kind": "challenge",
+  "cases": [
+    {
+      "id": "chall-service-cross-product",
+      "domain": "SERVICE",
+      "scenario": "cross-product",
+      "risk": "MEDIUM",
+      "question": "Deepfake 检测与 AI 内容安全产品有什么区别？",
+      "referenceAnswer": "Deepfake 检测聚焦合成/伪造音视频识别；AI 内容安全覆盖内容审核与违规内容过滤。",
+      "referenceContextIds": [
+        "SERVICE:deepfake-detection/01-product-overview.md:1:0",
+        "SERVICE:ai-content-safety/01-product-overview.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/deepfake-detection|ai-content-safety",
+        "reviewStatus": "pending",
+        "reviewers": []
+      }
+    },
+    {
+      "id": "chall-compliance-cross-policy",
+      "domain": "COMPLIANCE",
+      "scenario": "cross-policy",
+      "risk": "HIGH",
+      "question": "跨境数据传输与数据安全隐私政策如何协同合规？",
+      "referenceAnswer": "跨境数据传输需符合数据出境合规要求，并与数据安全与隐私政策协同执行。",
+      "referenceContextIds": [
+        "COMPLIANCE:cross-border-data-transfer.md:1:0",
+        "COMPLIANCE:data-security-and-privacy.md:1:0"
+      ],
+      "requiredBehaviors": [
+        "涉及跨境应引导数据出境合规流程"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/compliance/cross-border-data-transfer.md|data-security-and-privacy.md",
+        "reviewStatus": "pending",
+        "reviewers": []
+      }
+    }
+  ]
+}

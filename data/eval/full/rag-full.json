@@ -1,0 +1,1910 @@
+{
+  "schemaVersion": "2.0",
+  "kind": "full",
+  "cases": [
+    {
+      "id": "full-compliance-access-control-and-identity",
+      "domain": "COMPLIANCE",
+      "scenario": "access-control-and-identity",
+      "risk": "LOW",
+      "question": "公司系统账号的开通流程是怎样的？",
+      "referenceAnswer": "公司系统账号的开通需要经过申请、审批和开通三个步骤，其中审批环节需由直属上级及系统管理员共同完成，并且在开通时遵循最小权限原则。",
+      "referenceContextIds": [
+        "COMPLIANCE:access-control-and-identity.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/compliance/access-control-and-identity.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-compliance-advertising-and-marketing-compliance",
+      "domain": "COMPLIANCE",
+      "scenario": "advertising-and-marketing-compliance",
+      "risk": "LOW",
+      "question": "在互联网上发布广告时，对于直播带货和达人推荐有什么特别的要求？",
+      "referenceAnswer": "直播带货、种草笔记、达人推荐等营销形式需要明确标识其商业属性与利益关系。",
+      "referenceContextIds": [
+        "COMPLIANCE:advertising-and-marketing-compliance.md:1:2"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/compliance/advertising-and-marketing-compliance.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-compliance-anti-corruption-and-anti-bribery",
+      "domain": "COMPLIANCE",
+      "scenario": "anti-corruption-and-anti-bribery",
+      "risk": "LOW",
+      "question": "公司对于提供礼品的价值有什么具体规定？",
+      "referenceAnswer": "单次提供的礼品价值不得超过200元人民币，年度累计不得超过800元。礼品价值按市场同类商品公允价值核定。",
+      "referenceContextIds": [
+        "COMPLIANCE:anti-corruption-and-anti-bribery.md:1:1"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/compliance/anti-corruption-and-anti-bribery.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-compliance-anti-money-laundering-and-fraud",
+      "domain": "COMPLIANCE",
+      "scenario": "anti-money-laundering-and-fraud",
+      "risk": "LOW",
+      "question": "公司在什么情况下需要对客户进行加强型尽职调查？",
+      "referenceAnswer": "当客户为境外客户、法人代表为自然人的企业或账户信息频繁变更时，公司需要对其进行加强型尽职调查。",
+      "referenceContextIds": [
+        "COMPLIANCE:anti-money-laundering-and-fraud.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/compliance/anti-money-laundering-and-fraud.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-compliance-artificial-intelligence-governance",
+      "domain": "COMPLIANCE",
+      "scenario": "artificial-intelligence-governance",
+      "risk": "LOW",
+      "question": "在人工智能治理中，对于具有舆论属性或社会动员能力的产品有哪些合规要求？",
+      "referenceAnswer": "这类产品需要依法进行算法备案或登记。并且，在新算法上线前必须经过技术、法务和合规部门的联合评审，确保其符合法律法规与伦理要求。",
+      "referenceContextIds": [
+        "COMPLIANCE:artificial-intelligence-governance.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/compliance/artificial-intelligence-governance.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-compliance-business-ethics-helpdesk",
+      "domain": "COMPLIANCE",
+      "scenario": "business-ethics-helpdesk",
+      "risk": "LOW",
+      "question": "如果我在工作中遇到道德困境，应该通过哪些渠道寻求帮助？",
+      "referenceAnswer": "您可以通过合规热线、合规邮箱、线上咨询平台或直接联系合规部门等渠道提出商业道德咨询与求助。这些渠道全天候开放，并支持实名、非实名或匿名方式。",
+      "referenceContextIds": [
+        "COMPLIANCE:business-ethics-helpdesk.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/compliance/business-ethics-helpdesk.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-compliance-compliance-training-and-accountability",
+      "domain": "COMPLIANCE",
+      "scenario": "compliance-training-and-accountability",
+      "risk": "LOW",
+      "question": "公司合规培训的频次和对象有哪些要求？",
+      "referenceAnswer": "新员工入职时需接受合规基础培训，全员每年至少进行一次合规培训。高风险岗位员工每年还需参加专项培训，管理层及中高层干部则需要参加合规领导力培训。",
+      "referenceContextIds": [
+        "COMPLIANCE:compliance-training-and-accountability.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/compliance/compliance-training-and-accountability.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-compliance-conflict-of-interest-policy",
+      "domain": "COMPLIANCE",
+      "scenario": "conflict-of-interest-policy",
+      "risk": "LOW",
+      "question": "员工在公司与近亲属名下的企业进行交易时，需要遵循哪些原则？",
+      "referenceAnswer": "员工需事先书面披露关联关系，并经合规部门与法务部门联合审查及管理层批准。交易须遵循公开、公平、公允原则，条件不得优于非关联第三方，且需留存完整决策与审批记录。",
+      "referenceContextIds": [
+        "COMPLIANCE:conflict-of-interest-policy.md:1:1"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/compliance/conflict-of-interest-policy.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-compliance-contract-and-legal-compliance",
+      "domain": "COMPLIANCE",
+      "scenario": "contract-and-legal-compliance",
+      "risk": "LOW",
+      "question": "公司合同在签订前需要经过哪些审查？",
+      "referenceAnswer": "合同签订前需经法务部门进行法律审查，重点审核主体资格、权利义务、违约责任、争议解决等条款。涉及重大金额或风险的合同还需提高评审层级并可能征求外部法律顾问意见。",
+      "referenceContextIds": [
+        "COMPLIANCE:contract-and-legal-compliance.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/compliance/contract-and-legal-compliance.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-compliance-cross-border-data-transfer",
+      "domain": "COMPLIANCE",
+      "scenario": "cross-border-data-transfer",
+      "risk": "LOW",
+      "question": "在个人信息出境时，签署标准合同需要包含哪些内容？",
+      "referenceAnswer": "签署的个人信息出境标准合同应包括出境目的、数据范围、接收方义务、向信息主体告知以及争议解决等法定条款。",
+      "referenceContextIds": [
+        "COMPLIANCE:cross-border-data-transfer.md:1:1"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/compliance/cross-border-data-transfer.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-compliance-data-minimization-policy",
+      "domain": "COMPLIANCE",
+      "scenario": "data-minimization-policy",
+      "risk": "LOW",
+      "question": "公司在收集个人信息时应遵循什么原则？",
+      "referenceAnswer": "公司收集个人信息时需遵循最小必要原则，仅收集与业务目的直接相关且必需的最少信息，并且新增数据收集项须经过数据合规评审。",
+      "referenceContextIds": [
+        "COMPLIANCE:data-minimization-policy.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/compliance/data-minimization-policy.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-compliance-data-security-and-privacy",
+      "domain": "COMPLIANCE",
+      "scenario": "data-security-and-privacy",
+      "risk": "LOW",
+      "question": "公司在处理个人信息时应遵循哪些基本原则？",
+      "referenceAnswer": "公司处理个人信息时需遵循合法正当、最小必要、知情同意和目的限制的原则。",
+      "referenceContextIds": [
+        "COMPLIANCE:data-security-and-privacy.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/compliance/data-security-and-privacy.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-compliance-employee-code-of-conduct",
+      "domain": "COMPLIANCE",
+      "scenario": "employee-code-of-conduct",
+      "risk": "LOW",
+      "question": "员工在社交媒体上发布关于公司的信息时需要注意什么？",
+      "referenceAnswer": "员工个人社交媒体不得发布损害公司声誉、泄露公司未公开信息的言论。涉及公司产品、财务、经营、战略等信息的对外发布须经品牌公关部门审核。",
+      "referenceContextIds": [
+        "COMPLIANCE:employee-code-of-conduct.md:1:1"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/compliance/employee-code-of-conduct.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-compliance-export-control-and-sanctions",
+      "domain": "COMPLIANCE",
+      "scenario": "export-control-and-sanctions",
+      "risk": "LOW",
+      "question": "公司在与境外实体进行交易时，需要遵守哪些基本原则？",
+      "referenceAnswer": "公司业务需遵循中国及主要交易对手所在国的出口管制与制裁法律法规。涉及管制物项、敏感技术或受制裁对象的交易，必须经过合规部门审批。同时，禁止与受联合国、中国及主要经济体制裁的实体和个人开展业务。",
+      "referenceContextIds": [
+        "COMPLIANCE:export-control-and-sanctions.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/compliance/export-control-and-sanctions.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-compliance-gifts-hospitality-declaration",
+      "domain": "COMPLIANCE",
+      "scenario": "gifts-hospitality-declaration",
+      "risk": "LOW",
+      "question": "如果员工收到的礼品价值超过200元，需要在多长时间内向公司申报？",
+      "referenceAnswer": "员工接受或赠送礼品、招待价值合计超过人民币200元时，必须在5个工作日内向合规部门进行申报。",
+      "referenceContextIds": [
+        "COMPLIANCE:gifts-hospitality-declaration.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/compliance/gifts-hospitality-declaration.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-compliance-insider-trading-and-securities-compliance",
+      "domain": "COMPLIANCE",
+      "scenario": "insider-trading-and-securities-compliance",
+      "risk": "LOW",
+      "question": "内幕信息知情人包括哪些人员？",
+      "referenceAnswer": "内幕信息知情人包括董事、监事、高级管理人员、财务与法务人员、项目经办人员及因职务获取内幕信息的其他人员。",
+      "referenceContextIds": [
+        "COMPLIANCE:insider-trading-and-securities-compliance.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/compliance/insider-trading-and-securities-compliance.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-compliance-intellectual-property-protection",
+      "domain": "COMPLIANCE",
+      "scenario": "intellectual-property-protection",
+      "risk": "LOW",
+      "question": "公司员工在职务范围内创作的作品，著作权归谁所有？",
+      "referenceAnswer": "公司员工在职务范围内创作的智力成果，其著作权归属公司，员工不得擅自对外授权或使用。",
+      "referenceContextIds": [
+        "COMPLIANCE:intellectual-property-protection.md:1:1"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/compliance/intellectual-property-protection.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-compliance-internal-control-and-audit",
+      "domain": "COMPLIANCE",
+      "scenario": "internal-control-and-audit",
+      "risk": "LOW",
+      "question": "公司在内部控制方面遵循哪些基本原则？",
+      "referenceAnswer": "公司内部控制遵循合法合规、全面覆盖、制衡有效、成本效益相平衡和持续改进的基本原则。",
+      "referenceContextIds": [
+        "COMPLIANCE:internal-control-and-audit.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/compliance/internal-control-and-audit.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-compliance-marketing-data-use-guide",
+      "domain": "COMPLIANCE",
+      "scenario": "marketing-data-use-guide",
+      "risk": "LOW",
+      "question": "在进行精准营销时，如何处理涉及个人敏感信息的用户画像？",
+      "referenceAnswer": "涉及个人敏感信息的用户画像分析需要取得信息主体单独同意，并采取加密、去标识化等保护措施。",
+      "referenceContextIds": [
+        "COMPLIANCE:marketing-data-use-guide.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/compliance/marketing-data-use-guide.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-compliance-personal-information-protection-compliance",
+      "domain": "COMPLIANCE",
+      "scenario": "personal-information-protection-compliance",
+      "risk": "LOW",
+      "question": "如果用户想要注销账号，个人信息处理者应该怎么做？",
+      "referenceAnswer": "个人信息处理者应设置便捷渠道供信息主体撤回同意、注销账号，并在注销后依法删除或匿名化其个人信息。",
+      "referenceContextIds": [
+        "COMPLIANCE:personal-information-protection-compliance.md:1:2"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/compliance/personal-information-protection-compliance.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-compliance-privacy-breach-response",
+      "domain": "COMPLIANCE",
+      "scenario": "privacy-breach-response",
+      "risk": "LOW",
+      "question": "隐私泄露事件是如何分级的？",
+      "referenceAnswer": "隐私泄露事件根据影响范围与危害程度分为一般事件、较大事件和重大事件。涉及未成年个人信息、金融、健康、生物识别等敏感数据泄露的，一律按较高级别响应。",
+      "referenceContextIds": [
+        "COMPLIANCE:privacy-breach-response.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/compliance/privacy-breach-response.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-compliance-procurement-probity-policy",
+      "domain": "COMPLIANCE",
+      "scenario": "procurement-probity-policy",
+      "risk": "LOW",
+      "question": "在采购活动中，如何确保公平竞争？",
+      "referenceAnswer": "采购活动需遵循公开、公平、公正和诚实信用原则，不得排斥或限制潜在供应商参与。招标文件应明确技术标准、评标办法及资质要求，避免设置无关的歧视性条款。",
+      "referenceContextIds": [
+        "COMPLIANCE:procurement-probity-policy.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/compliance/procurement-probity-policy.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-compliance-records-and-document-retention",
+      "domain": "COMPLIANCE",
+      "scenario": "records-and-document-retention",
+      "risk": "LOW",
+      "question": "公司财务凭证和会计账簿需要保存多久？",
+      "referenceAnswer": "根据会计准则与税法要求，公司财务凭证和会计账簿至少需要保存10年。",
+      "referenceContextIds": [
+        "COMPLIANCE:records-and-document-retention.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/compliance/records-and-document-retention.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-compliance-regulatory-audit-cooperation",
+      "domain": "COMPLIANCE",
+      "scenario": "regulatory-audit-cooperation",
+      "risk": "LOW",
+      "question": "公司在接待监管检查时应该遵循哪些基本原则？",
+      "referenceAnswer": "公司应实行归口接待、专人对接机制，不得拒绝、阻碍或拖延监管检查，并且需要如实记录检查过程。",
+      "referenceContextIds": [
+        "COMPLIANCE:regulatory-audit-cooperation.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/compliance/regulatory-audit-cooperation.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-compliance-supplier-and-third-party-compliance",
+      "domain": "COMPLIANCE",
+      "scenario": "supplier-and-third-party-compliance",
+      "risk": "LOW",
+      "question": "如果供应商与公司员工存在利益关系，应该采取什么措施？",
+      "referenceAnswer": "若公司员工或其近亲属与拟合作供应商存在利益关系，须执行利益冲突申报与回避程序。背景调查记录将归档保存，并作为准入决策依据。",
+      "referenceContextIds": [
+        "COMPLIANCE:supplier-and-third-party-compliance.md:1:1"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/compliance/supplier-and-third-party-compliance.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-compliance-trade-secret-protection",
+      "domain": "COMPLIANCE",
+      "scenario": "trade-secret-protection",
+      "risk": "LOW",
+      "question": "员工在使用商业秘密时有哪些具体规范？",
+      "referenceAnswer": "员工仅能在履行职责必需范围内接触和使用商业秘密，不得用于个人事务或非工作用途。对外提供商业秘密需要经过审批，并且必须签订保密协议。此外，禁止通过聊天软件、个人邮箱等非受控渠道传输商业秘密。",
+      "referenceContextIds": [
+        "COMPLIANCE:trade-secret-protection.md:1:1"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/compliance/trade-secret-protection.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-compliance-whistleblower-and-investigation",
+      "domain": "COMPLIANCE",
+      "scenario": "whistleblower-and-investigation",
+      "risk": "MEDIUM",
+      "question": "如果我发现同事有受贿行为，应该通过哪些渠道进行举报？",
+      "referenceAnswer": "可以通过内部合规举报平台在线提交材料，拨打合规热线，或者发送邮件至合规部门专用邮箱进行举报。所有举报信息均会保密处理。",
+      "referenceContextIds": [
+        "COMPLIANCE:whistleblower-and-investigation.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/compliance/whistleblower-and-investigation.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-compliance-whistleblower-protection-policy",
+      "domain": "COMPLIANCE",
+      "scenario": "whistleblower-protection-policy",
+      "risk": "LOW",
+      "question": "如果举报人因举报而受到不公正对待，应该怎么办？",
+      "referenceAnswer": "举报人可以向合规部门或通过救济渠道申诉，以维护自己的权益。",
+      "referenceContextIds": [
+        "COMPLIANCE:whistleblower-protection-policy.md:1:1"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/compliance/whistleblower-protection-policy.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-mental-academic-stress-and-burnout",
+      "domain": "MENTAL",
+      "scenario": "academic-stress-and-burnout",
+      "risk": "LOW",
+      "question": "学业压力主要来源于哪些方面？",
+      "referenceAnswer": "学业压力主要来源于绩点、排名、保研、考研、出国、论文、实习、竞赛、实验室、挂科风险或家庭期待。",
+      "referenceContextIds": [
+        "MENTAL:academic-stress-and-burnout.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/mental/academic-stress-and-burnout.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-mental-adjustment-and-transition",
+      "domain": "MENTAL",
+      "scenario": "adjustment-and-transition",
+      "risk": "LOW",
+      "question": "新生在适应大学生活时可能会遇到哪些常见困扰？",
+      "referenceAnswer": "新生常见的困扰包括想家、课程跟不上、社交不适、室友磨合、对专业失望、社团选择焦虑以及和高中优秀身份脱节。",
+      "referenceContextIds": [
+        "MENTAL:adjustment-and-transition.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/mental/adjustment-and-transition.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-mental-anxiety-panic-grounding",
+      "domain": "MENTAL",
+      "scenario": "anxiety-panic-grounding",
+      "risk": "MEDIUM",
+      "question": "当学生感到焦虑时，如何帮助他们区分事实和猜测？",
+      "referenceAnswer": "帮助学生区分事实、猜测和下一步。事实是已经发生或可以验证的信息，如“明天有考试”；猜测是大脑为了保护自己产生的预警，如“我一定会挂科”。",
+      "referenceContextIds": [
+        "MENTAL:anxiety-panic-grounding.md:1:1"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/mental/anxiety-panic-grounding.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-mental-campus-mental-health",
+      "domain": "MENTAL",
+      "scenario": "campus-mental-health",
+      "risk": "LOW",
+      "question": "如果我觉得自己可能有心理健康问题，MindBridge能帮我诊断吗？",
+      "referenceAnswer": "MindBridge不能进行疾病诊断或开药。如果你怀疑自己有特定的心理健康问题，建议你咨询校园心理咨询中心、医院精神科或其他专业人员。",
+      "referenceContextIds": [
+        "MENTAL:campus-mental-health.md:1:2"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/mental/campus-mental-health.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-mental-counselor-referral-and-resources",
+      "domain": "MENTAL",
+      "scenario": "counselor-referral-and-resources",
+      "risk": "MEDIUM",
+      "question": "如果我最近总是失眠和情绪低落，已经影响到上课了，应该怎么办？",
+      "referenceAnswer": "当你的困扰持续超过两周，并且明显影响到了学习生活时，建议预约校园心理中心进行咨询。你可以联系辅导员或老师，告诉他们你的情况并寻求进一步的帮助。",
+      "referenceContextIds": [
+        "MENTAL:counselor-referral-and-resources.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/mental/counselor-referral-and-resources.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-mental-exam-season-guidance",
+      "domain": "MENTAL",
+      "scenario": "exam-season-guidance",
+      "risk": "LOW",
+      "question": "考试前一周应该如何合理安排复习计划？",
+      "referenceAnswer": "考前一周应制定现实的复习计划，将内容分为高频重点、基础保分和低优先级三部分，先覆盖高频和基础。每天要保证固定休息和吃饭时间，避免熬夜。",
+      "referenceContextIds": [
+        "MENTAL:exam-season-guidance.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/mental/exam-season-guidance.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-mental-low-mood-depression-support",
+      "domain": "MENTAL",
+      "scenario": "low-mood-depression-support",
+      "risk": "MEDIUM",
+      "question": "当学生感到情绪低落、无意义时，应该如何提供支持？",
+      "referenceAnswer": "应该给予接住感和建议一些小行动，如喝水、洗脸等，而不是急着鼓励他们积极起来。同时，规律饮食睡眠是基础支持，可以先从固定起床时间和保证一顿稳定饭做起。",
+      "referenceContextIds": [
+        "MENTAL:low-mood-depression-support.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/mental/low-mood-depression-support.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-mental-privacy-boundaries-and-ethics",
+      "domain": "MENTAL",
+      "scenario": "privacy-boundaries-and-ethics",
+      "risk": "LOW",
+      "question": "MindBridge在处理学生隐私方面有哪些原则？",
+      "referenceAnswer": "MindBridge重视学生隐私，只收集完成服务所需的信息，避免诱导学生提供无关敏感信息。对于风险信息，仅用于安全支持，不用于惩罚、标签化或公开传播。",
+      "referenceContextIds": [
+        "MENTAL:privacy-boundaries-and-ethics.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/mental/privacy-boundaries-and-ethics.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-mental-relationships-and-family",
+      "domain": "MENTAL",
+      "scenario": "relationships-and-family",
+      "risk": "LOW",
+      "question": "如何处理室友之间的噪音冲突？",
+      "referenceAnswer": "建议先记录具体事件，然后使用低攻击性表达与室友沟通。例如，可以这样说：“我最近睡眠受影响，能不能晚上12点后戴耳机？”",
+      "referenceContextIds": [
+        "MENTAL:relationships-and-family.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/mental/relationships-and-family.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-mental-risk-policy",
+      "domain": "MENTAL",
+      "scenario": "risk-policy",
+      "risk": "HIGH",
+      "question": "如果学生透露有自伤或自杀的念头，应该采取什么措施？",
+      "referenceAnswer": "应立即升级为高风险，并记录心理报告，写入Excel台账，通过MCP工具发送预警给辅导员或管理员。同时建议学生立即拨打紧急电话、联系校园保卫、心理危机热线、辅导员、家人或可信任的人。",
+      "referenceContextIds": [
+        "MENTAL:risk-policy.md:1:3"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/mental/risk-policy.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-mental-sleep-routine-self-care",
+      "domain": "MENTAL",
+      "scenario": "sleep-routine-self-care",
+      "risk": "LOW",
+      "question": "如何建立稳定的作息时间来改善睡眠质量？",
+      "referenceAnswer": "固定起床时间比早睡更重要，即使前一晚没睡好也要尽量按时起床。白天可以晒太阳或户外活动，午睡控制在20到30分钟内。睡前30分钟进行降速流程如洗漱、调暗灯光等。",
+      "referenceContextIds": [
+        "MENTAL:sleep-routine-self-care.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/mental/sleep-routine-self-care.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-llm-security-gateway-02-spec-and-architecture",
+      "domain": "SERVICE",
+      "scenario": "02-spec-and-architecture",
+      "risk": "LOW",
+      "question": "大模型安全网关的单节点吞吐量是多少？",
+      "referenceAnswer": "大模型安全网关的单节点吞吐量至少为5,000 QPS。",
+      "referenceContextIds": [
+        "SERVICE:llm-security-gateway/02-spec-and-architecture.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/llm-security-gateway/02-spec-and-architecture.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-agent-credential-vault-07-troubleshooting",
+      "domain": "SERVICE",
+      "scenario": "07-troubleshooting",
+      "risk": "LOW",
+      "question": "如果遇到凭证保险库服务异常，应该检查哪些方面？",
+      "referenceAnswer": "应检查集群节点健康、数据库/Redis状态、根密钥与证书有效性以及磁盘空间。处理时按高可用预案切换节点，并排查资源泄漏问题。",
+      "referenceContextIds": [
+        "SERVICE:agent-credential-vault/07-troubleshooting.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/agent-credential-vault/07-troubleshooting.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-agent-audit-observe-04-deployment-and-integration",
+      "domain": "SERVICE",
+      "scenario": "04-deployment-and-integration",
+      "risk": "LOW",
+      "question": "部署行为审计与观测系统时，需要开放哪些端口？",
+      "referenceAnswer": "需要开放8080控制台、9092 Kafka和9400采集端口。",
+      "referenceContextIds": [
+        "SERVICE:agent-audit-observe/04-deployment-and-integration.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/agent-audit-observe/04-deployment-and-integration.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-model-provenance-07-troubleshooting",
+      "domain": "SERVICE",
+      "scenario": "07-troubleshooting",
+      "risk": "LOW",
+      "question": "如果模型指纹比对结果出现漏匹配或误报，应该如何排查？",
+      "referenceAnswer": "首先确认指纹参数与鲁棒性级别是否匹配目标篡改程度，然后核对相似度阈值与派生判定规则，并用已知样本进行回归验证。同时检查指纹库是否包含最新基线，必要时重新提取指纹。",
+      "referenceContextIds": [
+        "SERVICE:model-provenance/07-troubleshooting.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/model-provenance/07-troubleshooting.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-agent-sandbox-04-deployment-and-integration",
+      "domain": "SERVICE",
+      "scenario": "04-deployment-and-integration",
+      "risk": "LOW",
+      "question": "部署隔离沙箱时，对Linux内核有哪些具体要求？",
+      "referenceAnswer": "部署隔离沙箱时，需要Linux内核版本至少为4.19，推荐使用5.10及以上版本，并且要开启cgroupv2与overlayfs。",
+      "referenceContextIds": [
+        "SERVICE:agent-sandbox/04-deployment-and-integration.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/agent-sandbox/04-deployment-and-integration.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-agent-iam-08-maintenance-and-version",
+      "domain": "SERVICE",
+      "scenario": "08-maintenance-and-version",
+      "risk": "LOW",
+      "question": "在升级Agent身份与访问管理系统时，有哪些关键步骤需要注意？",
+      "referenceAnswer": "升级前需要备份相关配置并核对版本兼容性，申请变更窗口；升级过程中应先升级授权服务再处理其他组件，并选择低峰期操作；升级后需进行回归测试和状态检查。",
+      "referenceContextIds": [
+        "SERVICE:agent-iam/08-maintenance-and-version.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/agent-iam/08-maintenance-and-version.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-agent-iam-05-user-guide",
+      "domain": "SERVICE",
+      "scenario": "05-user-guide",
+      "risk": "LOW",
+      "question": "Agent身份与访问管理中，如何处理令牌？",
+      "referenceAnswer": "在Agent身份与访问管理中，可以签发、刷新和吊销短时令牌，并查看令牌使用记录。令牌的有效期默认为5分钟至1小时。",
+      "referenceContextIds": [
+        "SERVICE:agent-iam/05-user-guide.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/agent-iam/05-user-guide.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-agent-gateway-02-spec-and-architecture",
+      "domain": "SERVICE",
+      "scenario": "02-spec-and-architecture",
+      "risk": "LOW",
+      "question": "Agent 安全网关的单节点吞吐量是多少？",
+      "referenceAnswer": "Agent 安全网关的单节点吞吐量为至少5000次工具调用/分钟，且P99附加延迟不超过5毫秒。",
+      "referenceContextIds": [
+        "SERVICE:agent-gateway/02-spec-and-architecture.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/agent-gateway/02-spec-and-architecture.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-privacy-computing-05-user-guide",
+      "domain": "SERVICE",
+      "scenario": "05-user-guide",
+      "risk": "LOW",
+      "question": "隐私增强计算平台支持哪些类型的算法进行联合建模？",
+      "referenceAnswer": "隐私增强计算平台支持使用LR、XGBoost和深度学习等算法进行联合建模。",
+      "referenceContextIds": [
+        "SERVICE:privacy-computing/05-user-guide.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/privacy-computing/05-user-guide.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-agent-credential-vault-06-common-faq",
+      "domain": "SERVICE",
+      "scenario": "06-common-faq",
+      "risk": "LOW",
+      "question": "凭证保险库支持托管哪些类型的凭证？",
+      "referenceAnswer": "凭证保险库支持托管API Key、数据库口令、云AccessKey、TLS证书及自定义密钥等，进行统一建模管理。",
+      "referenceContextIds": [
+        "SERVICE:agent-credential-vault/06-common-faq.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/agent-credential-vault/06-common-faq.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-llm-security-gateway-07-troubleshooting",
+      "domain": "SERVICE",
+      "scenario": "07-troubleshooting",
+      "risk": "LOW",
+      "question": "如果遇到大模型安全网关吞吐下降、延迟升高的情况，应该从哪些方面进行排查？",
+      "referenceAnswer": "首先检查检测引擎节点的CPU使用率是否过高，并考虑横向扩容；其次查看Redis限流设置是否误触发，并确认其配置合理性；最后排查上游模型响应速度，判断问题是否出在网关之外。",
+      "referenceContextIds": [
+        "SERVICE:llm-security-gateway/07-troubleshooting.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/llm-security-gateway/07-troubleshooting.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-multi-agent-security-08-maintenance-and-version",
+      "domain": "SERVICE",
+      "scenario": "08-maintenance-and-version",
+      "risk": "LOW",
+      "question": "在多Agent协作安全中，升级流程包括哪些步骤？",
+      "referenceAnswer": "升级流程包括：升级前备份相关配置并核对兼容性；升级过程中先升级可信层再升级其他组件；升级后进行回归测试和状态核对。建议的升级频率为季度安全补丁、月度规则库更新以及年度大版本演进。",
+      "referenceContextIds": [
+        "SERVICE:multi-agent-security/08-maintenance-and-version.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/multi-agent-security/08-maintenance-and-version.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-ai-supply-chain-06-common-faq",
+      "domain": "SERVICE",
+      "scenario": "06-common-faq",
+      "risk": "LOW",
+      "question": "你们支持哪些模型格式进行安全扫描？",
+      "referenceAnswer": "支持的模型格式包括PyTorch、ONNX、GGUF和Safetensors等主流格式，并且可以生成模型SBOM，同时执行指纹与反序列化扫描。",
+      "referenceContextIds": [
+        "SERVICE:ai-supply-chain/06-common-faq.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/ai-supply-chain/06-common-faq.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-agent-credential-vault-04-deployment-and-integration",
+      "domain": "SERVICE",
+      "scenario": "04-deployment-and-integration",
+      "risk": "LOW",
+      "question": "部署Agent凭证保险库的硬件要求是什么？",
+      "referenceAnswer": "需要x86_64架构的服务器，至少8核CPU、32GB内存以及500GB SSD。为了实现高可用性，建议使用3节点集群。",
+      "referenceContextIds": [
+        "SERVICE:agent-credential-vault/04-deployment-and-integration.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/agent-credential-vault/04-deployment-and-integration.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-deepfake-detection-04-deployment-and-integration",
+      "domain": "SERVICE",
+      "scenario": "04-deployment-and-integration",
+      "risk": "LOW",
+      "question": "部署深度伪造鉴别平台需要什么样的硬件配置？",
+      "referenceAnswer": "部署该平台需要x86_64架构的服务器，至少16核CPU、64GB内存以及一块显存不低于16GB的NVIDIA GPU。此外，还需要至少1TB的SSD硬盘。",
+      "referenceContextIds": [
+        "SERVICE:deepfake-detection/04-deployment-and-integration.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/deepfake-detection/04-deployment-and-integration.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-ai-dlp-07-troubleshooting",
+      "domain": "SERVICE",
+      "scenario": "07-troubleshooting",
+      "risk": "LOW",
+      "question": "如果DLP-AI系统出现误报或漏报的情况，应该如何处理？",
+      "referenceAnswer": "对于误报，需要查看具体的命中规则，并考虑调整规则或将其加入白名单；对于漏报，则需核对规则库和语义模型版本，检查LLM通道适配器是否正常接入以及上下文获取是否完整。",
+      "referenceContextIds": [
+        "SERVICE:ai-dlp/07-troubleshooting.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/ai-dlp/07-troubleshooting.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-agent-audit-observe-05-user-guide",
+      "domain": "SERVICE",
+      "scenario": "05-user-guide",
+      "risk": "LOW",
+      "question": "如何配置行为审计的告警规则？",
+      "referenceAnswer": "可以基于基线偏差、高频调用、越权操作等条件来配置告警触发条件。",
+      "referenceContextIds": [
+        "SERVICE:agent-audit-observe/05-user-guide.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/agent-audit-observe/05-user-guide.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-privacy-computing-06-common-faq",
+      "domain": "SERVICE",
+      "scenario": "06-common-faq",
+      "risk": "LOW",
+      "question": "联邦学习模型的精度与集中式训练相比如何？",
+      "referenceAnswer": "联邦学习模型的精度通常比集中式训练低不超过2%。随着参与方数量增加，数据更加全面时，其精度会更接近集中式训练。",
+      "referenceContextIds": [
+        "SERVICE:privacy-computing/06-common-faq.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/privacy-computing/06-common-faq.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-multi-agent-security-03-sales-and-delivery",
+      "domain": "SERVICE",
+      "scenario": "03-sales-and-delivery",
+      "risk": "LOW",
+      "question": "多 Agent 协作安全方案的报价模型是怎样的？",
+      "referenceAnswer": "多 Agent 协作安全方案提供按协作消息量与编排面规模订阅的报价模型，分为标准版（每月不超过5000万条）、企业版（每月不超过2亿条）和旗舰版（定制）。支持按年订阅，并提供防污染规则库、密钥托管等增值服务。",
+      "referenceContextIds": [
+        "SERVICE:multi-agent-security/03-sales-and-delivery.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/multi-agent-security/03-sales-and-delivery.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-agent-iam-04-deployment-and-integration",
+      "domain": "SERVICE",
+      "scenario": "04-deployment-and-integration",
+      "risk": "LOW",
+      "question": "部署 Agent 身份与访问管理服务时，对 Kubernetes 的版本有什么要求？",
+      "referenceAnswer": "部署 Agent 身份与访问管理服务时，需要支持 Kubernetes 1.24 或更高版本。",
+      "referenceContextIds": [
+        "SERVICE:agent-iam/04-deployment-and-integration.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/agent-iam/04-deployment-and-integration.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-agent-iam-06-common-faq",
+      "domain": "SERVICE",
+      "scenario": "06-common-faq",
+      "risk": "LOW",
+      "question": "Agent身份与访问管理产品如何保证令牌的安全性？",
+      "referenceAnswer": "该产品通过支持短时令牌（默认5分钟至1小时）、mTLS双向认证以及KMS/HSM托管密钥来保障令牌安全，从而减少凭据泄露的影响。",
+      "referenceContextIds": [
+        "SERVICE:agent-iam/06-common-faq.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/agent-iam/06-common-faq.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-ai-supply-chain-01-product-overview",
+      "domain": "SERVICE",
+      "scenario": "01-product-overview",
+      "risk": "LOW",
+      "question": "MindBridge SupplyChainGuard主要解决哪些问题？",
+      "referenceAnswer": "MindBridge SupplyChainGuard主要解决开源模型或依赖投毒、供应链漏洞、许可证合规风险、模型被篡改或替换导致的'影子模型'问题，以及因SBOM缺失带来的审计与合规盲区。",
+      "referenceContextIds": [
+        "SERVICE:ai-supply-chain/01-product-overview.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/ai-supply-chain/01-product-overview.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-deepfake-detection-06-common-faq",
+      "domain": "SERVICE",
+      "scenario": "06-common-faq",
+      "risk": "LOW",
+      "question": "深度伪造鉴别平台支持哪些类型的伪造检测？",
+      "referenceAnswer": "该平台支持AI换脸、图像生成（如GAN/Diffusion）、视频逐帧篡改和语音克隆四大类的检测，采用多模态融合打分方式，并输出概率与篡改热力图。",
+      "referenceContextIds": [
+        "SERVICE:deepfake-detection/06-common-faq.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/deepfake-detection/06-common-faq.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-multi-agent-security-05-user-guide",
+      "domain": "SERVICE",
+      "scenario": "05-user-guide",
+      "risk": "LOW",
+      "question": "多Agent协作安全中，如何配置防污染检测规则？",
+      "referenceAnswer": "在多Agent协作安全中，防污染检测规则包括注入模式库、敏感词或脏数据过滤、阈值与白名单设置。这些规则帮助系统识别并处理潜在的恶意数据。",
+      "referenceContextIds": [
+        "SERVICE:multi-agent-security/05-user-guide.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/multi-agent-security/05-user-guide.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-ai-supply-chain-08-maintenance-and-version",
+      "domain": "SERVICE",
+      "scenario": "08-maintenance-and-version",
+      "risk": "LOW",
+      "question": "在升级AI供应链系统时，应该遵循哪些步骤来确保平稳过渡？",
+      "referenceAnswer": "升级前应备份数据库与配置，并核对兼容性矩阵；建议先在测试环境中验证再进行灰度升级。升级过程中，首先更新分析引擎，然后是管理平台，最后执行迁移脚本和回归扫描。",
+      "referenceContextIds": [
+        "SERVICE:ai-supply-chain/08-maintenance-and-version.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/ai-supply-chain/08-maintenance-and-version.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-agent-iam-02-spec-and-architecture",
+      "domain": "SERVICE",
+      "scenario": "02-spec-and-architecture",
+      "risk": "LOW",
+      "question": "Agent 身份与访问管理支持的最大并发在线会话数是多少？",
+      "referenceAnswer": "Agent 身份与访问管理系统支持的并发在线会话数至少为100万，同时策略评估延迟不超过10毫秒。",
+      "referenceContextIds": [
+        "SERVICE:agent-iam/02-spec-and-architecture.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/agent-iam/02-spec-and-architecture.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-llm-security-gateway-04-deployment-and-integration",
+      "domain": "SERVICE",
+      "scenario": "04-deployment-and-integration",
+      "risk": "LOW",
+      "question": "大模型安全网关支持哪些操作系统？",
+      "referenceAnswer": "大模型安全网关支持的操作系统包括CentOS 7.9+、Ubuntu 20.04+、麒麟 V10以及统信 UOS。",
+      "referenceContextIds": [
+        "SERVICE:llm-security-gateway/04-deployment-and-integration.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/llm-security-gateway/04-deployment-and-integration.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-multi-agent-security-04-deployment-and-integration",
+      "domain": "SERVICE",
+      "scenario": "04-deployment-and-integration",
+      "risk": "LOW",
+      "question": "多 Agent 协作安全方案的部署至少需要多少节点和内存配置？",
+      "referenceAnswer": "多 Agent 协作安全方案的部署至少需要3个节点，每个节点应具备8核CPU和32GB内存。",
+      "referenceContextIds": [
+        "SERVICE:multi-agent-security/04-deployment-and-integration.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/multi-agent-security/04-deployment-and-integration.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-ai-dlp-06-common-faq",
+      "domain": "SERVICE",
+      "scenario": "06-common-faq",
+      "risk": "LOW",
+      "question": "智能数据防泄漏 DLP-AI 是否会影响正常的业务运行和网络性能？",
+      "referenceAnswer": "不会影响，因为网络探针采用旁路镜像检测方式，不阻断链路；同时端点 Agent 的资源占用低，并且处置动作可以配置为仅记录。",
+      "referenceContextIds": [
+        "SERVICE:ai-dlp/06-common-faq.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/ai-dlp/06-common-faq.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-privacy-computing-02-spec-and-architecture",
+      "domain": "SERVICE",
+      "scenario": "02-spec-and-architecture",
+      "risk": "LOW",
+      "question": "隐私增强计算平台支持哪些类型的联邦学习模型？",
+      "referenceAnswer": "隐私增强计算平台支持横纵联邦LR、XGBoost和深度学习模型。",
+      "referenceContextIds": [
+        "SERVICE:privacy-computing/02-spec-and-architecture.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/privacy-computing/02-spec-and-architecture.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-ai-model-redteam-02-spec-and-architecture",
+      "domain": "SERVICE",
+      "scenario": "02-spec-and-architecture",
+      "risk": "LOW",
+      "question": "模型安全红队评估平台的单执行节点评测吞吐量是多少？",
+      "referenceAnswer": "模型安全红队评估平台的单执行节点评测吞吐量为每秒至少800个请求，同时保证P99延迟不超过300毫秒。",
+      "referenceContextIds": [
+        "SERVICE:ai-model-redteam/02-spec-and-architecture.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/ai-model-redteam/02-spec-and-architecture.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-multi-agent-security-02-spec-and-architecture",
+      "domain": "SERVICE",
+      "scenario": "02-spec-and-architecture",
+      "risk": "LOW",
+      "question": "多 Agent 协作安全系统支持哪些部署形态？",
+      "referenceAnswer": "多 Agent 协作安全系统支持私有化部署（包括x86_64、ARM64和信创架构，单机或多节点集群）、容器化部署（兼容Kubernetes，提供Helm一键部署），以及Sidecar与代理网关两种接入方式。",
+      "referenceContextIds": [
+        "SERVICE:multi-agent-security/02-spec-and-architecture.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/multi-agent-security/02-spec-and-architecture.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-privacy-computing-04-deployment-and-integration",
+      "domain": "SERVICE",
+      "scenario": "04-deployment-and-integration",
+      "risk": "LOW",
+      "question": "隐私增强计算平台的参与方节点需要满足哪些硬件要求？",
+      "referenceAnswer": "参与方节点需要≥16核CPU、≥64GB内存；如果启用TEE，需支持SGX或海光CSV的服务器；进行深度学习联邦时还需要GPU。",
+      "referenceContextIds": [
+        "SERVICE:privacy-computing/04-deployment-and-integration.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/privacy-computing/04-deployment-and-integration.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-agent-audit-observe-01-product-overview",
+      "domain": "SERVICE",
+      "scenario": "01-product-overview",
+      "risk": "LOW",
+      "question": "Agent行为审计与观测产品主要解决哪些问题？",
+      "referenceAnswer": "该产品主要解决企业Agent自主决策和调用工具时的行为不可见问题，以及出现越权、数据泄露或误操作时无据可查的问题。同时，它还解决了Agent会话不可复现、操作不可审计、全链路不可追踪的痛点。",
+      "referenceContextIds": [
+        "SERVICE:agent-audit-observe/01-product-overview.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/agent-audit-observe/01-product-overview.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-agent-gateway-05-user-guide",
+      "domain": "SERVICE",
+      "scenario": "05-user-guide",
+      "risk": "LOW",
+      "question": "Agent安全网关的策略配置可以实现哪些功能？",
+      "referenceAnswer": "策略配置可以按Agent、工具和动作（读/写/执行）来设置放行、告警或阻断三种级别的策略。",
+      "referenceContextIds": [
+        "SERVICE:agent-gateway/05-user-guide.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/agent-gateway/05-user-guide.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-multi-agent-security-01-product-overview",
+      "domain": "SERVICE",
+      "scenario": "01-product-overview",
+      "risk": "LOW",
+      "question": "多 Agent 协作安全产品主要解决哪些核心问题？",
+      "referenceAnswer": "该产品主要解决多个Agent协作时消息传递过程中存在的消息伪造、篡改、污染以及编排面被劫持的风险，针对协作协议不可信、消息防污染难、编排面攻击面大这三类核心痛点。",
+      "referenceContextIds": [
+        "SERVICE:multi-agent-security/01-product-overview.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/multi-agent-security/01-product-overview.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-ai-content-safety-04-deployment-and-integration",
+      "domain": "SERVICE",
+      "scenario": "04-deployment-and-integration",
+      "risk": "LOW",
+      "question": "AI内容安全审核引擎支持哪些操作系统的部署？",
+      "referenceAnswer": "AI内容安全审核引擎支持的操作系统包括CentOS 7.9及以上、Ubuntu 20.04及以上、麒麟V10以及统信UOS。",
+      "referenceContextIds": [
+        "SERVICE:ai-content-safety/04-deployment-and-integration.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/ai-content-safety/04-deployment-and-integration.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-deepfake-detection-08-maintenance-and-version",
+      "domain": "SERVICE",
+      "scenario": "08-maintenance-and-version",
+      "risk": "LOW",
+      "question": "深度伪造鉴别平台的升级流程是怎样的？",
+      "referenceAnswer": "升级前需要备份数据库与配置，并核对版本兼容性；建议在零售环境中验证。先升级检测引擎镜像，再升级管理平台，最后运行迁移脚本与回归测试，整个过程可以回退至上一版本。",
+      "referenceContextIds": [
+        "SERVICE:deepfake-detection/08-maintenance-and-version.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/deepfake-detection/08-maintenance-and-version.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-agent-gateway-04-deployment-and-integration",
+      "domain": "SERVICE",
+      "scenario": "04-deployment-and-integration",
+      "risk": "LOW",
+      "question": "部署Agent安全网关需要什么样的硬件配置？",
+      "referenceAnswer": "部署Agent安全网关需要x86_64架构的服务器，至少8核CPU、32GB内存以及500GB以上的SSD存储空间。对于审计日志存储，建议使用更大的存储空间。",
+      "referenceContextIds": [
+        "SERVICE:agent-gateway/04-deployment-and-integration.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/agent-gateway/04-deployment-and-integration.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-model-provenance-05-user-guide",
+      "domain": "SERVICE",
+      "scenario": "05-user-guide",
+      "risk": "LOW",
+      "question": "模型指纹与来源追踪工具可以用于哪些场景？",
+      "referenceAnswer": "该工具可用于新模型发布时自动登记指纹、定期对公开渠道与第三方模型执行盗版核查以及采购模型时进行来源合规核查等场景。",
+      "referenceContextIds": [
+        "SERVICE:model-provenance/05-user-guide.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/model-provenance/05-user-guide.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-llm-security-gateway-01-product-overview",
+      "domain": "SERVICE",
+      "scenario": "01-product-overview",
+      "risk": "LOW",
+      "question": "MindBridge 大模型安全网关主要解决哪些问题？",
+      "referenceAnswer": "它解决了LLM应用绕过企业安全管控导致敏感数据泄露、提示注入和越狱攻击无防护以及多模型接入缺乏统一管理的问题。",
+      "referenceContextIds": [
+        "SERVICE:llm-security-gateway/01-product-overview.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/llm-security-gateway/01-product-overview.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-multi-agent-security-07-troubleshooting",
+      "domain": "SERVICE",
+      "scenario": "07-troubleshooting",
+      "risk": "LOW",
+      "question": "如果遇到消息校验延迟升高的问题，应该如何排查？",
+      "referenceAnswer": "首先检查消息校验节点的负载与网络延迟，并核对签名算法和密钥缓存。接着确认消息吞吐量是否超出规格，并查看防污染引擎的资源占用情况。最后考虑扩容校验节点或优化密钥缓存。",
+      "referenceContextIds": [
+        "SERVICE:multi-agent-security/07-troubleshooting.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/multi-agent-security/07-troubleshooting.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-model-provenance-06-common-faq",
+      "domain": "SERVICE",
+      "scenario": "06-common-faq",
+      "risk": "LOW",
+      "question": "模型指纹技术能否检测出开源模型被违规商用的情况？",
+      "referenceAnswer": "可以，通过对公开渠道模型进行比对，能够识别违反开源协议的商用派生模型。",
+      "referenceContextIds": [
+        "SERVICE:model-provenance/06-common-faq.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/model-provenance/06-common-faq.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-ai-dlp-01-product-overview",
+      "domain": "SERVICE",
+      "scenario": "01-product-overview",
+      "risk": "LOW",
+      "question": "MindBridge智能数据防泄漏系统主要解决哪些问题？",
+      "referenceAnswer": "该系统主要解决员工使用外部AI工具导致的敏感信息泄露、模型调用与数据协作过程中的数据出站管控不足以及传统DLP无法识别语义化和变形化的敏感内容等问题。",
+      "referenceContextIds": [
+        "SERVICE:ai-dlp/01-product-overview.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/ai-dlp/01-product-overview.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-agent-credential-vault-05-user-guide",
+      "domain": "SERVICE",
+      "scenario": "05-user-guide",
+      "risk": "LOW",
+      "question": "凭证保险库支持哪些功能？",
+      "referenceAnswer": "凭证保险库支持凭证托管、动态下发限时最小权限凭证、自动轮换凭证以及审计查询等功能。",
+      "referenceContextIds": [
+        "SERVICE:agent-credential-vault/05-user-guide.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/agent-credential-vault/05-user-guide.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-ai-content-safety-06-common-faq",
+      "domain": "SERVICE",
+      "scenario": "06-common-faq",
+      "risk": "LOW",
+      "question": "AI内容安全审核引擎支持哪些类型的内容审核？",
+      "referenceAnswer": "AI内容安全审核引擎支持文本、图片、音频和视频四类多模态内容的统一接口，可以单独或组合开通。",
+      "referenceContextIds": [
+        "SERVICE:ai-content-safety/06-common-faq.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/ai-content-safety/06-common-faq.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-ai-content-safety-05-user-guide",
+      "domain": "SERVICE",
+      "scenario": "05-user-guide",
+      "risk": "LOW",
+      "question": "如何配置AI内容安全审核引擎的处置动作？",
+      "referenceAnswer": "可以为不同类目配置放行、拦截、转人工或加白等处置动作，并且支持根据用户等级进行差异化设置。",
+      "referenceContextIds": [
+        "SERVICE:ai-content-safety/05-user-guide.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/ai-content-safety/05-user-guide.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-agent-sandbox-02-spec-and-architecture",
+      "domain": "SERVICE",
+      "scenario": "02-spec-and-architecture",
+      "risk": "LOW",
+      "question": "Agent隔离沙箱在单节点上可以并发运行多少个沙箱？",
+      "referenceAnswer": "Agent隔离沙箱在单节点上可以并发运行至少200个沙箱。",
+      "referenceContextIds": [
+        "SERVICE:agent-sandbox/02-spec-and-architecture.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/agent-sandbox/02-spec-and-architecture.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-agent-audit-observe-06-common-faq",
+      "domain": "SERVICE",
+      "scenario": "06-common-faq",
+      "risk": "LOW",
+      "question": "审计数据可以保存多久？",
+      "referenceAnswer": "默认保存180天，但可以通过配置扩展到1年。对于需要长期保存的数据，可以选择归档至对象存储或大数据平台，并根据监管要求设定具体的留存时间。",
+      "referenceContextIds": [
+        "SERVICE:agent-audit-observe/06-common-faq.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/agent-audit-observe/06-common-faq.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-ai-content-safety-07-troubleshooting",
+      "domain": "SERVICE",
+      "scenario": "07-troubleshooting",
+      "risk": "LOW",
+      "question": "如果遇到AI内容安全审核引擎的审核延迟升高和吞吐量下降，应该从哪些方面进行排查？",
+      "referenceAnswer": "首先检查引擎节点的CPU或GPU是否达到饱和状态，并考虑适当扩容。其次，查看Redis缓存命中率及数据库连接情况，确保没有错误触发限流机制。最后，检查对象存储读写速度是否变慢，必要时进行扩容。",
+      "referenceContextIds": [
+        "SERVICE:ai-content-safety/07-troubleshooting.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/ai-content-safety/07-troubleshooting.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-model-provenance-04-deployment-and-integration",
+      "domain": "SERVICE",
+      "scenario": "04-deployment-and-integration",
+      "risk": "LOW",
+      "question": "模型指纹与来源追踪的部署需要哪些环境要求？",
+      "referenceAnswer": "部署需要CentOS 7.9+、Ubuntu 20.04+、麒麟 V10或统信 UOS系统，指纹提取节点需配备NVIDIA驱动470+/CUDA 11.8+或国产GPU驱动。比对节点至少需要8 vCPU/16GB内存/200GB存储空间，并且容器化部署需要Kubernetes 1.24+版本。",
+      "referenceContextIds": [
+        "SERVICE:model-provenance/04-deployment-and-integration.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/model-provenance/04-deployment-and-integration.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-agent-sandbox-03-sales-and-delivery",
+      "domain": "SERVICE",
+      "scenario": "03-sales-and-delivery",
+      "risk": "LOW",
+      "question": "Agent 隔离沙箱的报价模型有哪些？",
+      "referenceAnswer": "Agent 隔离沙箱提供按节点/沙箱规模订阅，分为基础版（≤50 并发沙箱）、专业版（≤500）和旗舰版（不限，含专属顾问）。主要以按年订阅为主，支持1年/3年期，并提供永久授权买断制（含1年维保）。POC验证免费。",
+      "referenceContextIds": [
+        "SERVICE:agent-sandbox/03-sales-and-delivery.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/agent-sandbox/03-sales-and-delivery.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-agent-audit-observe-08-maintenance-and-version",
+      "domain": "SERVICE",
+      "scenario": "08-maintenance-and-version",
+      "risk": "LOW",
+      "question": "在升级Agent时，有哪些关键步骤需要执行？",
+      "referenceAnswer": "升级前需备份配置、索引与留存策略，并确认版本兼容性；升级过程中应先更新存储层索引schema，再升级采集与展示服务；升级后要进行数据完整性校验和查询回归测试，同时检查告警规则与报表的可用性。",
+      "referenceContextIds": [
+        "SERVICE:agent-audit-observe/08-maintenance-and-version.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/agent-audit-observe/08-maintenance-and-version.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-agent-iam-01-product-overview",
+      "domain": "SERVICE",
+      "scenario": "01-product-overview",
+      "risk": "LOW",
+      "question": "Agent 身份与访问管理产品主要解决哪些核心问题？",
+      "referenceAnswer": "该产品主要解决企业 Agent 以高权限身份运行导致的身份混淆、越权访问和凭据泄露风险，以及Agent身份不可区分、权限不可治理、最小权限难以落地的问题。",
+      "referenceContextIds": [
+        "SERVICE:agent-iam/01-product-overview.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/agent-iam/01-product-overview.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-ai-model-redteam-08-maintenance-and-version",
+      "domain": "SERVICE",
+      "scenario": "08-maintenance-and-version",
+      "risk": "LOW",
+      "question": "在进行平台升级时，应该遵循哪些步骤以确保顺利过渡？",
+      "referenceAnswer": "升级前应备份数据库与配置，并确认版本兼容性。建议在维护窗口内先升级执行节点再升级控制面，最后升级判定引擎。升级后需执行冒烟评测验证功能正常。",
+      "referenceContextIds": [
+        "SERVICE:ai-model-redteam/08-maintenance-and-version.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/ai-model-redteam/08-maintenance-and-version.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-deepfake-detection-03-sales-and-delivery",
+      "domain": "SERVICE",
+      "scenario": "03-sales-and-delivery",
+      "risk": "LOW",
+      "question": "深度伪造鉴别平台的报价模型有哪些？",
+      "referenceAnswer": "深度伪造鉴别平台提供三种报价模型：按年订阅、私有化授权和混合模式。按年订阅根据检测量阶梯计费，私有化授权为一次性授权费加年维保费，混合模式则结合了私有化核心能力和云侧弹性扩容。",
+      "referenceContextIds": [
+        "SERVICE:deepfake-detection/03-sales-and-delivery.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/deepfake-detection/03-sales-and-delivery.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-agent-gateway-03-sales-and-delivery",
+      "domain": "SERVICE",
+      "scenario": "03-sales-and-delivery",
+      "risk": "LOW",
+      "question": "Agent 安全网关的订阅制费用是多少？",
+      "referenceAnswer": "Agent 安全网关的订阅制费用为每 Agent 500 元/年起，包含标准策略与审计。",
+      "referenceContextIds": [
+        "SERVICE:agent-gateway/03-sales-and-delivery.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/agent-gateway/03-sales-and-delivery.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-llm-security-gateway-06-common-faq",
+      "domain": "SERVICE",
+      "scenario": "06-common-faq",
+      "risk": "LOW",
+      "question": "如果上游模型出现故障，网关会如何处理？",
+      "referenceAnswer": "网关会自动熔断并切换到备用模型，确保业务无感。同时支持配置故障演练来验证灾备方案。",
+      "referenceContextIds": [
+        "SERVICE:llm-security-gateway/06-common-faq.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/llm-security-gateway/06-common-faq.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-ai-content-safety-01-product-overview",
+      "domain": "SERVICE",
+      "scenario": "01-product-overview",
+      "risk": "LOW",
+      "question": "MindBridge AI 内容安全审核引擎主要适用于哪些场景？",
+      "referenceAnswer": "MindBridge AI 内容安全审核引擎适用于用户发帖/评论/上传、直播实时审核、AI 生成文本与图像审核以及存量内容清洗等场景。",
+      "referenceContextIds": [
+        "SERVICE:ai-content-safety/01-product-overview.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/ai-content-safety/01-product-overview.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-agent-sandbox-08-maintenance-and-version",
+      "domain": "SERVICE",
+      "scenario": "08-maintenance-and-version",
+      "risk": "LOW",
+      "question": "Agent隔离沙箱的升级流程是怎样的？",
+      "referenceAnswer": "Agent隔离沙箱升级前需要备份配置与策略，并确认版本兼容性，申请变更窗口；升级过程中应在低峰期先升级控制面再滚动升级数据面；升级后需执行健康检查与回归测试，确保策略与事件数据完整。",
+      "referenceContextIds": [
+        "SERVICE:agent-sandbox/08-maintenance-and-version.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/agent-sandbox/08-maintenance-and-version.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-agent-gateway-08-maintenance-and-version",
+      "domain": "SERVICE",
+      "scenario": "08-maintenance-and-version",
+      "risk": "LOW",
+      "question": "Agent 安全网关的升级流程是怎样的？",
+      "referenceAnswer": "升级前需要备份策略与审计数据，并核对兼容性矩阵；先在测试环境验证再进行灰度升级。升级时先升级策略引擎，再升级SDK/接入层，执行迁移脚本并进行回归拦截测试。",
+      "referenceContextIds": [
+        "SERVICE:agent-gateway/08-maintenance-and-version.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/agent-gateway/08-maintenance-and-version.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-agent-sandbox-05-user-guide",
+      "domain": "SERVICE",
+      "scenario": "05-user-guide",
+      "risk": "LOW",
+      "question": "沙箱模板管理可以进行哪些操作？",
+      "referenceAnswer": "沙箱模板管理支持创建和编辑执行环境模板，可以预设依赖与资源额度。",
+      "referenceContextIds": [
+        "SERVICE:agent-sandbox/05-user-guide.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/agent-sandbox/05-user-guide.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-ai-supply-chain-04-deployment-and-integration",
+      "domain": "SERVICE",
+      "scenario": "04-deployment-and-integration",
+      "risk": "LOW",
+      "question": "AI 供应链安全的部署对硬件有哪些具体要求？",
+      "referenceAnswer": "AI 供应链安全的部署需要x86_64架构的服务器，至少8核CPU、32GB内存以及500GB以上的SSD存储空间。对于扫描缓存，建议使用更大的存储空间。",
+      "referenceContextIds": [
+        "SERVICE:ai-supply-chain/04-deployment-and-integration.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/ai-supply-chain/04-deployment-and-integration.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-ai-supply-chain-03-sales-and-delivery",
+      "domain": "SERVICE",
+      "scenario": "03-sales-and-delivery",
+      "risk": "LOW",
+      "question": "AI 供应链安全的 SaaS 订阅费用是多少？",
+      "referenceAnswer": "SaaS 订阅费用为按纳管资产节点数计费，基础版每节点 500 元/年起，包含标准扫描与报表。",
+      "referenceContextIds": [
+        "SERVICE:ai-supply-chain/03-sales-and-delivery.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/ai-supply-chain/03-sales-and-delivery.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-model-provenance-08-maintenance-and-version",
+      "domain": "SERVICE",
+      "scenario": "08-maintenance-and-version",
+      "risk": "LOW",
+      "question": "模型指纹与来源追踪的升级流程是怎样的？",
+      "referenceAnswer": "升级流程包括备份相关数据并确认版本兼容性，然后在维护窗口期间先升级控制面与溯源分析，再升级指纹提取与比对节点。升级后需要使用已知模型进行回归验证，确保一切正常后再放开生产。",
+      "referenceContextIds": [
+        "SERVICE:model-provenance/08-maintenance-and-version.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/model-provenance/08-maintenance-and-version.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-agent-audit-observe-03-sales-and-delivery",
+      "domain": "SERVICE",
+      "scenario": "03-sales-and-delivery",
+      "risk": "LOW",
+      "question": "你们的报价模型是怎样的？",
+      "referenceAnswer": "我们的报价模型按事件量订阅，分为标准版（≤5000万条/月）、进阶版（≤2亿条）和旗舰版（定制容量），支持按年订阅，并提供数据留存时长增值包与专属分析师服务。",
+      "referenceContextIds": [
+        "SERVICE:agent-audit-observe/03-sales-and-delivery.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/agent-audit-observe/03-sales-and-delivery.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-ai-content-safety-03-sales-and-delivery",
+      "domain": "SERVICE",
+      "scenario": "03-sales-and-delivery",
+      "risk": "LOW",
+      "question": "AI内容安全审核引擎的报价模型有哪些？",
+      "referenceAnswer": "AI内容安全审核引擎提供SaaS按调用量计费、私有化按能力授权以及混合模式三种报价模型，其中模型定制与类目深度优化需要单独报价。",
+      "referenceContextIds": [
+        "SERVICE:ai-content-safety/03-sales-and-delivery.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/ai-content-safety/03-sales-and-delivery.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-privacy-computing-07-troubleshooting",
+      "domain": "SERVICE",
+      "scenario": "07-troubleshooting",
+      "risk": "LOW",
+      "question": "如果隐私增强计算平台的训练过程收敛速度慢或者根本不收敛，应该从哪些方面进行排查？",
+      "referenceAnswer": "首先检查参与方节点是否离线以及数据分布是否过于不均衡，并核对联邦通信开销与网络抖动情况。其次，确认隐私预算是否过低导致噪声过大或训练超出了参与方配额。",
+      "referenceContextIds": [
+        "SERVICE:privacy-computing/07-troubleshooting.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/privacy-computing/07-troubleshooting.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-ai-dlp-08-maintenance-and-version",
+      "domain": "SERVICE",
+      "scenario": "08-maintenance-and-version",
+      "risk": "LOW",
+      "question": "智能数据防泄漏DLP-AI的升级流程是怎样的？",
+      "referenceAnswer": "升级前需备份策略配置、规则库与事件数据，并确认版本兼容性。先升级控制面与识别引擎，再升级探针与Agent。升级后执行回归验证，包括样本识别和探针流量检测，最后放开生产。",
+      "referenceContextIds": [
+        "SERVICE:ai-dlp/08-maintenance-and-version.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/ai-dlp/08-maintenance-and-version.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-privacy-computing-08-maintenance-and-version",
+      "domain": "SERVICE",
+      "scenario": "08-maintenance-and-version",
+      "risk": "LOW",
+      "question": "隐私增强计算平台的升级流程是怎样的？",
+      "referenceAnswer": "升级前需要备份数据库与密钥材料，并核对兼容性矩阵；建议先在一个参与方节点上进行验证。升级时应先升级协调节点，再升级各参与方代理，并执行迁移脚本与联邦回归测试。",
+      "referenceContextIds": [
+        "SERVICE:privacy-computing/08-maintenance-and-version.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/privacy-computing/08-maintenance-and-version.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-ai-supply-chain-02-spec-and-architecture",
+      "domain": "SERVICE",
+      "scenario": "02-spec-and-architecture",
+      "risk": "LOW",
+      "question": "AI供应链安全系统在资产扫描方面的性能指标是什么？",
+      "referenceAnswer": "对于单个模型（≤10GB）的首次扫描时间不超过30分钟，增量扫描时间不超过5分钟；依赖扫描速度至少为每分钟5000个包。",
+      "referenceContextIds": [
+        "SERVICE:ai-supply-chain/02-spec-and-architecture.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/ai-supply-chain/02-spec-and-architecture.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-agent-audit-observe-07-troubleshooting",
+      "domain": "SERVICE",
+      "scenario": "07-troubleshooting",
+      "risk": "LOW",
+      "question": "如果遇到事件采集延迟或丢失的情况，应该从哪些方面进行排查？",
+      "referenceAnswer": "首先检查采集端网络与Kafka消费积压情况，以及采集器日志和上报队列状态。接着确认Kafka分区数与存储写入速率是否匹配，并核对采样率与并发配置。",
+      "referenceContextIds": [
+        "SERVICE:agent-audit-observe/07-troubleshooting.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/agent-audit-observe/07-troubleshooting.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-ai-model-redteam-03-sales-and-delivery",
+      "domain": "SERVICE",
+      "scenario": "03-sales-and-delivery",
+      "risk": "LOW",
+      "question": "模型安全红队评估平台的企业版有哪些特点？",
+      "referenceAnswer": "企业版提供评测节点授权和模板库全量订阅，支持多租户与审计能力，并可选99.9%可用性与7×24电话支持。",
+      "referenceContextIds": [
+        "SERVICE:ai-model-redteam/03-sales-and-delivery.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/ai-model-redteam/03-sales-and-delivery.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-privacy-computing-01-product-overview",
+      "domain": "SERVICE",
+      "scenario": "01-product-overview",
+      "risk": "LOW",
+      "question": "MindBridge PrivacyUnion平台主要解决什么问题？",
+      "referenceAnswer": "MindBridge PrivacyUnion平台主要解决跨机构间数据不敢共享、不便共享导致的数据孤岛问题，以及在训练或推理过程中可能出现的数据泄露与合规风险。",
+      "referenceContextIds": [
+        "SERVICE:privacy-computing/01-product-overview.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/privacy-computing/01-product-overview.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-ai-model-redteam-06-common-faq",
+      "domain": "SERVICE",
+      "scenario": "06-common-faq",
+      "risk": "LOW",
+      "question": "评测一个模型需要多长时间？",
+      "referenceAnswer": "默认12,000模板全量评测在4节点并行下约40分钟完成，也可以选择部分模板以缩短时间。",
+      "referenceContextIds": [
+        "SERVICE:ai-model-redteam/06-common-faq.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/ai-model-redteam/06-common-faq.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-ai-dlp-04-deployment-and-integration",
+      "domain": "SERVICE",
+      "scenario": "04-deployment-and-integration",
+      "risk": "LOW",
+      "question": "智能数据防泄漏 DLP-AI 的控制系统支持哪些操作系统？",
+      "referenceAnswer": "智能数据防泄漏 DLP-AI 的控制系统支持 CentOS 7.9+、Ubuntu 20.04+、麒麟 V10 和统信 UOS。",
+      "referenceContextIds": [
+        "SERVICE:ai-dlp/04-deployment-and-integration.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/ai-dlp/04-deployment-and-integration.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-agent-credential-vault-03-sales-and-delivery",
+      "domain": "SERVICE",
+      "scenario": "03-sales-and-delivery",
+      "risk": "LOW",
+      "question": "Agent凭证保险库的订阅制费用是多少？",
+      "referenceAnswer": "基础版每条凭证5元/年起，含托管与基本下发。",
+      "referenceContextIds": [
+        "SERVICE:agent-credential-vault/03-sales-and-delivery.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/agent-credential-vault/03-sales-and-delivery.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-ai-dlp-03-sales-and-delivery",
+      "domain": "SERVICE",
+      "scenario": "03-sales-and-delivery",
+      "risk": "LOW",
+      "question": "智能数据防泄漏 DLP-AI 的报价模型有哪些？",
+      "referenceAnswer": "智能数据防泄漏 DLP-AI 的报价模型包括按通道授权、按规模授权以及 SaaS 日志服务版。其中，识别引擎与策略库更新已纳入年度维保，不单独收费。",
+      "referenceContextIds": [
+        "SERVICE:ai-dlp/03-sales-and-delivery.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/ai-dlp/03-sales-and-delivery.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-agent-gateway-07-troubleshooting",
+      "domain": "SERVICE",
+      "scenario": "07-troubleshooting",
+      "risk": "LOW",
+      "question": "如果遇到网关服务异常，应该从哪些方面进行检查？",
+      "referenceAnswer": "应检查服务进程与容器健康、数据库与Redis状态以及证书有效期。处理时可尝试重启无状态服务，并在扩容前排查资源泄漏问题。",
+      "referenceContextIds": [
+        "SERVICE:agent-gateway/07-troubleshooting.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/agent-gateway/07-troubleshooting.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    },
+    {
+      "id": "full-service-ai-supply-chain-07-troubleshooting",
+      "domain": "SERVICE",
+      "scenario": "07-troubleshooting",
+      "risk": "LOW",
+      "question": "如果在AI供应链安全中遇到扫描缓慢或超时的情况，应该从哪些方面进行排查？",
+      "referenceAnswer": "应检查资产大小与网络带宽是否匹配，并确认是否有反病毒或防火墙限流。同时需要核对对象存储与扫描机的并发配置，以及漏洞库下载状态和扫描worker的工作情况。",
+      "referenceContextIds": [
+        "SERVICE:ai-supply-chain/07-troubleshooting.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/ai-supply-chain/07-troubleshooting.md",
+        "reviewStatus": "pending",
+        "note": "question/referenceAnswer 由 qwen-max 依据 chunk 自动标注，reviewStatus=pending 待领域专家抽检复核"
+      }
+    }
+  ]
+}

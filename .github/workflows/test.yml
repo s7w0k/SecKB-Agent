@@ -1,0 +1,79 @@
+name: CI L0-L1
+
+# P8-01：PR 级快速门禁（L0 + L1）
+# L0：schema 校验、纯指标、adapter、敏感字段单测（无外部依赖）
+# L1：smoke retrieval、critical 规则（本地 mock，无 judge key）
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  # ---- L0：确定性单测（hard gate） ----
+  l0-unit-tests:
+    name: L0 Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Compile app
+        run: python -m compileall app tests
+      - name: Run unit tests
+        env:
+          AI_PROVIDER: mock
+          DATABASE_URL: sqlite:///./target/ci-test.sqlite3
+          REDIS_URL: redis://127.0.0.1:6379/15
+          KNOWLEDGE_VECTOR_ENABLED: "false"
+        run: python -m unittest discover -s tests
+
+  # ---- L0：数据集 schema 校验（hard gate） ----
+  l0-schema-validation:
+    name: L0 Schema Validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Validate eval datasets
+        run: python -m app.rag_eval.validate --all --skip-db
+
+  # ---- L1：smoke retrieval + leakage gate（hard gate，无 judge key） ----
+  l1-smoke-retrieval:
+    name: L1 Smoke Retrieval
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Run smoke suite
+        env:
+          AI_PROVIDER: mock
+          DATABASE_URL: sqlite:///./target/ci-smoke.sqlite3
+          KNOWLEDGE_VECTOR_ENABLED: "false"
+        run: |
+          python -m app.rag_eval.smoke
+          # leakageGate.passed 必须为 true（hard gate）
+          python -c "
+          import json
+          report = json.load(open('target/rag-eval/smoke-report.json'))
+          assert report['leakageGate']['passed'], f'leakage violations: {report[\"leakageGate\"][\"violations\"]}'
+          print('L1 smoke: leakage gate passed')
+          "

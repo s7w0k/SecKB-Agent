@@ -1,0 +1,16 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+.uploads/
+data/*.db
+data/*.sqlite
+data/*.xlsx
+data/chroma/
+data/chroma-load-test/
+data/chroma-snapshots/
+data/chroma-test/
+data/embedding-cache/
+data/objects/
+target/
+.DS_Store

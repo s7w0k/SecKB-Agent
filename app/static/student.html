@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MindBridge 智能客服与合规问答</title>
+  <link rel="stylesheet" href="/styles.css?v=enterprise-support-20260810">
+</head>
+<body class="student-page">
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo student-logo">MB</div>
+      <div>
+        <p class="eyebrow">SUPPORT DESK AGENT</p>
+        <h1>MindBridge 知识库智能体</h1>
+        <p class="topbar-subtitle">产品售前售后 · 技术支持 · 合规风控</p>
+      </div>
+    </div>
+    <div class="status-row">
+      <span id="serviceState" class="pill warn">连接中</span>
+      <span id="modelState" class="pill warn">模型读取中</span>
+      <div id="accountBadge" class="account">
+        <strong id="activeAccount">客服</strong>
+        <span>客服工作台</span>
+      </div>
+      <button id="switchAccount" class="dark-btn" type="button">退出</button>
+    </div>
+  </header>
+
+  <main class="student-layout premium-student-layout">
+    <aside class="student-rail">
+      <section class="companion-card">
+        <div class="companion-copy">
+          <span>KNOWLEDGE-BASED</span>
+          <h2>企业客服与合规知识库</h2>
+          <p>基于产品文档与合规政策的知识库问答，答案会引用来源依据。</p>
+        </div>
+      </section>
+
+      <section class="panel checkin-panel">
+        <div class="section-head">
+          <div>
+            <p class="panel-label">QUICK INQUIRY</p>
+            <h3>选择场景开始</h3>
+          </div>
+          <span class="checkin-note">点击填充提问</span>
+        </div>
+        <div class="signal-grid">
+          <button class="signal mood-signal" type="button" data-quick="大模型安全网关 AegisGate 支持哪些模型和部署方式？">
+            <span class="signal-icon">◒</span>
+            <span><strong>产品咨询</strong><small>规格、部署与集成</small></span>
+          </button>
+          <button class="signal mood-signal" type="button" data-quick="Agent 凭证保险库的密钥轮换和审计能力是怎样的？">
+            <span class="signal-icon">≈</span>
+            <span><strong>售前方案</strong><small>能力、报价与交付</small></span>
+          </button>
+          <button class="signal mood-signal" type="button" data-quick="深度伪造鉴别平台部署后出现误报偏高，如何排查？">
+            <span class="signal-icon">—</span>
+            <span><strong>售后支持</strong><small>故障排查与维保</small></span>
+          </button>
+          <button class="signal mood-signal" type="button" data-quick="对外商务中赠送客户的礼品和招待有什么合规限额？">
+            <span class="signal-icon">↗</span>
+            <span><strong>合规咨询</strong><small>政策、限额与申报</small></span>
+          </button>
+        </div>
+      </section>
+
+      <section class="support-note">
+        <span class="support-mark">MB</span>
+        <div>
+          <strong>有据可依、审慎作答</strong>
+          <p>回复基于企业知识库，涉及政策条款会给出内部授权渠道；无依据时转人工，不编造条款。</p>
+        </div>
+      </section>
+    </aside>
+
+    <section class="chat-panel student-chat">
+      <div class="chat-head student-chat-head">
+        <div class="chat-heading-wrap">
+          <span class="assistant-avatar">MB</span>
+          <div>
+            <p class="panel-label">MINDBRIDGE SUPPORT</p>
+            <h2 id="studentGreeting">您好，有什么可以帮您？</h2>
+            <p class="chat-subtitle">产品、售后与技术、合规政策，都可以问我。</p>
+          </div>
+        </div>
+        <div class="session-state">
+          <span class="session-dot"></span>
+          <span id="sessionBadge" class="pill">READY</span>
+        </div>
+      </div>
+      <div class="student-trust-row" aria-label="对话特点">
+        <span><i></i>知识库引用</span>
+        <span><i></i>审慎合规</span>
+        <span><i></i>复杂问题转人工</span>
+      </div>
+      <div id="messages" class="messages">
+        <div class="empty student-welcome">
+          <span class="welcome-kicker">A KNOWLEDGE-BASED START</span>
+          <strong>从你最关心的业务问题开始</strong>
+          <p>可以问产品规格与部署、售后故障排查，或合规政策与申报流程。</p>
+          <div class="welcome-prompts">
+            <button type="button" data-quick="LLM 安全网关的检测延迟和误报率指标是多少？">安全网关性能指标</button>
+            <button type="button" data-quick="供应商准入需要提交哪些材料、多久复核一次？">供应商合规要求</button>
+            <button type="button" data-quick="数据跨境传输需要做哪些合规审批？">数据跨境审批</button>
+          </div>
+        </div>
+      </div>
+      <form id="chatForm" class="composer">
+        <div class="composer-shell">
+          <textarea id="messageInput" maxlength="1000" placeholder="请输入关于产品、售后或合规的问题……" rows="3"></textarea>
+          <div class="composer-meta">
+            <span>回答将引用知识库来源</span>
+            <span id="charCount">0 / 1000</span>
+          </div>
+        </div>
+        <div class="composer-actions student-composer-actions">
+          <span class="keyboard-hint">Enter 换行 · 点击按钮发送</span>
+          <div>
+            <button id="newSession" class="ghost" type="button">重新开始</button>
+            <button id="sendButton" class="primary send-button" type="submit">发送消息 <span>↗</span></button>
+          </div>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <script src="/student.js?v=enterprise-support-20260810b"></script>
+</body>
+</html>

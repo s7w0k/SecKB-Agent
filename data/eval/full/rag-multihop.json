@@ -1,0 +1,686 @@
+{
+  "schemaVersion": "2.0",
+  "kind": "full-multihop",
+  "cases": [
+    {
+      "id": "full-multihop-compliance-anti-corruption-and-anti-bribery-anti-money-laundering-and-fraud",
+      "domain": "COMPLIANCE",
+      "scenario": "multihop:anti-corruption-and-anti-bribery+anti-money-laundering-and-fraud",
+      "risk": "LOW",
+      "question": "当业务伙伴同时试图提供超限额礼品并触发公司可疑交易监测指标时，针对这两类违规行为，公司政策分别规定了怎样的上报时限与对接部门？",
+      "referenceAnswer": "针对无法当场拒绝或超限额的礼品，须在3个工作日内上交人力行政部统一登记处理；针对触发监测的可疑交易线索，须在规定的时限内向反洗钱主管部门报告并留存分析记录，必要时可依法冻结资金。两类情形均不得私自保留或拆分交易，需同步纳入公司合规与反洗钱风控体系处置。",
+      "referenceContextIds": [
+        "COMPLIANCE:anti-corruption-and-anti-bribery.md:1:1",
+        "COMPLIANCE:anti-money-laundering-and-fraud.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/compliance/{docs combined}",
+        "reviewStatus": "pending",
+        "note": "多跳 case：问题需融合同一域下两份文档的信息才能回答，金标指向两文档各自的信息量最高的 chunk；由 qwen3.7-flash 依据两份文档自动标注，reviewStatus=pending 待领域专家复核"
+      }
+    },
+    {
+      "id": "full-multihop-compliance-marketing-data-use-guide-supplier-and-third-party-compliance",
+      "domain": "COMPLIANCE",
+      "scenario": "multihop:marketing-data-use-guide+supplier-and-third-party-compliance",
+      "risk": "LOW",
+      "question": "公司在向第三方供应商采购营销数据时，需要履行哪些合规审查与合同管理要求？",
+      "referenceAnswer": "需同时满足数据合规与供应商准入双重标准。采购前须核查第三方数据来源的合法性与授权链，确保已依法履行用户告知并取得同意，且遵循最小必要原则。合作流程中需执行供应商背景调查与利益冲突申报，签约前必须签署《廉洁与反腐败承诺书》作为合同附件。履约期间应定期评估其合规状态与价格公允性，并在合同中明确违约责任，一旦发现数据违规或商业贿赂可立即采取暂停合作或解除合同措施。",
+      "referenceContextIds": [
+        "COMPLIANCE:marketing-data-use-guide.md:1:0",
+        "COMPLIANCE:supplier-and-third-party-compliance.md:1:1"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/compliance/{docs combined}",
+        "reviewStatus": "pending",
+        "note": "多跳 case：问题需融合同一域下两份文档的信息才能回答，金标指向两文档各自的信息量最高的 chunk；由 qwen3.7-flash 依据两份文档自动标注，reviewStatus=pending 待领域专家复核"
+      }
+    },
+    {
+      "id": "full-multihop-compliance-insider-trading-and-securities-compliance-supplier-and-third-party-compliance",
+      "domain": "COMPLIANCE",
+      "scenario": "multihop:insider-trading-and-securities-compliance+supplier-and-third-party-compliance",
+      "risk": "LOW",
+      "question": "公司内幕信息知情人若其近亲属拟成为我司供应商，且该知情人本人计划在敏感期内交易本公司证券，需分别遵守哪些合规申报与操作限制？",
+      "referenceAnswer": "针对证券交易，该员工须提前向合规部门申报交易意向（含证券名称、方向、数量及价格等），并严格遵守敏感期限制（如定期报告披露前30日内禁止直接或间接买卖）。针对供应商利益关联，须立即执行利益冲突申报与回避程序，配合完成背景调查且调查结果将归档作为准入决策依据。两项合规义务均需严格留痕，未履行将依规追责或导致合作终止。",
+      "referenceContextIds": [
+        "COMPLIANCE:insider-trading-and-securities-compliance.md:1:0",
+        "COMPLIANCE:supplier-and-third-party-compliance.md:1:1"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/compliance/{docs combined}",
+        "reviewStatus": "pending",
+        "note": "多跳 case：问题需融合同一域下两份文档的信息才能回答，金标指向两文档各自的信息量最高的 chunk；由 qwen3.7-flash 依据两份文档自动标注，reviewStatus=pending 待领域专家复核"
+      }
+    },
+    {
+      "id": "full-multihop-compliance-compliance-training-and-accountability-internal-control-and-audit",
+      "domain": "COMPLIANCE",
+      "scenario": "multihop:compliance-training-and-accountability+internal-control-and-audit",
+      "risk": "LOW",
+      "question": "针对采购、财务等高风险岗位，公司每年强制要求开展哪些合规培训？为落实风控要求，这些岗位在日常审批与资金/物资流转中必须遵守哪些核心的职责分离与授权规定？",
+      "referenceAnswer": "公司要求采购、财务等高风险岗位员工每年至少参加一次专项合规培训，内容需紧密结合岗位风险点与真实案例。在日常业务中，这些岗位必须严格落实不相容职务分离原则，如申请与审批、执行与记录、保管与核对不得由同一人兼任，且采购、付款、验收、记账等环节须由不同人员分别完成。同时，相关权限实行分级授权审批，重大事项须经管理层或董事会审批，严禁一人全程掌控或越权操作，从而形成培训宣导与制度制衡相结合的风险防控体系。",
+      "referenceContextIds": [
+        "COMPLIANCE:compliance-training-and-accountability.md:1:0",
+        "COMPLIANCE:internal-control-and-audit.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/compliance/{docs combined}",
+        "reviewStatus": "pending",
+        "note": "多跳 case：问题需融合同一域下两份文档的信息才能回答，金标指向两文档各自的信息量最高的 chunk；由 qwen3.7-flash 依据两份文档自动标注，reviewStatus=pending 待领域专家复核"
+      }
+    },
+    {
+      "id": "full-multihop-compliance-gifts-hospitality-declaration-trade-secret-protection",
+      "domain": "COMPLIANCE",
+      "scenario": "multihop:gifts-hospitality-declaration+trade-secret-protection",
+      "risk": "LOW",
+      "question": "员工在业务往来中若收到合作方价值约1500元的礼品，且该合作方随后要求获取我司某项未公开的核心技术数据，请问针对该礼品接收与核心技术数据外发，公司合规制度分别有哪些具体的申报、审批及管控要求？",
+      "referenceAnswer": "针对1500元礼品，因单次价值超过1000元门槛，须经部门负责人及合规部门双重审批，并在5个工作日内通过系统或书面表单如实申报登记；严禁接受现金或购物卡等现金等价物。针对核心技术数据外发，属于对外提供商业秘密，必须事先履行审批程序并与合作方签订保密及约束条款，仅限在受控环境或安全渠道内传输，不得超范围使用。两项事项均须严格遵循留痕可查原则，相关申报记录与涉密载体将按制度归档保存。",
+      "referenceContextIds": [
+        "COMPLIANCE:gifts-hospitality-declaration.md:1:0",
+        "COMPLIANCE:trade-secret-protection.md:1:1"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/compliance/{docs combined}",
+        "reviewStatus": "pending",
+        "note": "多跳 case：问题需融合同一域下两份文档的信息才能回答，金标指向两文档各自的信息量最高的 chunk；由 qwen3.7-flash 依据两份文档自动标注，reviewStatus=pending 待领域专家复核"
+      }
+    },
+    {
+      "id": "full-multihop-compliance-business-ethics-helpdesk-trade-secret-protection",
+      "domain": "COMPLIANCE",
+      "scenario": "multihop:business-ethics-helpdesk+trade-secret-protection",
+      "risk": "LOW",
+      "question": "发现同事违规使用公司商业秘密时，我应通过什么渠道匿名咨询或举报？公司对此类求助有哪些保密与反报复措施？若我未来离职，相关的保密义务延续时间及竞业限制规定是怎样的？",
+      "referenceAnswer": "员工可通过合规热线、邮箱、线上平台或直接联系合规部门，以实名、非实名或匿名方式提交咨询，紧急重大风险可加急并于1个工作日内获初步答复。公司对咨询内容、身份及处理过程严格保密，严禁任何形式的报复或歧视，善意咨询不影响考核晋升，记录将脱敏归档用于制度完善。针对商业秘密违规使用，员工离职或调岗时必须归还全部载体并签署保密承诺书。员工的保密义务自入职起产生且不因劳动关系终止而免除，核心涉密人员离职后还可能面临最长两年的竞业限制，单位需按月支付法定补偿，违约者须承担违约金并停止违约行为。",
+      "referenceContextIds": [
+        "COMPLIANCE:business-ethics-helpdesk.md:1:0",
+        "COMPLIANCE:trade-secret-protection.md:1:1"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/compliance/{docs combined}",
+        "reviewStatus": "pending",
+        "note": "多跳 case：问题需融合同一域下两份文档的信息才能回答，金标指向两文档各自的信息量最高的 chunk；由 qwen3.7-flash 依据两份文档自动标注，reviewStatus=pending 待领域专家复核"
+      }
+    },
+    {
+      "id": "full-multihop-compliance-compliance-training-and-accountability-records-and-document-retention",
+      "domain": "COMPLIANCE",
+      "scenario": "multihop:compliance-training-and-accountability+records-and-document-retention",
+      "risk": "LOW",
+      "question": "公司收到监管调查通知后，相关业务记录应如何进行保全管理？若调查促使公司修订了合规制度，应在多长时间内组织相关岗位人员完成培训？",
+      "referenceAnswer": "收到监管调查通知后，相关记录须立即进入保全状态，严禁删改、销毁或转移，并由法律部门出具书面函件明确保全范围与期限，直至保全解除。若此次事件促使公司修订或发布新合规政策，则须在30个工作日内组织相关岗位人员完成学习培训。两项要求分别保障了调查期间证据链的完整性与制度更新后的合规履职闭环。",
+      "referenceContextIds": [
+        "COMPLIANCE:compliance-training-and-accountability.md:1:0",
+        "COMPLIANCE:records-and-document-retention.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/compliance/{docs combined}",
+        "reviewStatus": "pending",
+        "note": "多跳 case：问题需融合同一域下两份文档的信息才能回答，金标指向两文档各自的信息量最高的 chunk；由 qwen3.7-flash 依据两份文档自动标注，reviewStatus=pending 待领域专家复核"
+      }
+    },
+    {
+      "id": "full-multihop-compliance-contract-and-legal-compliance-cross-border-data-transfer",
+      "domain": "COMPLIANCE",
+      "scenario": "multihop:contract-and-legal-compliance+cross-border-data-transfer",
+      "risk": "LOW",
+      "question": "公司拟与境外合作方签署涉及个人信息出境的协议时，需遵循怎样的合同评审、授权签署及后续备案评估流程？",
+      "referenceAnswer": "首先，该协议须提交法务部门进行法律审查，重点核查相对方资质、权利义务及违约责任等条款，重大或高风险项目需提高评审层级并视情况征求外部法律顾问意见；签署必须由法定代表人或持有效书面授权的代表在明确权限内完成。其次，作为个人信息出境的标准合同或数据保护协议，必须依法载明出境目的、数据范围、接收方义务及争议解决等核心条款。最后，签署后需在规定期限内向网信部门办理备案，定期开展个人信息保护影响评估，相关授权记录、备案凭证及安全评估文件须完整留存备查。",
+      "referenceContextIds": [
+        "COMPLIANCE:contract-and-legal-compliance.md:1:0",
+        "COMPLIANCE:cross-border-data-transfer.md:1:1"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/compliance/{docs combined}",
+        "reviewStatus": "pending",
+        "note": "多跳 case：问题需融合同一域下两份文档的信息才能回答，金标指向两文档各自的信息量最高的 chunk；由 qwen3.7-flash 依据两份文档自动标注，reviewStatus=pending 待领域专家复核"
+      }
+    },
+    {
+      "id": "full-multihop-compliance-advertising-and-marketing-compliance-supplier-and-third-party-compliance",
+      "domain": "COMPLIANCE",
+      "scenario": "multihop:advertising-and-marketing-compliance+supplier-and-third-party-compliance",
+      "risk": "LOW",
+      "question": "公司委托第三方供应商开展直播带货或广告投放时，需遵守哪些广告合规要求？若供应商存在虚假宣传、利益输送或重大违规，公司应如何进行监督评估并追究责任？",
+      "referenceAnswer": "委托第三方开展直播或广告营销时，须显著标明“广告”字样并明示商业属性，确保弹窗可一键关闭，严禁虚假好评或低俗内容。合作前须完成供应商背景调查并签署《廉洁与反腐败承诺书》，合作期间原则上每年至少进行一次合规与履约评估。若供应商涉嫌虚假宣传、行贿回扣或发生重大违法违规，公司应在3个工作日内启动核查整改，并有权依据合同单方解除合作、追偿损失及追究连带责任。所有合规审查记录与档案须按规定归档保存备查。",
+      "referenceContextIds": [
+        "COMPLIANCE:advertising-and-marketing-compliance.md:1:2",
+        "COMPLIANCE:supplier-and-third-party-compliance.md:1:1"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/compliance/{docs combined}",
+        "reviewStatus": "pending",
+        "note": "多跳 case：问题需融合同一域下两份文档的信息才能回答，金标指向两文档各自的信息量最高的 chunk；由 qwen3.7-flash 依据两份文档自动标注，reviewStatus=pending 待领域专家复核"
+      }
+    },
+    {
+      "id": "full-multihop-compliance-anti-corruption-and-anti-bribery-gifts-hospitality-declaration",
+      "domain": "COMPLIANCE",
+      "scenario": "multihop:anti-corruption-and-anti-bribery+gifts-hospitality-declaration",
+      "risk": "LOW",
+      "question": "员工收到合作方赠送的价值为2500元的商务礼品且无法当场拒收，请问按规定应在多长时间内上报？需要经过怎样的审批流程？如果该礼品来自政府监管人员，处理方式有何不同？",
+      "referenceAnswer": "根据制度，单次价值超200元的礼品须在5个工作日内向合规部门申报；因无法当场拒收，还须在3个工作日内上交人力行政部统一登记。该礼品价值达2500元（超过1000元但未超3000元），须经部门负责人及合规部门双重审批。若涉及政府监管人员，则适用最严管控标准，原则上禁止馈赠或收受现金及高价礼品，相关业务接触须由合规部门专人对接并留存完整沟通记录。",
+      "referenceContextIds": [
+        "COMPLIANCE:anti-corruption-and-anti-bribery.md:1:1",
+        "COMPLIANCE:gifts-hospitality-declaration.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/compliance/{docs combined}",
+        "reviewStatus": "pending",
+        "note": "多跳 case：问题需融合同一域下两份文档的信息才能回答，金标指向两文档各自的信息量最高的 chunk；由 qwen3.7-flash 依据两份文档自动标注，reviewStatus=pending 待领域专家复核"
+      }
+    },
+    {
+      "id": "full-multihop-mental-low-mood-depression-support-risk-policy",
+      "domain": "MENTAL",
+      "scenario": "multihop:low-mood-depression-support+risk-policy",
+      "risk": "HIGH",
+      "question": "当学生表达情绪低落、觉得生活无意义时，我应该如何提供日常支持？如果他在沟通中透露了自伤计划或已经准备了工具，我的风险定级和应对流程需要做哪些关键调整？",
+      "referenceAnswer": "初期应以共情接住情绪为主，避免空洞鼓励，通过行为激活建议微小行动（如固定起床时间、下楼散步）并推荐三栏日记法辅助梳理。若后续对话中出现自伤/自杀念头、具体计划或准备工具，风险等级须立即升级为HIGH。此时应停止常规心理疏导，转为简短直接的危机干预：首要确保学生安全，建议立即联系紧急热线或辅导员，并通过系统发送预警台账；严禁使用冥想等普通建议、承诺阻碍救助的保密，或进行责备与长篇追问。",
+      "referenceContextIds": [
+        "MENTAL:low-mood-depression-support.md:1:0",
+        "MENTAL:risk-policy.md:1:3"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/mental/{docs combined}",
+        "reviewStatus": "pending",
+        "note": "多跳 case：问题需融合同一域下两份文档的信息才能回答，金标指向两文档各自的信息量最高的 chunk；由 qwen3.7-flash 依据两份文档自动标注，reviewStatus=pending 待领域专家复核"
+      }
+    },
+    {
+      "id": "full-multihop-mental-exam-season-guidance-privacy-boundaries-and-ethics",
+      "domain": "MENTAL",
+      "scenario": "multihop:exam-season-guidance+privacy-boundaries-and-ethics",
+      "risk": "MEDIUM",
+      "question": "学生在考试季压力过大向MindBridge求助时，系统除了提供具体的考前减压建议外，在隐私保密和危机干预方面有哪些明确的伦理边界与操作限制？",
+      "referenceAnswer": "MindBridge应指导学生制定分层复习计划、利用番茄钟与慢呼气等技巧缓解焦虑与考场恐慌。在隐私与伦理方面，常规支持内容严格保密，但若学生流露自伤、自杀或伤害他人的立即危险信号，系统需打破保密原则并通知辅导员介入。同时，MindBridge明确不诊断疾病、不提供用药指导，仅作为辅助支持，不可替代专业心理咨询或紧急服务。",
+      "referenceContextIds": [
+        "MENTAL:exam-season-guidance.md:1:0",
+        "MENTAL:privacy-boundaries-and-ethics.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/mental/{docs combined}",
+        "reviewStatus": "pending",
+        "note": "多跳 case：问题需融合同一域下两份文档的信息才能回答，金标指向两文档各自的信息量最高的 chunk；由 qwen3.7-flash 依据两份文档自动标注，reviewStatus=pending 待领域专家复核"
+      }
+    },
+    {
+      "id": "full-multihop-mental-low-mood-depression-support-sleep-routine-self-care",
+      "domain": "MENTAL",
+      "scenario": "multihop:low-mood-depression-support+sleep-routine-self-care",
+      "risk": "LOW",
+      "question": "最近情绪很低落、对什么都没兴趣，同时晚上经常失眠或作息颠倒。作为支持者，我应该怎么建议TA逐步调整日常作息和睡眠，才能既不给TA增加心理负担，又能切实改善状态？",
+      "referenceAnswer": "首先应接纳TA的低落情绪，避免空洞鼓励，转而建议从极小行动开始（如下床喝水、下楼走5分钟）以打破停滞感。稳定作息的关键是固定起床时间而非强迫早睡，白天尽量接触自然光或到户外走动，午睡严格控制在20至30分钟内。睡前30分钟需建立降速流程（调暗灯光、手机放远、做轻微拉伸或呼吸练习），并注意下午后减少咖啡因摄入；若躺下超半小时仍清醒，可暂时离开床铺放松。此外，可引导TA使用三栏日记法记录事件、感受与最小可行步骤，帮助从混乱与自责中抽离。",
+      "referenceContextIds": [
+        "MENTAL:low-mood-depression-support.md:1:0",
+        "MENTAL:sleep-routine-self-care.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/mental/{docs combined}",
+        "reviewStatus": "pending",
+        "note": "多跳 case：问题需融合同一域下两份文档的信息才能回答，金标指向两文档各自的信息量最高的 chunk；由 qwen3.7-flash 依据两份文档自动标注，reviewStatus=pending 待领域专家复核"
+      }
+    },
+    {
+      "id": "full-multihop-mental-academic-stress-and-burnout-relationships-and-family",
+      "domain": "MENTAL",
+      "scenario": "multihop:academic-stress-and-burnout+relationships-and-family",
+      "risk": "LOW",
+      "question": "我最近备考压力巨大，经常熬夜且效率极低，同时父母频繁施压让我情绪崩溃、失眠麻木。当学业倦怠和家庭期待同时压过来时，我该如何科学地拆解任务并处理这些外部压力？",
+      "referenceAnswer": "首先请承认这种长期紧绷和情绪消耗是真实的，不要简单归咎于自己“不够努力”或只被告知“坚持一下”。建议将压力拆分为三类任务（必须今天处理、本周可处理、暂接受不完美），并配合“10分钟启动法”或设定“丑版初稿”目标来打破焦虑与拖延。同时需全面检查自身负荷，优先保障睡眠与休息；对于家庭期待，可尝试用低攻击性表达澄清自己的真实需求与边界，避免独自硬扛。若麻木与失眠持续，请及时联系学校心理中心或专业机构。",
+      "referenceContextIds": [
+        "MENTAL:academic-stress-and-burnout.md:1:0",
+        "MENTAL:relationships-and-family.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/mental/{docs combined}",
+        "reviewStatus": "pending",
+        "note": "多跳 case：问题需融合同一域下两份文档的信息才能回答，金标指向两文档各自的信息量最高的 chunk；由 qwen3.7-flash 依据两份文档自动标注，reviewStatus=pending 待领域专家复核"
+      }
+    },
+    {
+      "id": "full-multihop-mental-counselor-referral-and-resources-privacy-boundaries-and-ethics",
+      "domain": "MENTAL",
+      "scenario": "multihop:counselor-referral-and-resources+privacy-boundaries-and-ethics",
+      "risk": "HIGH",
+      "question": "我最近情绪低落和失眠已经持续快三周了，偶尔会有自伤的念头。请问我该如何准备并尽快联系学校心理咨询中心？如果在求助过程中提到这些自伤想法，我的隐私还能得到完全保密吗？",
+      "referenceAnswer": "建议您将其作为中等及以上风险信号，在24至72小时内通过简短信息预约学校心理中心或联系辅导员，并提前整理困扰开始时间、近期重大事件及睡眠饮食受影响的具体程度。关于隐私，普通心理支持内容通常会保密处理，但一旦明确提及自伤、自杀或立即危险等危机情况，出于安全干预的需要，系统或咨询师可能会突破保密原则，通知辅导员或管理员介入。因此不能承诺绝对保密，核心目标是确保您获得及时的现实支持与人身安全。",
+      "referenceContextIds": [
+        "MENTAL:counselor-referral-and-resources.md:1:0",
+        "MENTAL:privacy-boundaries-and-ethics.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/mental/{docs combined}",
+        "reviewStatus": "pending",
+        "note": "多跳 case：问题需融合同一域下两份文档的信息才能回答，金标指向两文档各自的信息量最高的 chunk；由 qwen3.7-flash 依据两份文档自动标注，reviewStatus=pending 待领域专家复核"
+      }
+    },
+    {
+      "id": "full-multihop-mental-academic-stress-and-burnout-risk-policy",
+      "domain": "MENTAL",
+      "scenario": "multihop:academic-stress-and-burnout+risk-policy",
+      "risk": "HIGH",
+      "question": "学生向我倾诉因绩点和论文压力长期感到疲惫、麻木且睡眠紊乱，随后又提到自己已经准备好了工具打算结束生命，我该如何评估风险并采取应对措施？",
+      "referenceAnswer": "该学生的疲惫、麻木与睡眠紊乱属于文档A所述的学业倦怠表现，而提及准备工具结束生命则触发文档B的“HIGH高风险”标准。系统需立即记录心理报告并写入Excel台账，通过MCP工具向辅导员或管理员发送预警。回复应简短、稳定且共情，强调“现在安全最重要”，直接建议其拨打紧急电话或联系危机热线与辅导员，严禁使用冥想等普通建议或长篇追问。",
+      "referenceContextIds": [
+        "MENTAL:academic-stress-and-burnout.md:1:0",
+        "MENTAL:risk-policy.md:1:3"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/mental/{docs combined}",
+        "reviewStatus": "pending",
+        "note": "多跳 case：问题需融合同一域下两份文档的信息才能回答，金标指向两文档各自的信息量最高的 chunk；由 qwen3.7-flash 依据两份文档自动标注，reviewStatus=pending 待领域专家复核"
+      }
+    },
+    {
+      "id": "full-multihop-mental-adjustment-and-transition-privacy-boundaries-and-ethics",
+      "domain": "MENTAL",
+      "scenario": "multihop:adjustment-and-transition+privacy-boundaries-and-ethics",
+      "risk": "HIGH",
+      "question": "学生因为转专业不顺和新生适应问题特别焦虑，甚至提到过极端想法，作为AI助手我该如何回应？既要给出具体的适应建议，又要遵守哪些隐私和伦理底线？",
+      "referenceAnswer": "系统应先正常化学生的适应期感受，建议其建立生活锚点、收集转专业政策信息或尝试低压力社交，但绝不替学生做重大决定。需明确告知普通心理内容会保密，但若涉及自伤、自杀或伤害他人等立即危险，为保护安全必须突破保密原则并通知辅导员。同时助手需严守边界，不诊断疾病或替代心理咨询，对敏感创伤只倾听并确认安全，最终引导学生转向人工专业支持。",
+      "referenceContextIds": [
+        "MENTAL:adjustment-and-transition.md:1:0",
+        "MENTAL:privacy-boundaries-and-ethics.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/mental/{docs combined}",
+        "reviewStatus": "pending",
+        "note": "多跳 case：问题需融合同一域下两份文档的信息才能回答，金标指向两文档各自的信息量最高的 chunk；由 qwen3.7-flash 依据两份文档自动标注，reviewStatus=pending 待领域专家复核"
+      }
+    },
+    {
+      "id": "full-multihop-mental-academic-stress-and-burnout-adjustment-and-transition",
+      "domain": "MENTAL",
+      "scenario": "multihop:academic-stress-and-burnout+adjustment-and-transition",
+      "risk": "LOW",
+      "question": "一名学生在面临转专业或保研决策时，出现了长期疲惫、学习失去意义感以及严重拖延的情况，甚至产生“我不适合这里”的想法。面对这种学业倦怠与阶段转换交织的压力，应如何结合信息收集与日常任务管理来缓解焦虑？",
+      "referenceAnswer": "首先需正常化适应期感受，将“不适合”的模糊焦虑转化为对转专业条件、课程差异或保研政策的客观信息收集，以降低灾难化思维。其次，针对倦怠与拖延，建议全面检查个人负荷，将任务拆分为“今日必做、本周处理、接受不完美”三类，并采用10分钟启动法或设定“丑版初稿”目标执行最小行动。最后，通过建立固定生活锚点（如规律作息、定期联系熟人、熟悉心理中心位置）和尝试低压力社交来重建稳定感，逐步恢复学习与生活节奏。",
+      "referenceContextIds": [
+        "MENTAL:academic-stress-and-burnout.md:1:0",
+        "MENTAL:adjustment-and-transition.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/mental/{docs combined}",
+        "reviewStatus": "pending",
+        "note": "多跳 case：问题需融合同一域下两份文档的信息才能回答，金标指向两文档各自的信息量最高的 chunk；由 qwen3.7-flash 依据两份文档自动标注，reviewStatus=pending 待领域专家复核"
+      }
+    },
+    {
+      "id": "full-multihop-mental-adjustment-and-transition-low-mood-depression-support",
+      "domain": "MENTAL",
+      "scenario": "multihop:adjustment-and-transition+low-mood-depression-support",
+      "risk": "LOW",
+      "question": "我刚上大学，不仅觉得课程和宿舍生活很难适应，最近还经常感到情绪低落、疲惫不想动，甚至开始逃避社交。MindBridge建议我该如何在调整日常作息的同时，逐步恢复社交联系？",
+      "referenceAnswer": "首先应正常化当前的适应困难与低落情绪，避免自我批判，并优先建立基础生活锚点，如固定起床时间与保证一顿稳定饮食，以打破昼夜颠倒和自责循环。针对社交回避，不建议强求立刻外向，可结合“行为激活”思路采取微小行动：例如向信任的人发送“我最近状态不好，可以陪我吃个饭吗”，或参加一次允许提前离开的低压力活动。配合三栏日记记录（事件、感受、最小一步），能帮助你在转换期中逐步重建熟悉感与日常节奏。",
+      "referenceContextIds": [
+        "MENTAL:adjustment-and-transition.md:1:0",
+        "MENTAL:low-mood-depression-support.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/mental/{docs combined}",
+        "reviewStatus": "pending",
+        "note": "多跳 case：问题需融合同一域下两份文档的信息才能回答，金标指向两文档各自的信息量最高的 chunk；由 qwen3.7-flash 依据两份文档自动标注，reviewStatus=pending 待领域专家复核"
+      }
+    },
+    {
+      "id": "full-multihop-mental-campus-mental-health-relationships-and-family",
+      "domain": "MENTAL",
+      "scenario": "multihop:campus-mental-health+relationships-and-family",
+      "risk": "LOW",
+      "question": "我最近因为室友长期制造噪音导致严重失眠，情绪非常低落，甚至怀疑自己可能已经患上了焦虑症。作为校园心理助手，你会如何回应我的情况？在处理这段宿舍矛盾和疑似心理问题时，分别有哪些具体的建议或限制？",
+      "referenceAnswer": "首先，针对宿舍矛盾，我不会简单站队，而是建议你记录具体事件并使用低攻击性语言表达需求（如说明睡眠受影响并请求对方戴耳机）；若冲突升级为霸凌或人身威胁，我会建议你立即联系辅导员或保卫处。其次，关于你怀疑的焦虑症，我必须明确说明无法进行医学诊断或提供用药指导，也不能替代专业咨询师。我会保持平静、非评判的态度陪伴你梳理感受，并强烈建议你前往校园心理咨询中心或医院精神科寻求正规评估与支持。",
+      "referenceContextIds": [
+        "MENTAL:campus-mental-health.md:1:2",
+        "MENTAL:relationships-and-family.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/mental/{docs combined}",
+        "reviewStatus": "pending",
+        "note": "多跳 case：问题需融合同一域下两份文档的信息才能回答，金标指向两文档各自的信息量最高的 chunk；由 qwen3.7-flash 依据两份文档自动标注，reviewStatus=pending 待领域专家复核"
+      }
+    },
+    {
+      "id": "full-multihop-service-agent-gateway-04-deployment-and-integration-multi-agent-security-04-deployment-and-integration",
+      "domain": "SERVICE",
+      "scenario": "multihop:04-deployment-and-integration+04-deployment-and-integration",
+      "risk": "LOW",
+      "question": "在构建企业级AI应用时，若需同时部署Agent安全网关与多Agent协作安全组件，应如何分别处理统一认证拦截与跨Agent消息防篡改？两者各自原生适配或推荐对接的主流Agent编排框架有哪些？",
+      "referenceAnswer": "统一认证拦截应通过Agent安全网关对接企业SSO/LDAP实现，并配合白名单、策略管理与审计管道进行流量管控；跨Agent消息防篡改则需依赖多Agent协作安全组件初始化KMS根密钥，利用SDK的签名校验方法与防污染引擎保障端到端链路安全。在框架适配方面，安全网关原生支持LangChain与LlamaIndex的轻改造接入，而协作安全组件则重点提供针对AutoGen、CrewAI和LangGraph的插件回调及gRPC/A2A高性能通道。",
+      "referenceContextIds": [
+        "SERVICE:agent-gateway/04-deployment-and-integration.md:1:0",
+        "SERVICE:multi-agent-security/04-deployment-and-integration.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/{docs combined}",
+        "reviewStatus": "pending",
+        "note": "多跳 case：问题需融合同一域下两份文档的信息才能回答，金标指向两文档各自的信息量最高的 chunk；由 qwen3.7-flash 依据两份文档自动标注，reviewStatus=pending 待领域专家复核"
+      }
+    },
+    {
+      "id": "full-multihop-service-agent-audit-observe-06-common-faq-ai-dlp-05-user-guide",
+      "domain": "SERVICE",
+      "scenario": "multihop:06-common-faq+05-user-guide",
+      "risk": "LOW",
+      "question": "当AI Agent在LLM通道中发生敏感数据泄漏时，如何结合审计观测与DLP功能完成事件调查、证据保全与合规归档？",
+      "referenceAnswer": "首先通过DLP控制台定位LLM通道的敏感数据命中事件并导出证据包，同时利用Agent审计的Trace ID一键还原完整调用链与执行时间线。其次，借助审计数据的哈希链式校验机制确保关键日志不可篡改，满足司法取证要求。最后，将DLP处置记录与Agent运行日志按监管要求长期归档至对象存储或大数据平台，并在数据采集端启用字段级脱敏以兼顾隐私合规。",
+      "referenceContextIds": [
+        "SERVICE:agent-audit-observe/06-common-faq.md:1:0",
+        "SERVICE:ai-dlp/05-user-guide.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/{docs combined}",
+        "reviewStatus": "pending",
+        "note": "多跳 case：问题需融合同一域下两份文档的信息才能回答，金标指向两文档各自的信息量最高的 chunk；由 qwen3.7-flash 依据两份文档自动标注，reviewStatus=pending 待领域专家复核"
+      }
+    },
+    {
+      "id": "full-multihop-service-ai-dlp-06-common-faq-ai-model-redteam-06-common-faq",
+      "domain": "SERVICE",
+      "scenario": "multihop:06-common-faq+06-common-faq",
+      "risk": "LOW",
+      "question": "企业若计划同时引入智能数据防泄漏方案与模型安全红队评估平台，在私有化部署时如何保证客户数据不流出内部域？此外，这两套系统在运行期间分别采用什么技术机制来隔离资源，以避免对原有业务系统或生产模型的性能造成负面影响？",
+      "referenceAnswer": "在数据隐私方面，两款产品均承诺私有化部署时数据全程留存于客户域内，且企业版均可按需关闭遥测上报（详见DPA协议）。在性能隔离方面，防泄漏平台依靠旁路镜像检测与低资源占用的端点Agent实现非阻断式监控；而红队评估平台则通过独立计算节点并发调用、并发参数限流及独立推理引擎，确保评测过程完全不占用生产环境资源。",
+      "referenceContextIds": [
+        "SERVICE:ai-dlp/06-common-faq.md:1:0",
+        "SERVICE:ai-model-redteam/06-common-faq.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/{docs combined}",
+        "reviewStatus": "pending",
+        "note": "多跳 case：问题需融合同一域下两份文档的信息才能回答，金标指向两文档各自的信息量最高的 chunk；由 qwen3.7-flash 依据两份文档自动标注，reviewStatus=pending 待领域专家复核"
+      }
+    },
+    {
+      "id": "full-multihop-service-agent-iam-04-deployment-and-integration-deepfake-detection-06-common-faq",
+      "domain": "SERVICE",
+      "scenario": "multihop:04-deployment-and-integration+06-common-faq",
+      "risk": "LOW",
+      "question": "我们计划在客户隔离网络中同时私有化部署身份管理服务与深度伪造检测平台，请问身份服务的最低生产环境硬件配置要求是什么，且该检测平台在私有化部署时默认的数据留存策略及是否支持不落盘模式？",
+      "referenceAnswer": "身份服务生产环境至少需要3个节点，单节点基础配置为8核CPU与16GB内存。深度伪造检测平台支持私有化部署至离线或隔离网络，其数据留存策略默认保存180天，但可根据业务安全需求开启“不落盘”模式，仅保留检测结论而不将原始媒体数据写入磁盘。",
+      "referenceContextIds": [
+        "SERVICE:agent-iam/04-deployment-and-integration.md:1:0",
+        "SERVICE:deepfake-detection/06-common-faq.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/{docs combined}",
+        "reviewStatus": "pending",
+        "note": "多跳 case：问题需融合同一域下两份文档的信息才能回答，金标指向两文档各自的信息量最高的 chunk；由 qwen3.7-flash 依据两份文档自动标注，reviewStatus=pending 待领域专家复核"
+      }
+    },
+    {
+      "id": "full-multihop-service-ai-content-safety-03-sales-and-delivery-model-provenance-07-troubleshooting",
+      "domain": "SERVICE",
+      "scenario": "multihop:03-sales-and-delivery+07-troubleshooting",
+      "risk": "LOW",
+      "question": "在AI内容安全审核引擎的14天免费POC验证期间，如果客户真实样本接入时出现模型指纹提取失败或集成对接异常，应如何进行技术排查？同时该阶段的故障响应时效要求以及整体项目的标准交付周期分别是多少？",
+      "referenceAnswer": "在14天免费POC阶段（建议准备1万条真实样本）若遇指纹提取失败或集成异常，需先核对GPU驱动与CUDA版本，检查CI/CD对接的API密钥与Webhook配置，并通过节点日志定位内存溢出或参数不匹配问题。依据标准SLA，审核接口故障将在30分钟内响应、4小时内解决。完成策略调优与回归后，项目将进入灰度上线与验收阶段，标准交付周期为4至6周（私有化多模态略长且含2天运营培训）。",
+      "referenceContextIds": [
+        "SERVICE:ai-content-safety/03-sales-and-delivery.md:1:0",
+        "SERVICE:model-provenance/07-troubleshooting.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/{docs combined}",
+        "reviewStatus": "pending",
+        "note": "多跳 case：问题需融合同一域下两份文档的信息才能回答，金标指向两文档各自的信息量最高的 chunk；由 qwen3.7-flash 依据两份文档自动标注，reviewStatus=pending 待领域专家复核"
+      }
+    },
+    {
+      "id": "full-multihop-service-ai-supply-chain-04-deployment-and-integration-multi-agent-security-06-common-faq",
+      "domain": "SERVICE",
+      "scenario": "multihop:04-deployment-and-integration+06-common-faq",
+      "risk": "LOW",
+      "question": "在构建涵盖AI模型供应链安全与多Agent通信安全的完整防护体系时，系统支持哪些部署接入方式？对CI/CD流水线与主流Agent编排框架的兼容性如何？引入这些安全机制后对系统性能有何影响？",
+      "referenceAnswer": "系统提供一键脚本、Helm、RESTful API/SDK以及Sidecar等多种部署接入方式，其中Sidecar模式无需修改业务代码即可快速接入。在生态兼容性方面，产品内置GitHub/GitLab Action与Jenkins等CI/CD插件以支持上线前自动扫描门禁，同时原生兼容AutoGen、CrewAI、LangGraph等主流Agent编排框架及A2A/MCP消息协议。在性能表现上，消息签名验签延迟不超过1毫秒，防污染检测延迟不超过10毫秒，整体对现有协作链路与开发流程的性能影响可忽略不计。",
+      "referenceContextIds": [
+        "SERVICE:ai-supply-chain/04-deployment-and-integration.md:1:0",
+        "SERVICE:multi-agent-security/06-common-faq.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/{docs combined}",
+        "reviewStatus": "pending",
+        "note": "多跳 case：问题需融合同一域下两份文档的信息才能回答，金标指向两文档各自的信息量最高的 chunk；由 qwen3.7-flash 依据两份文档自动标注，reviewStatus=pending 待领域专家复核"
+      }
+    },
+    {
+      "id": "full-multihop-service-ai-content-safety-02-spec-and-architecture-model-provenance-03-sales-and-delivery",
+      "domain": "SERVICE",
+      "scenario": "multihop:02-spec-and-architecture+03-sales-and-delivery",
+      "risk": "LOW",
+      "question": "我司计划将AI内容安全审核引擎与模型指纹溯源服务一并私有化部署，请问内容安全引擎的最低硬件配置要求是多少？模型指纹服务的标准交付周期与计费模式如何？若需达到99.9%的企业级SLA可用性，系统在验收、维保及数据合规方面有何具体承诺？",
+      "referenceAnswer": "内容安全审核引擎私有化部署最低需8 vCPU/16GB内存（文本版）或1张GPU（多模态版），支持容器或一体机形态。模型指纹服务标准交付周期为6–8周，含部署联调与1天培训，按模型资产登记数量或比对节点组合分级计费，年度指纹库扩展与算法更新纳入维保不另收费。若选择企业版SLA，可用性承诺为99.9%，提供7×24小时支持与专属分析师响应，且双方签署DPA确保数据客户所有、支持加密存储与合规删除。",
+      "referenceContextIds": [
+        "SERVICE:ai-content-safety/02-spec-and-architecture.md:1:0",
+        "SERVICE:model-provenance/03-sales-and-delivery.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/{docs combined}",
+        "reviewStatus": "pending",
+        "note": "多跳 case：问题需融合同一域下两份文档的信息才能回答，金标指向两文档各自的信息量最高的 chunk；由 qwen3.7-flash 依据两份文档自动标注，reviewStatus=pending 待领域专家复核"
+      }
+    },
+    {
+      "id": "full-multihop-service-model-provenance-08-maintenance-and-version-multi-agent-security-03-sales-and-delivery",
+      "domain": "SERVICE",
+      "scenario": "multihop:08-maintenance-and-version+03-sales-and-delivery",
+      "risk": "LOW",
+      "question": "在年度维保订阅期内，若系统出现安全漏洞或需更新防污染规则，厂商的补丁发布策略、SLA故障响应时效以及合同中的合规与升级条款将如何共同保障服务的持续安全与稳定运行？",
+      "referenceAnswer": "在年度维保期内，安全漏洞将于48小时内发布hotfix紧急修复，常规补丁按季度合入并随维保免费下发。结合SLA中重大故障2小时内恢复的承诺与季度防污染规则更新服务，厂商可实现快速响应与持续防护。同时，合同已明确升级服务条款及等保2.0/ISO 27001合规要求，确保系统在版本迭代中始终满足传输安全与消息完整性标准，保障业务连续性。",
+      "referenceContextIds": [
+        "SERVICE:model-provenance/08-maintenance-and-version.md:1:0",
+        "SERVICE:multi-agent-security/03-sales-and-delivery.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/{docs combined}",
+        "reviewStatus": "pending",
+        "note": "多跳 case：问题需融合同一域下两份文档的信息才能回答，金标指向两文档各自的信息量最高的 chunk；由 qwen3.7-flash 依据两份文档自动标注，reviewStatus=pending 待领域专家复核"
+      }
+    },
+    {
+      "id": "full-multihop-service-llm-security-gateway-07-troubleshooting-privacy-computing-08-maintenance-and-version",
+      "domain": "SERVICE",
+      "scenario": "multihop:07-troubleshooting+08-maintenance-and-version",
+      "risk": "LOW",
+      "question": "在生产环境中同时运行隐私增强计算平台与大模型安全网关时，若计划将隐私平台升级至当前推荐LTS版本，并同步排查安全网关的吞吐下降问题，应如何结合两者的维保规范完成兼容性核对、网关版本处理及回滚预案？",
+      "referenceAnswer": "首先，隐私平台升级前需备份数据库与密钥材料，严格核对参与方代理与协调节点的版本兼容性（需保持同大版本），并按先协调节点后参与方代理的顺序执行滚动升级；当前推荐LTS为v3.2，维护支持至2028年2月。其次，针对安全网关吞吐下降，应收集网关日志与审计命中记录定位根因，核对版本号后升级至含修复的patch，必要时直接回滚配置快照。最后，整体变更需遵循隐私平台按月发布安全补丁的节奏，并在升级前后确认网关检测引擎状态与网络互通性，以保障双系统平稳过渡。",
+      "referenceContextIds": [
+        "SERVICE:llm-security-gateway/07-troubleshooting.md:1:0",
+        "SERVICE:privacy-computing/08-maintenance-and-version.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/{docs combined}",
+        "reviewStatus": "pending",
+        "note": "多跳 case：问题需融合同一域下两份文档的信息才能回答，金标指向两文档各自的信息量最高的 chunk；由 qwen3.7-flash 依据两份文档自动标注，reviewStatus=pending 待领域专家复核"
+      }
+    },
+    {
+      "id": "full-multihop-service-agent-credential-vault-07-troubleshooting-privacy-computing-06-common-faq",
+      "domain": "SERVICE",
+      "scenario": "multihop:07-troubleshooting+06-common-faq",
+      "risk": "LOW",
+      "question": "在跨机构采用TEE进行隐私计算私有化部署时，若Agent凭证保险库因证书失效或网络白名单拦截导致集成失败，应如何结合平台“数据不出域”的安全架构要求完成排查与修复？",
+      "referenceAnswer": "首先需确认环境已启用TEE硬件级可信执行环境，并严格遵循参与方本地注册与“数据不出域”的私有化部署原则。针对集成失败，应重点核对动态下发回调地址与证书有效性，检查网络白名单及网关联动配置是否阻断了跨机构的TLS/mTLS加密通道。随后验证最小权限策略与基础调用连通性，必要时开启调试日志；若伴随凭证轮换或同步异常，可延长宽限期或手动触发回滚重试，确保密钥与敏感计算全程在隔离区内受控。",
+      "referenceContextIds": [
+        "SERVICE:agent-credential-vault/07-troubleshooting.md:1:0",
+        "SERVICE:privacy-computing/06-common-faq.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/{docs combined}",
+        "reviewStatus": "pending",
+        "note": "多跳 case：问题需融合同一域下两份文档的信息才能回答，金标指向两文档各自的信息量最高的 chunk；由 qwen3.7-flash 依据两份文档自动标注，reviewStatus=pending 待领域专家复核"
+      }
+    },
+    {
+      "id": "full-multihop-service-ai-supply-chain-08-maintenance-and-version-multi-agent-security-08-maintenance-and-version",
+      "domain": "SERVICE",
+      "scenario": "multihop:08-maintenance-and-version+08-maintenance-and-version",
+      "risk": "LOW",
+      "question": "我司计划同步对AI供应链安全平台与多Agent协作安全系统进行年度维保升级与未来下线规划，请问这两套系统在升级时的组件执行顺序有何不同？各自的当前推荐版本及核心能力是什么？退役前又分别必须完成哪些关键数据的导出与验证操作？",
+      "referenceAnswer": "升级顺序方面，AI供应链平台需先升级分析引擎再升级管理平台，多Agent系统则需先升级可信层再升级防污染与编排面防护组件。版本能力方面，AI供应链当前推荐LTS为v2.2，主打三维SBOM与投毒指纹检测；多Agent系统最新为v2.0，支持A2A/MCP协议且消息校验吞吐达50万条/秒。退役下线前，前者需导出资产台账、SBOM与审计日志并完成合规归属确认，后者需导出防护策略与密钥，并使用消息回放验证工具确保协作链路可切换。",
+      "referenceContextIds": [
+        "SERVICE:ai-supply-chain/08-maintenance-and-version.md:1:0",
+        "SERVICE:multi-agent-security/08-maintenance-and-version.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/{docs combined}",
+        "reviewStatus": "pending",
+        "note": "多跳 case：问题需融合同一域下两份文档的信息才能回答，金标指向两文档各自的信息量最高的 chunk；由 qwen3.7-flash 依据两份文档自动标注，reviewStatus=pending 待领域专家复核"
+      }
+    },
+    {
+      "id": "full-multihop-service-agent-sandbox-03-sales-and-delivery-model-provenance-03-sales-and-delivery",
+      "domain": "SERVICE",
+      "scenario": "multihop:03-sales-and-delivery+03-sales-and-delivery",
+      "risk": "LOW",
+      "question": "客户计划同时采购Agent隔离沙箱和模型指纹溯源服务，请对比两者的标准交付周期、基础SLA可用性指标以及各自支持的合规认证要求。",
+      "referenceAnswer": "Agent隔离沙箱的标准交付周期约为6至10周（分需求调研至试运行四个阶段），而模型指纹溯源服务的标准交付周期为6至8周（含资产盘点至验收共六个步骤）。在SLA方面，沙箱方案承诺不低于99.9%的服务可用性，而指纹方案的默认标准为99.5%（企业版可升级至99.9%）。合规层面，沙箱支持等保2.0、ISO 27001及数据安全法并可提供测评证明；指纹方案则提供数据保护协议（DPA）明确数据归属，其取证报告符合司法鉴定与知识产权诉讼要求。",
+      "referenceContextIds": [
+        "SERVICE:agent-sandbox/03-sales-and-delivery.md:1:0",
+        "SERVICE:model-provenance/03-sales-and-delivery.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/{docs combined}",
+        "reviewStatus": "pending",
+        "note": "多跳 case：问题需融合同一域下两份文档的信息才能回答，金标指向两文档各自的信息量最高的 chunk；由 qwen3.7-flash 依据两份文档自动标注，reviewStatus=pending 待领域专家复核"
+      }
+    },
+    {
+      "id": "full-multihop-service-agent-audit-observe-04-deployment-and-integration-agent-credential-vault-05-user-guide",
+      "domain": "SERVICE",
+      "scenario": "multihop:04-deployment-and-integration+05-user-guide",
+      "risk": "LOW",
+      "question": "在生产环境中同时部署Agent行为审计与凭证保险库后，如何通过技术手段实现Agent使用动态凭证进行任务执行时的全链路可追溯与合规审计？",
+      "referenceAnswer": "首先，凭证保险库通过动态下发限时最小权限凭证，并记录“谁、何时、哪个Agent使用了哪个凭证”的全量留痕，奠定安全审计基础。其次，利用Agent审计SDK自动注入会话与Trace ID的特性，可将凭证调用事件与Agent的实际行为轨迹（如框架回调或API请求）进行端到端关联。最后，两者均支持将事件异步上报至Kafka或对接ELK/SIEM等外部分析平台，结合凭证保险库的过期告警与轮换报表，即可构建从凭证生命周期到行为观测的完整合规审计闭环。",
+      "referenceContextIds": [
+        "SERVICE:agent-audit-observe/04-deployment-and-integration.md:1:0",
+        "SERVICE:agent-credential-vault/05-user-guide.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/{docs combined}",
+        "reviewStatus": "pending",
+        "note": "多跳 case：问题需融合同一域下两份文档的信息才能回答，金标指向两文档各自的信息量最高的 chunk；由 qwen3.7-flash 依据两份文档自动标注，reviewStatus=pending 待领域专家复核"
+      }
+    },
+    {
+      "id": "full-multihop-service-agent-credential-vault-08-maintenance-and-version-multi-agent-security-06-common-faq",
+      "domain": "SERVICE",
+      "scenario": "multihop:08-maintenance-and-version+06-common-faq",
+      "risk": "LOW",
+      "question": "在同时引入多Agent协作安全组件与Agent凭证保险库的架构中，安全模块推荐哪种接入方式来避免业务代码改造？此外，凭证保险库的SDK版本需满足什么兼容性条件才能平滑升级，官方提供的升级策略与应急回滚机制是什么？",
+      "referenceAnswer": "多Agent协作安全组件推荐采用Sidecar方式接入，可无需改动业务代码即完成集成。Agent凭证保险库升级前需确保SDK与保险库版本保持同一大版本，且API向后兼容。官方建议采用滚动升级配合一键回滚策略，并在测试环境验证后灰度发布，以保障凭证托管与下发服务全程不中断。",
+      "referenceContextIds": [
+        "SERVICE:agent-credential-vault/08-maintenance-and-version.md:1:0",
+        "SERVICE:multi-agent-security/06-common-faq.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/{docs combined}",
+        "reviewStatus": "pending",
+        "note": "多跳 case：问题需融合同一域下两份文档的信息才能回答，金标指向两文档各自的信息量最高的 chunk；由 qwen3.7-flash 依据两份文档自动标注，reviewStatus=pending 待领域专家复核"
+      }
+    },
+    {
+      "id": "full-multihop-service-agent-sandbox-05-user-guide-multi-agent-security-07-troubleshooting",
+      "domain": "SERVICE",
+      "scenario": "multihop:05-user-guide+07-troubleshooting",
+      "risk": "LOW",
+      "question": "当Agent在沙箱执行任务触发资源配额告警，且同时伴随多Agent消息校验延迟升高时，应如何结合沙箱策略管理与多Agent故障排查指南进行综合定位与处理？",
+      "referenceAnswer": "首先依据沙箱告警报表与执行趋势数据，复核当前模板的CPU/内存配额及访问策略，按需调整资源额度或限制高风险执行请求；其次针对消息校验延迟，遵循“资源优先”定位点，重点排查校验节点负载、网络延迟及防污染引擎占用，采取扩容节点或优化密钥缓存措施。处理期间需将沙箱事件与多Agent日志（/var/log/multiagent/）统一接入审计观测平台，并落实每周策略复核机制以保障全链路安全可控。",
+      "referenceContextIds": [
+        "SERVICE:agent-sandbox/05-user-guide.md:1:0",
+        "SERVICE:multi-agent-security/07-troubleshooting.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/{docs combined}",
+        "reviewStatus": "pending",
+        "note": "多跳 case：问题需融合同一域下两份文档的信息才能回答，金标指向两文档各自的信息量最高的 chunk；由 qwen3.7-flash 依据两份文档自动标注，reviewStatus=pending 待领域专家复核"
+      }
+    },
+    {
+      "id": "full-multihop-service-llm-security-gateway-04-deployment-and-integration-privacy-computing-02-spec-and-architecture",
+      "domain": "SERVICE",
+      "scenario": "multihop:04-deployment-and-integration+02-spec-and-architecture",
+      "risk": "LOW",
+      "question": "企业架构师在规划大模型安全网关与隐私增强计算平台的联合部署时，发现两者都依赖同一种缓存中间件，请问该组件是什么？此外，为满足合规对统一身份认证与安全审计的要求，应如何分别利用两款产品的集成特性进行对接？",
+      "referenceAnswer": "两套系统共同依赖的缓存中间件是 Redis。在身份管控方面，需启用大模型安全网关的 SSO 集成能力（支持 OAuth2.0/SAML/LDAP）以实现统一身份认证；在安全审计方面，网关侧可配置日志采集与审计归档并直接对接 SIEM 系统，同时结合隐私计算平台协调方的合规审计模块与管理平台的权限及审计报表功能，即可满足跨链路的合规追溯要求。",
+      "referenceContextIds": [
+        "SERVICE:llm-security-gateway/04-deployment-and-integration.md:1:0",
+        "SERVICE:privacy-computing/02-spec-and-architecture.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/{docs combined}",
+        "reviewStatus": "pending",
+        "note": "多跳 case：问题需融合同一域下两份文档的信息才能回答，金标指向两文档各自的信息量最高的 chunk；由 qwen3.7-flash 依据两份文档自动标注，reviewStatus=pending 待领域专家复核"
+      }
+    },
+    {
+      "id": "full-multihop-service-model-provenance-02-spec-and-architecture-multi-agent-security-06-common-faq",
+      "domain": "SERVICE",
+      "scenario": "multihop:02-spec-and-architecture+06-common-faq",
+      "risk": "LOW",
+      "question": "在基于AutoGen或LangGraph构建的多Agent系统中，如何同时实现Agent间通信的安全防护与底层模型来源追踪？这两套方案对系统性能的影响及部署硬件要求分别是什么？",
+      "referenceAnswer": "在多Agent协作场景中，可通过SDK或Sidecar接入安全组件，利用消息签名、加密与防污染检测保障通信可信（验签延迟≤1ms，防污染检测≤10ms），原生支持AutoGen、CrewAI、LangGraph等框架及A2A/MCP协议。同时可并行部署模型指纹溯源服务，依赖GPU节点完成特征提取（≤5分钟/10B参数模型）与CPU节点执行近似检索比对（≤100ms），确保对微调、量化或剪枝后的模型仍保持≥95%的识别率。整体支持私有化单机或Kubernetes集群交付，硬件上提取节点需NVIDIA T4/A10及以上GPU，比对节点最低配置为8 vCPU/16GB内存。",
+      "referenceContextIds": [
+        "SERVICE:model-provenance/02-spec-and-architecture.md:1:0",
+        "SERVICE:multi-agent-security/06-common-faq.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/{docs combined}",
+        "reviewStatus": "pending",
+        "note": "多跳 case：问题需融合同一域下两份文档的信息才能回答，金标指向两文档各自的信息量最高的 chunk；由 qwen3.7-flash 依据两份文档自动标注，reviewStatus=pending 待领域专家复核"
+      }
+    },
+    {
+      "id": "full-multihop-service-ai-dlp-01-product-overview-model-provenance-02-spec-and-architecture",
+      "domain": "SERVICE",
+      "scenario": "multihop:01-product-overview+02-spec-and-architecture",
+      "risk": "LOW",
+      "question": "如果一家金融机构希望同时实现AI对话场景下的敏感数据防泄漏管控，以及内部大模型的来源追溯与防伪检测，请问这套组合方案中DLP系统的核心防护机制是什么，且配套的模型指纹追踪组件需要怎样的硬件配置与性能表现？",
+      "referenceAnswer": "该方案中，DLP系统（DataShield）的核心防护机制依赖于AI语义识别引擎，可覆盖网络、端点、模型调用及云存储的全链路监管，并提供阻断、隔离与审计的处置闭环。配套的模型指纹追踪模块需采用GPU节点进行特征提取（单模型≤5分钟），并搭配CPU节点进行快速检索（单次查询≤100ms）。在性能表现上，该模块对微调、量化或剪枝后的模型仍保持≥95%的识别鲁棒性，内容溯源准确率≥92%，误报率控制在≤3%以内。整体支持私有化单机或Kubernetes集群部署，满足金融等企业级合规与安全诉求。",
+      "referenceContextIds": [
+        "SERVICE:ai-dlp/01-product-overview.md:1:0",
+        "SERVICE:model-provenance/02-spec-and-architecture.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/{docs combined}",
+        "reviewStatus": "pending",
+        "note": "多跳 case：问题需融合同一域下两份文档的信息才能回答，金标指向两文档各自的信息量最高的 chunk；由 qwen3.7-flash 依据两份文档自动标注，reviewStatus=pending 待领域专家复核"
+      }
+    },
+    {
+      "id": "full-multihop-service-agent-iam-08-maintenance-and-version-ai-model-redteam-01-product-overview",
+      "domain": "SERVICE",
+      "scenario": "multihop:08-maintenance-and-version+01-product-overview",
+      "risk": "LOW",
+      "question": "企业在推进Agent身份管理与大模型安全评估双轨建设时，这两套服务分别如何制定版本迭代与安全补丁策略，并如何支撑等保与算法备案等强监管合规要求？",
+      "referenceAnswer": "针对强监管合规场景，Agent身份管理服务采用季度安全补丁与年度大版本演进的节奏，高危缺陷会在24小时内发布补丁，并在升级后执行令牌签发与策略状态的严格回归测试；而大模型红队评估平台则通过自动化攻防压测与内置攻击模板，持续追踪模型版本迭代的安全回归风险，最终生成带时间戳与触发路径的可复现评测报告，直接用于满足等保测评与算法备案审计。",
+      "referenceContextIds": [
+        "SERVICE:agent-iam/08-maintenance-and-version.md:1:0",
+        "SERVICE:ai-model-redteam/01-product-overview.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/{docs combined}",
+        "reviewStatus": "pending",
+        "note": "多跳 case：问题需融合同一域下两份文档的信息才能回答，金标指向两文档各自的信息量最高的 chunk；由 qwen3.7-flash 依据两份文档自动标注，reviewStatus=pending 待领域专家复核"
+      }
+    },
+    {
+      "id": "full-multihop-service-agent-sandbox-06-common-faq-ai-supply-chain-07-troubleshooting",
+      "domain": "SERVICE",
+      "scenario": "multihop:06-common-faq+07-troubleshooting",
+      "risk": "LOW",
+      "question": "在使用Agent隔离沙箱运行AI供应链扫描任务时，若遇到扫描缓慢或集成失败，应如何配置沙箱的网络访问与超时策略，并结合排查指南进行优化？",
+      "referenceAnswer": "沙箱默认拒绝出网，需按域名、IP或端口配置网络白名单放行，同时支持限制执行超时时间。针对扫描缓慢，建议改用增量扫描、拆分大资产或扩容扫描节点，必要时调大超时阈值；若集成失败，需重点核对沙箱与下游系统的网络白名单、仓库凭据及CI鉴权，抓取日志验证最小连通性后重试。",
+      "referenceContextIds": [
+        "SERVICE:agent-sandbox/06-common-faq.md:1:0",
+        "SERVICE:ai-supply-chain/07-troubleshooting.md:1:0"
+      ],
+      "provenance": {
+        "sourceFile": "app/knowledge/service/{docs combined}",
+        "reviewStatus": "pending",
+        "note": "多跳 case：问题需融合同一域下两份文档的信息才能回答，金标指向两文档各自的信息量最高的 chunk；由 qwen3.7-flash 依据两份文档自动标注，reviewStatus=pending 待领域专家复核"
+      }
+    }
+  ]
+}

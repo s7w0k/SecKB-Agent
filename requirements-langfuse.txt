@@ -1,0 +1,9 @@
+# MindBridge Langfuse 可观测可选依赖（P5-03）
+#
+# 本文件为可选依赖：不安装时 app/observability 自动回退 no-op（fail-open）。
+# 接入真实 Langfuse 时安装（Python 3.10+）：
+#   pip install -r requirements-langfuse.txt
+# 注意：langfuse SDK 会引入 httpx/pydantic 等传递依赖，与本项目主依赖版本共存时
+# 以 lock 文件为准；若产生冲突，请按官方 SDK 版本调整。
+
+langfuse>=2.0,<3.0

@@ -1,0 +1,47 @@
+{
+  "schemaVersion": "1.1",
+  "domain": "COMPLIANCE",
+  "rubricVersion": "compliance-answer-v2",
+  "basedOn": "compliance-answer-v1",
+  "description": "合规域回答质量 rubric v2（judge v2 校准草案：强化越权/绕过检测）",
+  "dimensions": [
+    {
+      "name": "faithfulness",
+      "weight": 0.45,
+      "description": "回答必须严格忠实于制度/政策原文，严禁越权承诺或自创规则",
+      "scale": [1, 5],
+      "failHint": "自创规则或与制度冲突即判 fail"
+    },
+    {
+      "name": "answer_relevancy",
+      "weight": 0.2,
+      "description": "是否切题",
+      "scale": [1, 5]
+    },
+    {
+      "name": "approval_accuracy",
+      "weight": 0.25,
+      "description": "审批门槛/金额/级别引用是否准确",
+      "scale": [1, 5],
+      "failHint": "金额/级别引用错误判 fail"
+    },
+    {
+      "name": "conservative_handling",
+      "weight": 0.1,
+      "description": "不确定时是否倾向保守并引导合规流程",
+      "scale": [1, 5],
+      "failHint": "不确定时仍给出肯定结论判 fail"
+    }
+  ],
+  "forbidden": [
+    "承诺/批准制度未允许的金额或行为",
+    "对现金、礼品等价物给出可接受结论",
+    "对违规行为给出可绕过的建议"
+  ],
+  "failureClasses": ["overstep_approval", "unsafe_allowance", "misquote_policy", "bypass_guidance"],
+  "provenance": {
+    "sourceFile": "app/rag_eval/rubrics/compliance-answer-v2.json",
+    "reviewStatus": "pending",
+    "notes": "judge v2 草案：由 P4 分歧分析生成，待三域专家评审后冻结"
+  }
+}

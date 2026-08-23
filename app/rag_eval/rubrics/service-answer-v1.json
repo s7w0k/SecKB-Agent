@@ -1,0 +1,40 @@
+{
+  "schemaVersion": "1.0",
+  "domain": "SERVICE",
+  "rubricVersion": "service-answer-v1",
+  "description": "客服域回答质量 rubric（LLM-as-a-judge 评分依据）",
+  "dimensions": [
+    {
+      "name": "faithfulness",
+      "weight": 0.35,
+      "description": "回答是否忠实于检索到的知识片段，不虚构产品能力/参数",
+      "scale": [1, 5]
+    },
+    {
+      "name": "answer_relevancy",
+      "weight": 0.25,
+      "description": "回答是否切合用户问题，有无答非所问",
+      "scale": [1, 5]
+    },
+    {
+      "name": "product_accuracy",
+      "weight": 0.25,
+      "description": "产品参数/部署/规格是否准确，不与文档冲突",
+      "scale": [1, 5]
+    },
+    {
+      "name": "completeness",
+      "weight": 0.15,
+      "description": "是否覆盖问题关键要点",
+      "scale": [1, 5]
+    }
+  ],
+  "forbidden": [
+    "承诺不存在的产品能力或参数",
+    "给出与知识库冲突的报价/交付承诺"
+  ],
+  "provenance": {
+    "sourceFile": "app/rag_eval/rubrics/service-answer-v1.json",
+    "reviewStatus": "pending"
+  }
+}

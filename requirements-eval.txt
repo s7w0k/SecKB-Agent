@@ -1,0 +1,10 @@
+# P3-01：独立 RAG 评测依赖（不进入生产镜像 requirements.txt）。
+# 生产镜像保持轻量；评测 CLI 在独立环境/一次性容器中安装本文件。
+# 兼容矩阵见 docs/rag-eval-compatibility-matrix.md。
+ragas==0.4.3
+langfuse==4.14.1
+# 可选：Cross-encoder 重排（默认关闭，由 knowledge_rerank_cross_encoder_enabled 开启）。
+# 修复产品名主导 query 导致的排序问题；需额外下载模型（默认 BAAI/bge-reranker-v2-m3）。
+sentence-transformers>=3.0
+# 传递依赖（langchain-core / datasets / tiktoken / tenacity 等）由 pip 自动解析，
+# 但需注意与生产镜像 sqlalchemy==2.0.36 的共存约束。

@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MindBridge 企业智能体</title>
+  <link rel="stylesheet" href="/styles.css?v=enterprise-20260810">
+</head>
+<body class="portal-page">
+  <header class="topbar portal-topbar">
+    <div class="brand">
+      <div class="logo">MB</div>
+      <div>
+        <p class="eyebrow">MIND BRIDGE AGENT</p>
+        <h1>MindBridge 知识库智能体</h1>
+      </div>
+    </div>
+    <div class="status-row">
+      <span id="serviceState" class="pill warn">连接中</span>
+      <span id="modelState" class="pill warn">模型读取中</span>
+    </div>
+  </header>
+
+  <main class="login-shell">
+    <section class="login-panel">
+      <p class="panel-label">ACCOUNT GATE</p>
+      <h2>选择账号进入对应工作台</h2>
+      <form id="loginForm" class="login-form">
+        <label>
+          <span>用户名</span>
+          <input id="username" value="student" autocomplete="username">
+        </label>
+        <label>
+          <span>密码</span>
+          <input id="password" value="student123" type="password" autocomplete="current-password">
+        </label>
+        <button class="primary full" type="submit">登录并进入</button>
+        <p id="loginState" class="hint">客服：student / student123，管理员：admin / admin123</p>
+      </form>
+    </section>
+
+    <section class="entry-grid" aria-label="角色入口说明">
+      <article class="entry-card student-entry">
+        <span class="entry-kicker">SUPPORT DESK</span>
+        <h3>客服与合规智能问答</h3>
+        <p>面向产品售前售后、技术支持和合规政策的统一知识库问答。</p>
+      </article>
+      <article class="entry-card admin-entry">
+        <span class="entry-kicker">ADMIN</span>
+        <h3>管理员端</h3>
+        <p>知识库维护、版本管理、工单/个案闭环和系统数据。</p>
+      </article>
+    </section>
+  </main>
+
+  <script src="/app.js?v=enterprise-20260810"></script>
+</body>
+</html>
