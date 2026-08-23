@@ -488,6 +488,19 @@ AI_PROVIDER=mock KNOWLEDGE_VECTOR_ENABLED=false python -m unittest discover -s t
 - `tests/test_next_phase6_eval_observability.py`：**Evaluation & Observability** —— 统一 trace 管线拓扑校验、Agent/Model/Security/Tool 五组指标、SLO 六类求值（PASS/FAIL/NODATA、跨租户=0、快照来自指标）。
 - `tests/test_next_phase7_production_deployment.py`：**Production Deployment** —— 生产启动校验（无默认账号/禁确定性 embedding/启用 OIDC/外部密钥托管/非 sqlite 生产 DB/分布式限流），severe 失败 `run_or_raise` 阻止启动，settings 绑定判定。
 
+### 下一阶段详细计划 · Phase 1–8 验收
+
+为"下一阶段详细逐步实施计划"的 Phase 1–8 增加离线验收套件，并落地唯一新增的 net-new 模块 **Agent Replay 引擎**（`app/replay/`）：
+
+- `tests/test_plan3_phase1_safety_closure.py`：**Production Safety Closure** —— Buffer→Scan→Allow/Redact/Block→Stream；四类必过：Secret Leakage（api key/JWT/连接串 fail-closed）、PII Leakage（手机/邮箱 redact）、Prompt Injection（直接/间接注入拦截）、Malicious Retrieval Context（检索上下文含密钥/指令 → quarantine）；另覆盖 Knowledge Pollution、Canary Leak、AbuseDetector 分级处置。
+- `tests/test_plan3_phase2_durable_runtime.py`：**真正 Durable Runtime** —— 五态状态机 STARTED→RUNNING→WAITING_TOOL→VALIDATING→COMPLETED/FAILED、AgentTask/Artifact/Event 独立表持久化、Checkpoint + DB/Worker 重启后按 run_id **Resume 续跑**。
+- `tests/test_plan3_phase3_replay.py`：**Agent Replay & Debug** —— 完整 Trace（Input→Planning→Selection→Tool→Model→Artifact→Final Output）；原参数/新模型/新 Prompt 重放；Diff Evaluation（latency/token/answer/decision）。验证新增模块 [`app/replay/engine.py`](../../app/replay/engine.py)（`ReplayEngine`/`ReplayRun`/`diff_replays`/`build_run`）。
+- `tests/test_plan3_phase4_model_governance.py`：**Enterprise Model Governance** —— 全局 Gateway 统一注入、Model Policy Engine 路由（risk/capability/context/latency/health/预算 RED 排除）、分布式熔断共享状态离线验证、Organization/Workspace/User/Agent 四级成本治理。
+- `tests/test_plan3_phase5_reliable_tool_runtime.py`：**Reliable Tool Runtime** —— Worker 独立化、Lease 机制（lease_owner/lease_deadline/heartbeat 持久化）、只回收过期 lease、幂等键（email_send/ticket_create）+ 副作用去重。
+- `tests/test_plan3_phase6_rag_hardening.py`：**RAG Production Hardening** —— Index Generation G100→G101 Atomic Publish/Rollback、Recall/MRR/NDCG/ACL Leakage 检索评估、两级缓存键隔离（tenant/workspace/generation）+ 只存引用不存正文。
+- `tests/test_plan3_phase7_eval_benchmark.py`：**Agent Evaluation Benchmark** —— Task Success/Completion/Failure 率、Trajectory Evaluation（正确步骤/无效工具/循环/恢复/必须先 claim 再调工具）、Safety Benchmark（直接/间接注入、数据泄漏、提权）、Cost Benchmark（token/latency/tool/model calls 与百分位）。
+- `tests/test_plan3_phase8_readiness.py`：**Production Readiness Validation** —— Load Testing（并发 p50/p95/p99、throughput、error rate）、Chaos Testing（Model/Redis/Worker 故障、7/7 场景全绿）、Security Testing（tenant 隔离、RBAC、数据泄漏、提示注入）。
+
 ### Phase 2：输出 DLP 流安全
 
 修复了原固定窗口 DLP 在 `BLOCK` 时仍把 `pending` 原样 `yield`（敏感内容泄漏）的安全漏洞：
