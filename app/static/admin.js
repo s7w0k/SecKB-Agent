@@ -126,7 +126,7 @@ function statusLabel(status) {
 function roleLabel(role) {
   const value = (role || "").toUpperCase();
   if (value === "USER") return "学生";
-  if (value === "ASSISTANT") return "MindBridge";
+  if (value === "ASSISTANT") return "SecKB-Agent";
   if (value === "SYSTEM") return "系统";
   return role || "未知角色";
 }

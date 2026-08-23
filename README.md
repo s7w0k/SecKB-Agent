@@ -1,19 +1,24 @@
-# MindBridge Python
+# SecKB-Agent
+
+面向校园的多域对话 Agent 服务：以心理支持为核心，并扩展到客户服务与合规风控。支持 SSE 流式聊天、事件驱动多 Agent 协作、多域路由、混合检索 RAG、心理风险评估、后台报告、工具队列、模型网关与可观测性。
 
 ## 核心能力
 
 - 学生端 SSE 流式聊天，前端可展示打字机式输出。
-- Basic Auth 登录，支持学生和管理员角色隔离。
+- 认证：JWT 登录签发 token（配置 `JWT_SECRET_KEY` 后生效）；开发环境保留 Basic Auth，支持学生和管理员角色隔离；支持 OIDC/SSO 扩展。
 - 事件驱动多 Agent 协作 runtime：Coordinator、Understanding、Safety、Context、Response 通过共享黑板、任务认领和安全审查协作。
-- 动态路由 RAG：先判断 `CHAT / CONSULT / RISK`，普通问题不查知识库，咨询和风险场景才进入检索增强。
-- Chroma 向量 RAG 知识库：支持 Markdown、txt、PDF 文件上传，自动切块，使用 `text-embedding-3-small` 写入向量库，并与 BM25 关键词召回融合后进入本地 reranker；向量不可用时保留本地 BM25 + 词面检索兜底。
+- 多域路由：按意图将请求路由到心理（`MENTAL`）、客服（`SERVICE`）、合规（`COMPLIANCE`）业务域，并在域上做 RBAC 数据隔离。
+- 动态路由 RAG：先判断 `CHAT / CONSULT / RISK`（及客服/合规意图），普通问题不查知识库，咨询和风险场景才进入检索增强。
+- Chroma 向量 RAG 知识库：支持 Markdown、txt、PDF 文件上传，自动切块，使用 `text-embedding-3-small` 写入向量库，并与 BM25 关键词召回融合后进入本地 reranker；向量不可用时保留本地 BM25 + 词面检索兜底（可选 MySQL FULLTEXT(ngram) 加速）。
 - 心理风险评估：高风险词典优先、LLM JSON 评估、关键词兜底。
 - 后台报告：记录情绪标签、情绪分数、风险等级、置信度和摘要，但学生端不展示后台评估结果。
 - 数据闭环：咨询/风险消息完整写入 MySQL，短期上下文写入 Redis，高风险消息写入 Excel 台账并通过邮件发送预警。
-- 本地微调模型接入：支持通过 Ollama 加载 `mindbridge-qwen2.5-7b-ft-q4_k_m.gguf`。
-- OpenAI-compatible API 接入：也可切换到云端模型。
-- MCP 工具服务：暴露 Excel 报告写入和风险通知工具，后端高风险后处理通过 MCP client 调用这些工具。
-- RAG 评测：Recall@K、Precision@K、MRR、NDCG@K、HitRate。
+- 模型网关：可选的统一模型接入层，支持 provider 路由、并发管理、预算与用量账本。
+- 可观测性：通过 adapter 模式接入 Langfuse（可选依赖，缺失时 fail-open 回退 no-op）。
+- 本地微调模型接入：支持通过 Ollama 加载 `mindbridge-qwen2.5-7b-ft-q4_k_m.gguf`；也可切换 OpenAI-compatible API 或云端模型。
+- MCP 工具服务：暴露 Excel 报告写入和风险通知工具，后端高风险后处理通过 MCP client / 工具队列调用。
+- RAG 评测：Recall@K、Precision@K、MRR、NDCG@K、HitRate，以及线上抽样评测与评测门禁。
+- Alembic 数据库迁移：`migrations/versions/` 管理 schema 演进。
 
 ## 技术栈
 
@@ -21,47 +26,49 @@
 语言：Python
 Web 框架：FastAPI
 服务运行：Uvicorn / ASGI
-数据库：MySQL，SQLAlchemy ORM，PyMySQL 驱动
+数据库：MySQL，SQLAlchemy 2.0 ORM，PyMySQL 驱动；Alembic 迁移
 短期记忆：Redis
 配置管理：pydantic-settings，.env
-AI 接入：Ollama，本地微调 GGUF 模型，OpenAI-compatible API，Mock Provider
+AI 接入：Ollama，本地微调 GGUF 模型，OpenAI-compatible API，Mock Provider，DashScope rerank
 Agent 编排：事件驱动黑板协作 runtime
-RAG：本地知识库切块、OpenAI Embeddings、Chroma 向量库、BM25、分数融合、本地 reranker、上下文扩展
+模型网关：provider 路由 + 预算账本（可选）
+RAG：本地知识库切块、OpenAI Embeddings、Chroma 向量库、BM25（含 MySQL FULLTEXT ngram）、分数融合、本地 reranker、上下文扩展
+可观测性：Langfuse adapter（可选，fail-open）
 流式输出：Server-Sent Events
 文档解析：pypdf
 Excel 台账：openpyxl
 邮件预警：SMTP / smtplib
 前端：原生 HTML / CSS / JavaScript
-认证：Basic Auth
+认证：JWT / Basic Auth（开发）/ OIDC（扩展）
 工具协议：MCP
 ```
-
-说明：当前 Python 版只保留事件驱动多 Agent runtime，入口在 `app/agents/event_driven_runtime.py`。共享返回类型定义在 `app/agents/result.py`。RAG 默认使用 Chroma 本地持久化向量库做语义召回，同时用 BM25 做关键词召回，再融合并本地 rerank；未安装 Chroma、未配置 `OPENAI_API_KEY` 或向量服务异常时，会自动回退到本地 BM25 + `hybrid_score` reranker，避免演示环境中断。
 
 ## 目录结构
 
 ```text
 app/
-├── agents/          # 事件驱动多 Agent runtime
-├── api/             # FastAPI 路由
-├── core/            # 配置、数据库、安全、启动初始化
-├── knowledge/       # 内置校园心理知识库
+├── agents/          # 事件驱动多 Agent runtime（含 Agent Harness）
+├── api/             # FastAPI 路由、鉴权依赖、Scope 依赖
+├── core/            # 配置、数据库、安全、限流、Scope、启动初始化
+├── harness/         # 一键工程验证 harness（mock AI + 临时 SQLite）
+├── knowledge/       # 内置多域知识库（compliance / mental / service）
 ├── mcp_tools/       # MCP 工具服务
+├── model_gateway/   # 模型网关（路由 / 并发 / 预算账本）
 ├── models/          # SQLAlchemy 实体
-├── rag_eval/        # RAG 评测脚本和数据集
+├── observability/   # 可观测性 adapter（noop / langfuse / demo）
+├── rag_eval/        # RAG 评测：runner、数据集校验、rubric、线上抽样
+├── repositories/    # 查询封装
 ├── schemas/         # Pydantic DTO
-├── services/        # AI、聊天、知识库、评估、报告、工具服务
+├── services/        # AI、聊天、知识库、检索、评估、报告、工具等服务
 └── static/          # 原生前端页面
 
-models/mindbridge-qwen2.5-7b-ft/
-├── Modelfile        # Ollama 模型定义
-└── README.md        # GGUF 模型放置说明
-
-scripts/
-├── run-dev.sh
-├── start-ollama.sh
-├── create-finetuned-model.sh
-└── package-release.sh
+migrations/        # Alembic 迁移脚本与 env.py
+models/mindbridge-qwen2.5-7b-ft/  # Ollama 模型 Modelfile
+scripts/           # 开发/运维脚本：run-dev、start-ollama、package-release 等
+skills/            # 标准 Skill（supportive_response_baseline 等）
+infra/langfuse/    # Langfuse 本地部署（docker-compose 等）
+data/              # 运行时数据（chroma、快照、eval 数据集、objects 等，gitignore 处理）
+.github/workflows/ # CI 门禁（L0 单测、schema 校验、L1 smoke）
 ```
 
 ## Agent loop
@@ -80,10 +87,12 @@ TURN_STARTED
 各 Agent 分工：
 
 - `CoordinatorAgent`：维护任务板、预算、安全门槛、冲突仲裁和最终采纳。
-- `UnderstandingAgent`：判断 `CHAT / CONSULT / RISK`，发布 intent artifact。
+- `UnderstandingAgent`：判断意图并路由到对应业务域，发布 intent artifact。
 - `SafetyAgent`：独立评估风险，必要时发布 `SAFETY_OVERRIDE`，并审查候选回复。
 - `ContextAgent`：按需聚合 Redis / MySQL 记忆、RAG 检索结果和 Skill 约束。
 - `ResponseAgent`：根据黑板 artifact 生成候选回复 prompt，等待安全审查和采纳。
+
+支持多域后，各 Agent 可针对心理 / 客服 / 合规域注入不同的模型与知识上下文。
 
 ## 安装依赖
 
@@ -91,19 +100,23 @@ TURN_STARTED
 pip install -r requirements.txt
 ```
 
-`requirements.txt` 已包含：
+可选依赖：
 
-```text
-chromadb
-pymysql
-redis
+```bash
+# Langfuse 可观测 SDK（缺失时自动回退 no-op）
+pip install -r requirements-langfuse.txt
+
+# RAG 评测相关（RAGAS 指标等）
+pip install -r requirements-eval.txt
 ```
+
+`requirements.txt` 已包含：FastAPI、Uvicorn、SQLAlchemy、PyMySQL、Redis、chromadb、openpyxl、pypdf、httpx、MCP、Alembic、bcrypt、PyJWT 等。
 
 `AGENT_FRAMEWORK` 仍会读取环境变量，但当前只支持 `event_driven_multi_agent`。历史值或未知值会在状态接口中标记为 fallback，并实际使用事件驱动 runtime。
 
-## MySQL 和 Redis 配置
+## MySQL、Redis 与迁移
 
-系统默认使用 MySQL 保存完整业务数据和完整聊天消息，使用 Redis 保存短期对话记忆。启动服务前先创建数据库：
+系统默认使用 MySQL 保存完整业务数据和完整聊天消息，使用 Redis 保存短期对话记忆，并使用 Alembic 管理 schema 演进。启动服务前先创建数据库：
 
 ```sql
 CREATE DATABASE mindbridge DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -123,14 +136,43 @@ REDIS_MEMORY_MAX_MESSAGES=40
 
 完整聊天记录写入 MySQL 的 `chat_sessions`、`chat_messages` 等表。Redis 只保存每个会话最近 `REDIS_MEMORY_MAX_MESSAGES` 条短期上下文，并通过 `REDIS_MEMORY_TTL_SECONDS` 自动过期。
 
-## 
+数据库迁移基于 Alembic，迁移脚本位于 `migrations/versions/`，配置见 `alembic.ini`：
 
-默认账号：
+```bash
+alembic upgrade head
+```
+
+默认种子账号：
 
 ```text
-student / student123
-admin / admin123
+student / student123   # ROLE_USER
+admin   / admin123     # ROLE_ADMIN, ROLE_USER（兼容期映射为多域管理员）
 ```
+
+## 认证
+
+- 开发环境保留 Basic Auth（`BASIC_AUTH_DEV_ONLY=true`）。
+- 配置 `JWT_SECRET_KEY` 后，`/api/auth/login` 会签发 JWT token，后续请求走 Bearer Token。
+- 生产环境可启用 OIDC/SSO（`OIDC_ENABLED=true`）并强制 RBAC 域权限（`DOMAIN_RBAC_ENFORCED=true`）。
+- Scope 强制模式（`SCOPE_ENFORCEMENT_MODE=enforce`）在缺失域名/租户/工作区信息时直接拒绝请求。
+
+## 多域架构与 RBAC
+
+业务域定义于 `app/core/enums.py`：
+
+- `MENTAL`：心理健康（历史能力，含 `CHAT / CONSULT / RISK` 意图）。
+- `SERVICE`：客户服务（`SUPPORT / COMPLAINT` 意图）。
+- `COMPLIANCE`：合规风控（`POLICY_QUERY / INCIDENT_REPORT` 意图）。
+
+域级 RBAC 通过角色控制可访问/可管理的域：
+
+```env
+DOMAIN_RBAC_ENFORCED=true
+SERVICE_DOMAIN_ENABLED=false
+COMPLIANCE_DOMAIN_ENABLED=false
+```
+
+`MULTI_DOMAIN_ENABLED` 默认关闭以保证现有行为不变；开启后路由层按意图将请求分发到对应域，并在域内隔离知识库与 scope 数据。
 
 ## Docker Compose 一键启动
 
@@ -138,7 +180,7 @@ admin / admin123
 
 - `mysql`：MySQL 8.4，容器内端口 `3306`，宿主机映射 `13306`
 - `redis`：Redis 7，容器内端口 `6379`，宿主机映射 `16379`
-- `app`：MindBridge FastAPI 服务，宿主机端口 `8080`
+- `app`：SecKB-Agent FastAPI 服务，宿主机端口 `8080`
 
 默认配置会让应用容器访问宿主机 Ollama：
 
@@ -152,9 +194,9 @@ docker compose up -d --build
 mindbridge-qwen2.5-7b-ft:latest
 ```
 
-## Chroma 向量库与快照
+## 知识库与混合检索
 
-应用启动时会同步 `app/knowledge/*.md` 内置默认知识库到数据库。当前默认文档覆盖校园心理支持总则、风险等级策略、焦虑恐慌、情绪低落、睡眠作息、学业压力、考试季、人际关系、新生适应、咨询转介和隐私边界等主题；如果默认 md 内容发生变化，重启后对应来源会按当前切块规则刷新入库。
+应用启动时会同步 `app/knowledge/**/*.md` 内置知识库到数据库。当前默认覆盖心理、客服与合规多个域；如果默认 md 内容发生变化，重启后对应来源会按当前切块规则刷新入库。
 
 知识库默认优先使用 Chroma 持久化向量库，embedding 由 OpenAI `text-embedding-3-small` 提供。查询时会同时取向量候选和 BM25 候选，按配置权重融合后进入本地 reranker。没有 `OPENAI_API_KEY`、缺少 `chromadb` 或向量调用失败时，会回退到本地 BM25 + `hybrid_score` reranker：
 
@@ -168,7 +210,13 @@ KNOWLEDGE_HYBRID_VECTOR_WEIGHT=0.65
 KNOWLEDGE_HYBRID_BM25_WEIGHT=0.35
 KNOWLEDGE_RERANK_ENABLED=true
 CHROMA_PERSIST_DIR=data/chroma
-CHROMA_SNAPSHOT_DIR=data/chroma-snapshots
+CHROMA_COLLECTION_NAME=mindbridge_knowledge_v2
+```
+
+生产可选用 MySQL FULLTEXT(ngram) 的 BM25 索引加速，需在迁移 `0012` 后开启：
+
+```env
+KNOWLEDGE_BM25_FULLTEXT_ENABLED=true
 ```
 
 管理员接口：
@@ -228,7 +276,7 @@ Python 版默认预留本地模型名：
 mindbridge-qwen2.5-7b-ft:latest
 ```
 
-模型目录：
+模型目录（含 Ollama `Modelfile`）：
 
 ```text
 models/mindbridge-qwen2.5-7b-ft/
@@ -298,10 +346,30 @@ KNOWLEDGE_HYBRID_VECTOR_WEIGHT=0.65
 KNOWLEDGE_HYBRID_BM25_WEIGHT=0.35
 KNOWLEDGE_RERANK_ENABLED=true
 CHROMA_PERSIST_DIR=data/chroma
-CHROMA_COLLECTION_NAME=mindbridge_knowledge
+CHROMA_COLLECTION_NAME=mindbridge_knowledge_v2
 ```
 
 当 `KNOWLEDGE_VECTOR_REQUIRED=false` 时，缺少 API key 或 Chroma 不可用不会阻断聊天，系统会回退到本地 BM25 + `hybrid_score` reranker。若交付验收要求必须走 Chroma 向量检索，可设置 `KNOWLEDGE_VECTOR_REQUIRED=true`。
+
+## 模型网关与可观测性
+
+可选的模型网关（`app/model_gateway/`）作为主链路入口，提供 provider 路由、并发隔离、预算和用量账本；默认关闭保持旧路径，生产开启后用统一配置覆盖各 Agent 模型：
+
+```env
+MODEL_GATEWAY_ENABLED=true
+```
+
+可观测性通过 adapter 模式接入（`app/observability/`），缺 SDK 或 key 时 fail-open 回退 no-op，不阻断业务：
+
+```env
+LANGFUSE_ENABLED=true
+LANGFUSE_PUBLIC_KEY=...
+LANGFUSE_SECRET_KEY=...
+LANGFUSE_HOST=http://localhost:3000
+LANGFUSE_SAMPLE_RATE=1.0
+```
+
+本仓库提供 `infra/langfuse/` 便于本地部署 Langfuse（见其中的 `README.md`）。
 
 ## 调用示例
 
@@ -321,6 +389,14 @@ curl -N -u student:student123 \
   -H 'Content-Type: application/json' \
   -d '{"message":"我不想活了，感觉撑不下去了"}' \
   http://127.0.0.1:8080/api/chat/stream
+```
+
+JWT 登录（配置 `JWT_SECRET_KEY` 后）：
+
+```bash
+curl -X POST http://127.0.0.1:8080/api/auth/login \
+  -H 'Content-Type: application/json' \
+  -d '{"username":"admin","password":"admin123"}'
 ```
 
 管理员查看报告：
@@ -352,17 +428,30 @@ AI_PROVIDER=mock python -m app.rag_eval.runner
 target/rag-eval-report.json
 ```
 
-## 单元测试
-
-当前 `tests/` 里的基础回归用例使用 Python 标准库 `unittest`，不依赖 `pytest`：
+数据集 schema 校验（CI 中作为硬门禁）：
 
 ```bash
-python -m unittest discover -s tests
+python -m app.rag_eval.validate --all --skip-db
+```
+
+线上抽样评测由外部 RAGAS worker 消费，相关配置见 `.env.example` 中的 `RAG_EVAL_ONLINE_*` 与 `LANGFUSE_*`。
+
+## CI 门禁
+
+`.github/workflows/` 提供分层门禁：
+
+- `test.yml`：L0 确定性单测、L0 数据集 schema 校验、L1 smoke retrieval + leakgate（均为 hard gate）。
+- `ci-l2-regression.yml`：L2 回归评测。
+
+本地运行单元测试（标准库 `unittest`，不依赖 pytest）：
+
+```bash
+AI_PROVIDER=mock KNOWLEDGE_VECTOR_ENABLED=false python -m unittest discover -s tests
 ```
 
 ## Agent Runtime Harness
 
-线上对话通过 `MindBridgeAgentHarness` 组织一次 Agent run。Harness 不改变事件驱动 runtime 内部的多 Agent 协作方式，而是在外层统一管理：
+线上对话通过 `MindBridgeAgentHarness`（`app/agents/harness.py`）组织一次 Agent run。Harness 不改变事件驱动 runtime 内部的多 Agent 协作方式，而是在外层统一管理：
 
 - 输入脱敏和 session 解析。
 - Agent runtime 调用和多 Agent 协作结果接入。
@@ -374,7 +463,7 @@ python -m unittest discover -s tests
 
 ## Engineering Harness
 
-项目提供一键工程 harness，用 mock AI、临时 SQLite、内存短期记忆和本地输出验证核心链路：
+项目提供一键工程 harness（`app/harness/runner.py`），用 mock AI、临时 SQLite、内存短期记忆和本地输出验证核心链路：
 
 - Risk Safety Harness：高风险识别、报告生成、后台元数据不外显、工具队列入队。
 - Agent Routing Harness：通过 `MindBridgeAgentHarness` 验证 CHAT / CONSULT / RISK 路由和多 Agent 步骤。
@@ -422,3 +511,5 @@ python -m app.mcp_tools.server
 - `academic_stress_planning`：考试、作业、论文、绩点压力的下一步拆解。
 - `referral_resource_guidance`：校内心理中心、辅导员、可信任支持人和紧急资源转介。
 - `counselor_handoff_summary`：生成给辅导员/管理员看的个案交接摘要模板。
+
+> 说明：仓库默认通过 `.gitignore` 排除 `docs/`、`tests/` 以及运行时数据（`data/chroma-*`、`data/embedding-cache`、`data/objects` 等），只保留源码与 `data/eval` 评测数据集。
