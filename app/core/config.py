@@ -27,6 +27,9 @@ class Settings(BaseSettings):
     agent_durable_enabled: bool = True
     # Phase 4（§4.5）：服务端数据分级上限（DB/JWT/IAM）；None=不限，客户端只能降低不能提高。
     classification_server_clearance: Optional[str] = None
+    # 剩余 8 关键问题 · Phase 3（§3.3）：Unknown/NULL Classification 是否 fail-closed。
+    # 默认 False 保持 dev/test 现有行为；生产环境必须设为 True（禁止 NULL→0）。
+    classification_fail_closed: bool = False
     agent_model_default_provider: str = ""
     agent_model_default_model: str = ""
     agent_model_coordinator_provider: str = ""

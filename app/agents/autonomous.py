@@ -526,13 +526,43 @@ class ContextAgent(BaseAutonomousAgent):
         retrieved: list["SearchResult"] = []
         query = ""
         skill_context = ""
+        plan_queries: list[str] = []
+        query_types: list[str] = []
         # 多域启用（企业客服/合规知识库）时始终检索，保证回复有据可依；
         # 纯心理场景保持旧行为：普通寒暄不触发检索以节省开销
         always_retrieve = self.services.settings.multi_domain_enabled
         if always_retrieve or intent != IntentType.CHAT or risk != RiskLevel.LOW:
             query = self._rewrite_query(memory_brief, board.model_input)
             domain = self._retrieval_domain(board, intent)
-            retrieved = self._run_retrieval(board, query, domain) or []
+            # 剩余 8 关键问题 · Phase 5（§5.2）：Query Decomposition 进入主链 ——
+            # 复杂多跳问题不再被压缩为单 Query，而是拆解并逐个执行 + 合并证据。
+            from app.agents.multi_query import decompose_query
+            from app.services.multi_query_retrieval import execute_multi_query
+
+            decomposition = decompose_query(query)
+            plan_queries = decomposition.queries or ([query] if query else [])
+            query_types = decomposition.types
+            multi = None
+            if plan_queries:
+                try:
+                    multi = execute_multi_query(
+                        plan=self._plan_obj(board, query, plan_queries, query_types),
+                        retrieve_fn=lambda q: self._run_retrieval(board, q, domain) or [],
+                        max_queries=self.services.settings.max_queries_per_attempt,
+                        generation=self.services.settings.index_generation,
+                        attempt=1,
+                        retrieval_path="multi_decomposed" if len(plan_queries) > 1 else "hybrid",
+                    )
+                except Exception:
+                    multi = None
+            if multi is not None and multi.merged.chunks:
+                from app.agents.evidence_view import evidence_to_search_results
+
+                retrieved = evidence_to_search_results(multi.merged) or []
+            else:
+                # 退化：multi-query 失败/无证据时对计划首个 query 直接检索
+                fallback_query = (plan_queries or [query])[0] if (plan_queries or query) else ""
+                retrieved = self._run_retrieval(board, fallback_query, domain) or [] if fallback_query else []
             skill_context = MindBridgeSkillLibrary.response_skill_context(intent, risk, board.user_input)
         payload = {
             "memoryBrief": memory_brief,
@@ -545,10 +575,20 @@ class ContextAgent(BaseAutonomousAgent):
         self.remember(f"context intent={intent.value}; risk={risk.value}; retrieved={len(retrieved)}")
         # Phase 8/9：结构化 retrieval_plan + evidence Artifact（Agentic 控制逻辑的数据基础）。
         artifacts = [self._artifact("context", payload, task, 0.88)]
-        plan = self._build_plan(task, board, query, [query] if query else [], attempt=1)
-        if plan is not None:
-            artifacts.append(plan)
-        evidence = self._build_evidence(task, board, query, [query] if query else [], retrieved, attempt=1)
+        evidence: AgentArtifact | None = None
+        plan_artifact = self._build_plan(task, board, query, plan_queries or ([query] if query else []), query_types=query_types, attempt=1)
+        if plan_artifact is not None:
+            artifacts.append(plan_artifact)
+        if plan_queries and (multi is not None and multi.merged.chunks):
+            evidence = self._artifact(
+                "evidence",
+                multi.merged.to_payload(),
+                task,
+                0.8,
+                {"attempt": 1, "knowledgeQuery": query},
+            )
+        elif evidence is None and (plan_queries or query):
+            evidence = self._build_evidence(task, board, query, plan_queries or [query], retrieved, attempt=1)
         if evidence is not None:
             artifacts.append(evidence)
         return AgentTurnResult(
@@ -585,6 +625,31 @@ class ContextAgent(BaseAutonomousAgent):
             return list(resp.results)
         return self.services.knowledge.retrieve(query, domain=domain, top_k=self.services.settings.knowledge_top_k)
 
+    def _plan_obj(
+        self,
+        board: CollaborationBlackboard,
+        query: str,
+        queries: list[str],
+        query_types: list[str] | None = None,
+        *,
+        attempt: int = 1,
+        budget_remaining: bool = True,
+    ) -> "RetrievalPlanArtifact":
+        """构造结构化 RetrievalPlanArtifact（含 query_types，供 Multi-query 执行）。"""
+        from app.agents.retrieval_artifacts import RetrievalPlanArtifact
+
+        domain = self._retrieval_domain(board, _intent(board))
+        return RetrievalPlanArtifact(
+            need_retrieval=True,
+            goal=query or (queries[0] if queries else ""),
+            queries=list(queries),
+            query_types=list(query_types or []),
+            domains=domain_values([domain.value]) if domain else [],
+            retrieval_strategy="hybrid",
+            max_attempts=self.services.settings.max_retrieval_attempts,
+            budget_remaining=budget_remaining,
+        )
+
     def _build_plan(
         self,
         task: AgentTask,
@@ -593,19 +658,19 @@ class ContextAgent(BaseAutonomousAgent):
         queries: list[str],
         *,
         attempt: int,
+        query_types: list[str] | None = None,
         budget_remaining: bool = True,
     ) -> AgentArtifact | None:
         if not query and not queries:
             return None
         from app.agents.retrieval_artifacts import RetrievalPlanArtifact
 
-        plan = RetrievalPlanArtifact(
-            need_retrieval=True,
-            goal=query or queries[0],
-            queries=list(queries),
-            domains=domain_values([self._retrieval_domain(board, _intent(board)).value]) if self._retrieval_domain(board, _intent(board)) else [],
-            retrieval_strategy="hybrid",
-            max_attempts=self.services.settings.max_retrieval_attempts,
+        plan = self._plan_obj(
+            board,
+            query,
+            queries,
+            query_types,
+            attempt=attempt,
             budget_remaining=budget_remaining,
         )
         return self._artifact("retrieval_plan", plan.to_payload(), task, 0.85, {"attempt": attempt})
@@ -634,18 +699,55 @@ class ContextAgent(BaseAutonomousAgent):
         return self._artifact("evidence", evidence.to_payload(), task, 0.8, {"attempt": attempt, "knowledgeQuery": query})
 
     def _act_refine(self, task: AgentTask, board: CollaborationBlackboard) -> AgentTurnResult:
-        """Phase 10：用上一轮 Critic 建议的 next_queries 再检索，发布新一轮 evidence。"""
-        critique = board.latest_artifact("retrieval_critique")
-        next_queries = list((critique.payload.get("nextQueries") or [])) if critique else []
-        if not next_queries:
-            next_queries = [board.model_input[:60]]
-        query = next_queries[0]
+        """Phase 10 + 剩余 8 关键问题 · Phase 2：使用解析后的 nextQueries 再检索。
+
+        升级为多 query：用 ``resolve_refine_queries`` 统一 Query 来源优先级
+        （task.metadata.nextQueries → RetrievalCritique → Grounding → model_input），
+        对每个 query 独立执行检索，再 ``merge_query_results`` 合并为一个 evidence。
+        """
+        from app.agents.retrieval_query_resolver import (
+            QueryRetrievalResult,
+            merge_query_results,
+            resolve_refine_queries,
+        )
+        from app.core.retrieval_budget import RetrievalLoopBudget
+
+        budget = RetrievalLoopBudget(
+            max_attempts=self.services.settings.max_retrieval_attempts,
+            max_queries_per_attempt=self.services.settings.max_queries_per_attempt,
+            max_total_candidates=self.services.settings.max_total_candidates,
+        )
         domain = self._retrieval_domain(board, _intent(board))
-        retrieved = self._run_retrieval(board, query, domain) or []
+        resolved = resolve_refine_queries(task, board, budget)
+
+        query_runs: list[QueryRetrievalResult] = []
+        for q in resolved.queries:
+            results = self._run_retrieval(board, q, domain) or []
+            query_runs.append(QueryRetrievalResult(query=q, results=results, candidate_count=len(results)))
+
         attempt = len(board.artifacts_by_kind("evidence")) + 1
-        evidence = self._build_evidence(task, board, query, [query], retrieved, attempt=attempt)
-        artifacts = (evidence,) if evidence is not None else ()
-        self.remember(f"refine-retrieval attempt={attempt}; query={query}; retrieved={len(retrieved)}")
+        artifacts: tuple = ()
+        if query_runs:
+            merged = merge_query_results(
+                query_runs,
+                generation=self.services.settings.index_generation,
+                retrieval_path=f"refine:{resolved.source}",
+                attempt=attempt,
+            )
+            if merged.chunks:
+                artifacts = (
+                    self._artifact(
+                        "evidence",
+                        merged.to_payload(),
+                        task,
+                        0.8,
+                        {"attempt": attempt, "knowledgeQuery": board.model_input},
+                    ),
+                )
+        self.remember(
+            f"refine-retrieval attempt={attempt}; source={resolved.source}; "
+            f"queries={len(query_runs)}; retrieved={sum(r.candidate_count for r in query_runs)}"
+        )
         return AgentTurnResult(artifacts=artifacts)
 
     def _load_history(self) -> list[AiMessage]:
@@ -803,11 +905,32 @@ class GroundednessAgent(BaseAutonomousAgent):
 
     def act(self, task: AgentTask, board: CollaborationBlackboard) -> AgentTurnResult:
         from app.agents.groundedness_critic import critique_groundedness
+        from app.agents.evidence_view import load_bound_evidence
         from app.agents.retrieval_artifacts import EvidenceArtifact
 
         response = board.latest_artifact("response_proposal")
-        ev_artifact = board.latest_artifact("evidence")
-        evidence = EvidenceArtifact.from_payload(ev_artifact.payload) if ev_artifact else EvidenceArtifact()
+        # 剩余 8 关键问题 · Phase 1（§1.7）：Grounding 精确绑定 Response 所消费的
+        # evidence Artifact，而非简单 latest_artifact("evidence")。
+        bound_ids = (response.payload.get("evidenceArtifactIds") or []) if response else []
+        view = load_bound_evidence(
+            board,
+            list(bound_ids),
+            pinned_generation=self.services.settings.index_generation,
+        )
+        if view.chunks:
+            evidence = EvidenceArtifact(
+                evidence_ids=view.evidence_ids,
+                chunks=view.chunks,
+                sources=view.sources,
+                generation=view.generation,
+                retrieval_path=",".join(view.retrieval_paths) if view.retrieval_paths else "hybrid",
+                attempt=max(view.attempts, default=1),
+            )
+        else:
+            # 无绑定证据：回退到黑板最新 evidence（兼容旧链路），但缺失绑定时
+            # 判定仍按空证据处理（re_retrieve）。
+            ev_artifact = board.latest_artifact("evidence")
+            evidence = EvidenceArtifact.from_payload(ev_artifact.payload) if ev_artifact else EvidenceArtifact()
         raw_text = response.payload.get("text") if response else ""
         critique = critique_groundedness(str(raw_text or ""), evidence)
 
@@ -816,6 +939,8 @@ class GroundednessAgent(BaseAutonomousAgent):
             "decision": critique.decision,
             "responseArtifactId": response.id if response else None,
             "evidenceIds": evidence.evidence_ids,
+            "evidenceArtifactIds": list(bound_ids),
+            "evidenceGeneration": evidence.generation,
             "privateMemoryKey": self.services.private_memory._key(self.name, self.services.session.public_id),
         }
         self.remember(
@@ -863,7 +988,16 @@ class ResponseAgent(BaseAutonomousAgent):
         context_payload = context.payload if context else {}
         model_history = context_payload.get("modelHistory") or [AiMessage(role="user", content=board.model_input)]
         memory_brief = context_payload.get("memoryBrief") or "无相关历史记忆。"
-        knowledge = context_payload.get("retrievedKnowledge") or []
+        # 剩余 8 关键问题 · Phase 1（§1.5）：知识权威来源从 ContextArtifact 改为
+        # EvidenceArtifact —— 用黑板上的证据构建 EffectiveEvidenceView，保证
+        # Re-retrieval 之后一定消费最新合并证据，而不是初次检索写入 Context 的旧值。
+        from app.agents.evidence_view import build_effective_evidence_view
+
+        evidence_view = build_effective_evidence_view(
+            board,
+            pinned_generation=self.services.settings.index_generation,
+        )
+        knowledge = evidence_view.to_knowledge()
         skill_context = context_payload.get("skillContext") or ""
         # v2 阶段 3（8.4）：检索 context token 上限（超限截断，保护模型上下文窗口）
         max_tokens = int(getattr(self.services.settings, "knowledge_context_max_tokens", 0) or 0)
@@ -937,6 +1071,11 @@ class ResponseAgent(BaseAutonomousAgent):
             quarantined_evidence_ids=partition.quarantined_evidence_ids,
             evidence_trust_scores=partition.trust_scores,
             retrieval_generation="rule|" + (domain.value if domain else "MENTAL"),
+            # 剩余 8 关键问题 · Phase 1（§1.6）：精确绑定 Evidence
+            evidence_artifact_ids=evidence_view.evidence_artifact_ids,
+            evidence_generation=evidence_view.generation,
+            evidence_attempts=evidence_view.attempts,
+            evidence_hash=evidence_view.binding_hash(),
         )
         payload = {
             "messages": messages,
@@ -948,6 +1087,12 @@ class ResponseAgent(BaseAutonomousAgent):
             "intent": intent.value,
             "risk": risk.value,
             "responseAgent": self.name,
+            # Phase 1（§1.6）Evidence Binding：Response 精确绑定所使用的证据
+            "evidenceIds": list(evidence_view.evidence_ids),
+            "evidenceArtifactIds": list(evidence_view.evidence_artifact_ids),
+            "evidenceGeneration": evidence_view.generation,
+            "evidenceAttempts": list(evidence_view.attempts),
+            "evidenceHash": evidence_view.binding_hash(),
             "privateMemoryKey": self.services.private_memory._key(self.name, self.services.session.public_id),
         }
         if domain is not None:

@@ -80,6 +80,7 @@ class ProductionStartupValidator:
             ("production_db_configured", self._check_production_db),
             ("distributed_rate_limit_configured", self._check_rate_limit),
             ("vector_backend_production_ready", self._check_vector_backend),
+            ("classification_fail_closed", self._check_classification_fail_closed),
         ]
 
     # --- 各项判定（返回 (ok, message)）---
@@ -122,6 +123,13 @@ class ProductionStartupValidator:
             return True, "vector backend production-ready"
         return False, msg or "production multi-replica must use a centralized Vector Backend (not local_chroma)"
 
+    def _check_classification_fail_closed(self, value: bool, msg: str) -> tuple:
+        # value=True 表示"生产环境已开启 classification fail-closed"。
+        # Unknown/NULL classification 在生产必须 fail-closed，否则可能被低权限用户召回。
+        if value is True:
+            return True, "classification fail-closed enabled"
+        return False, msg or "classification fail-closed is disabled (set CLASSIFICATION_FAIL_CLOSED=true in production)"
+
     # --- 判定的适配层：settings 读取 + overrides ---
 
     # 每项检查从 settings 取值的绑定函数；未接线 settings 时整体保守返回 False。
@@ -137,6 +145,7 @@ class ProductionStartupValidator:
             s.get("replicas_count", 1),
             str(s.get("vector_backend", "local_chroma")),
         ),
+        "classification_fail_closed": lambda s: s.get("classification_fail_closed", False),
     }
 
     _default_values = {
@@ -147,6 +156,7 @@ class ProductionStartupValidator:
         "production_db_configured": False,
         "distributed_rate_limit_configured": False,
         "vector_backend_production_ready": False,
+        "classification_fail_closed": False,
     }
 
     def _checker_binding(self, name: str, settings: Optional[object]) -> tuple:
@@ -162,6 +172,7 @@ class ProductionStartupValidator:
             "production_db_configured": "production DB configured",
             "distributed_rate_limit_configured": "distributed rate limit configured",
             "vector_backend_production_ready": "vector backend production-ready",
+            "classification_fail_closed": "classification fail-closed enabled",
         }
         return labels[name], self._default_values[name], self._bound_getter(name, settings)
 

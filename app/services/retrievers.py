@@ -38,6 +38,23 @@ from typing import Any
 from app.core.scope import RequestScope, require_scope
 
 
+def _perf_counter() -> float:
+    import time
+
+    return time.perf_counter()
+
+
+def _plan_query_hash(plan: Any) -> str | None:
+    """对检索计划中的 query 做稳定哈希，用于审计溯源（不落明文正文）。"""
+    queries = getattr(plan, "queries", None)
+    if not queries:
+        return None
+    import hashlib
+
+    raw = "|".join(str(q) for q in queries)
+    return hashlib.sha256(raw.encode("utf-8")).hexdigest()[:16]
+
+
 class SourceKind(str, Enum):
     INTERNAL_KB = "InternalKB"
     PRODUCT_DOCS = "ProductDocs"
@@ -202,6 +219,10 @@ class AuditRecord:
     returned: int
     dropped: int
     reason: str = ""
+    # SecKB Phase 6（§6.6 Audit 持久化字段）：装饰器在 retrieve 期间补齐。
+    query_hash: str | None = None
+    generation: str | None = None
+    latency_ms: float | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -211,6 +232,9 @@ class AuditRecord:
             "returned": self.returned,
             "dropped": self.dropped,
             "reason": self.reason,
+            "queryHash": self.query_hash,
+            "generation": self.generation,
+            "latencyMs": self.latency_ms,
         }
 
 
@@ -235,6 +259,7 @@ class SecureRetrieverDecorator:
         self.enforce_scope = enforce_scope
 
     def retrieve(self, plan, scope, budget) -> RetrieverResult:
+        _start = _perf_counter()
         # ---- Scope：RequestScope 不可省略（fail-closed），按 tenant 过滤 ----
         try:
             effective_scope = require_scope(scope)
@@ -275,7 +300,7 @@ class SecureRetrieverDecorator:
                     continue
             returned.append(chunk)
 
-        # ---- Audit：记录每次 retrieve ----
+        # ---- Audit：记录每次 retrieve（SecKB Phase 6 §6.6：持久化字段补齐）----
         self.audit(
             AuditRecord(
                 source_kind=self.retriever.source_kind,
@@ -284,6 +309,9 @@ class SecureRetrieverDecorator:
                 returned=len(returned),
                 dropped=dropped,
                 reason=dropped_reason or "",
+                query_hash=_plan_query_hash(plan),
+                generation=self.generation,
+                latency_ms=(_perf_counter() - _start) * 1000.0,
             )
         )
         return RetrieverResult(

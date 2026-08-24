@@ -77,6 +77,15 @@ class ResponseArtifact:
     # 每个 source_key 的注入风险分（0-100）
     evidence_trust_scores: dict = field(default_factory=dict)
     retrieval_generation: str = ""
+    # 剩余 8 关键问题 · Phase 1（§1.6）：ResponseArtifact 精确绑定证据
+    # - evidence_artifact_ids：被消费的 evidence Artifact id 列表
+    # - evidence_generation：所绑定证据的 pinned generation
+    # - evidence_attempts：参与合并的 attempt 序号
+    # - evidence_hash：证据正文的 SHA-256（防篡改/绑定核对）
+    evidence_artifact_ids: list[str] = field(default_factory=list)
+    evidence_generation: str = ""
+    evidence_attempts: list[int] = field(default_factory=list)
+    evidence_hash: str = ""
     created_at: float = 0.0
 
 
@@ -113,6 +122,10 @@ def build_response_artifact(
     quarantined_evidence_ids: list[str] | None = None,
     evidence_trust_scores: dict | None = None,
     retrieval_generation: str = "",
+    evidence_artifact_ids: list[str] | None = None,
+    evidence_generation: str = "",
+    evidence_attempts: list[int] | None = None,
+    evidence_hash: str = "",
     artifact_id: str | None = None,
     created_at: float | None = None,
 ) -> ResponseArtifact:
@@ -128,6 +141,10 @@ def build_response_artifact(
         quarantined_evidence_ids=list(quarantined_evidence_ids or []),
         evidence_trust_scores=dict(evidence_trust_scores or {}),
         retrieval_generation=retrieval_generation,
+        evidence_artifact_ids=list(evidence_artifact_ids or []),
+        evidence_generation=evidence_generation,
+        evidence_attempts=list(evidence_attempts or []),
+        evidence_hash=evidence_hash,
         created_at=round(created_at if created_at is not None else time.time(), 6),
     )
 
@@ -141,6 +158,11 @@ def artifact_metadata(ra: ResponseArtifact) -> dict[str, Any]:
         "provider": ra.provider,
         "prompt_version": ra.prompt_version,
         "created_at": ra.created_at,
+        # Phase 1（§1.6）证据绑定
+        "evidence_artifact_ids": list(ra.evidence_artifact_ids),
+        "evidence_generation": ra.evidence_generation,
+        "evidence_attempts": list(ra.evidence_attempts),
+        "evidence_hash": ra.evidence_hash,
     }
 
 

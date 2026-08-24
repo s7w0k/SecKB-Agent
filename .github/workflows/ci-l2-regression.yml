@@ -30,7 +30,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install -r requirements-eval.txt
-      - name: Run full RAGAS regression
+      - name: Run full RAGAS regression (Hard Gate)
         env:
           AI_PROVIDER: mock
           DATABASE_URL: sqlite:///./target/ci-l2.sqlite3
@@ -39,34 +39,43 @@ jobs:
           RAG_EVAL_JUDGE_MODEL: ${{ secrets.RAG_EVAL_JUDGE_MODEL || 'gpt-4o-mini' }}
           RAG_EVAL_JUDGE_BASE_URL: ${{ secrets.RAG_EVAL_JUDGE_BASE_URL || '' }}
           RAG_EVAL_JUDGE_API_KEY: ${{ secrets.RAG_EVAL_JUDGE_API_KEY }}
-          RAG_EVAL_GATE_MODE: soft
+          RAG_EVAL_GATE_MODE: hard
         run: |
+          set -euo pipefail
           mkdir -p target/rag-eval/candidate target/rag-eval/baseline
-          # 运行 RAGAS 评测 pipeline（全量 regression 数据集）
+          echo "=== Running RAGAS regression pipeline ==="
+          # §8.2：禁止吞失败 —— 评测失败必须让 job 非零退出，而不是 || echo
           python -m app.rag_eval.cli run \
             --dataset data/eval/regression/rag-regression.json \
-            --output target/rag-eval/candidate/ || echo "JUDGE_FAILED=$?"
-          # 检查是否有 baseline（首次运行无 baseline 则跳过 gate）
+            --output target/rag-eval/candidate/
+          GATE_EXIT=0
           if [ -f target/rag-eval/baseline/summary.json ]; then
-            echo "=== Running gate evaluation ==="
+            echo "=== Running hard gate evaluation ==="
+            set +e
             python -m app.rag_eval.gates evaluate \
               --baseline target/rag-eval/baseline/summary.json \
               --candidate target/rag-eval/candidate/summary.json \
               --candidate-per-case target/rag-eval/candidate/cases.jsonl \
-              --mode soft \
+              --mode hard \
               --dataset-version "$(date -u +%Y-%m-%d).1" \
               --candidate-run-id "${{ github.run_id }}" \
-              --output target/rag-eval/gate-decision.json \
-              || echo "GATE_EXIT=$?"
+              --output target/rag-eval/gate-decision.json
+            GATE_EXIT=$?
+            set -e
             cat target/rag-eval/gate-decision.json
           else
-            echo '{"status":"pass","reasons":["no baseline yet, first run"]}' > target/rag-eval/gate-decision.json
-            echo "No baseline found, skipping gate (first run)"
+            echo "No baseline found (first run): seeding baseline, not evaluating yet"
+            echo '{"status":"pass","reasons":["no baseline yet, first run seeds baseline"]}' > target/rag-eval/gate-decision.json
+            GATE_EXIT=0
           fi
-          # 将 candidate 提升为下次的 baseline
-          if [ -f target/rag-eval/candidate/summary.json ]; then
+          # §8.3：仅 hard gate 通过（exit==0）才把 candidate 提升为下次 baseline；
+          # 失败的候选不得污染稳定 baseline（Unblessed Baseline Usage = 0）。
+          if [ -f target/rag-eval/candidate/summary.json ] && [ "$GATE_EXIT" = "0" ]; then
             cp target/rag-eval/candidate/summary.json target/rag-eval/baseline/summary.json
           fi
+          echo "L2 gate exit = $GATE_EXIT"
+          # §8.2 §8.9：Gate 失败必须真正阻止 merge/release —— 以真实 exit code 收尾
+          exit $GATE_EXIT
       - name: Upload artifacts
         if: always()
         uses: actions/upload-artifact@v4

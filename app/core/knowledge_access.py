@@ -23,15 +23,19 @@ _ChunkLike = Any
 def classification_allowed(
     level: Optional[int],
     limit_level: Optional[int],
+    *,
+    fail_closed: bool = False,
 ) -> bool:
     """按数值等级判断某 chunk 是否可被某 clearance 读取。
 
-    - ``level is None``：chunk 未分级，按放行处理（与旧字符串逻辑一致，未知值从严）。
+    - ``level is None``：chunk 未分级。默认按放行处理（与旧逻辑一致）；生产启用
+      ``fail_closed=True`` 时改为 **拒绝**（剩余 8 关键问题 · Phase 3 §3.3，
+      Unknown/NULL Classification 必须 fail-closed，杜绝 NULL→0 被低权限召回）。
     - ``limit_level is None``：scope 未设上限，不额外限制（但 org/workspace 仍强制）。
     - 规则：``level == 0``（INTERNAL）→ 允许；否则 ``level <= limit_level``。
     """
     if level is None:
-        return True
+        return not fail_closed
     if limit_level is None:
         return True
     return level <= limit_level

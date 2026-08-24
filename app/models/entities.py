@@ -420,6 +420,10 @@ class KnowledgeDocument(Base):
     classification_level: Mapped[Optional[int]] = mapped_column(Integer, nullable=True, index=True)
     # SecKB Phase 2：索引代际
     generation_id: Mapped[Optional[str]] = mapped_column(String(64), nullable=True, index=True)
+    # SecKB Phase 4（§4.4 §4.6）：统一 Ingest metadata 补全到文档级。
+    # 域路由 + ACL 快照来源，随 submit_document(metadata=...) 落库。
+    domain: Mapped[Optional[str]] = mapped_column(String(32), nullable=True, index=True)
+    acl_version: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
 
 
 class KnowledgeDocumentVersion(Base):
@@ -448,6 +452,11 @@ class KnowledgeDocumentVersion(Base):
     # SecKB Phase 1/2：数据分级数值等级 + 索引代际（与迁移 0016 一致；NULL=未分级/未标记）
     classification_level: Mapped[Optional[int]] = mapped_column(Integer, nullable=True, index=True)
     generation_id: Mapped[Optional[str]] = mapped_column(String(64), nullable=True, index=True)
+    # SecKB Phase 4（§4.5 §4.8）：版本级 metadata 快照。
+    # domain 用于路由与过滤；acl_version_snapshot 用于发布前与当前 workspace 比对，
+    # 避免 ACL 已变更却仍按旧快照 serving。
+    domain: Mapped[Optional[str]] = mapped_column(String(32), nullable=True, index=True)
+    acl_version_snapshot: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
 
 
 class KnowledgeChunkV2(Base):

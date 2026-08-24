@@ -87,6 +87,17 @@ class ChromaKnowledgeStore:
         rows = [chunk for chunk in chunks if chunk.id is not None and chunk.content.strip()]
         if not rows:
             return 0
+        # 剩余 8 关键问题 · Phase 3（§3.4）：生产禁止 NULL classification_level → 0。
+        # 若允许 fail-open（NULL→0），未分级数据会被当作最低等级被任意低权限用户召回。
+        if getattr(self.settings, "classification_fail_closed", False):
+            from app.core.classification import InvalidClassificationMetadata
+
+            for chunk in rows:
+                if getattr(chunk, "classification_level", None) is None:
+                    raise InvalidClassificationMetadata(
+                        f"chunk id={chunk.id} has NULL classification_level; "
+                        "indexing blocked under fail-closed policy (§3.4)"
+                    )
         ids = [self._id(chunk.id) for chunk in rows]
         documents = [chunk.content for chunk in rows]
         metadatas = [

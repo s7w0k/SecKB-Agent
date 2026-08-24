@@ -44,6 +44,7 @@ from app.services.chunk_diff import (
     logical_chunk_key,
     normalized_hash,
 )
+from app.services.ingest_contracts import IngestMetadata
 from app.services.knowledge import chunk_text
 from app.services.object_storage import LocalObjectStorage, ObjectStorage, make_object_key
 
@@ -75,6 +76,7 @@ def submit_document(
     pipeline_version: str = "v1",
     object_store: ObjectStorage | None = None,
     organization_id: int | None = None,
+    metadata: "IngestMetadata | None" = None,
 ) -> tuple[int, int]:
     """Ingest API：原文写对象存储 + 保存文档/版本/outbox/job，立即返回。
 
@@ -82,10 +84,32 @@ def submit_document(
     - 原文写入 object_store，DB 只保存 object_key + checksum，payload_json 不含正文。
     - 同一 (workspace, source_uri, checksum) 重复提交返回既有 job/version。
 
+    SecKB Phase 4（§4.3 §4.4 §4.6）：metadata 契约升级。传入 ``metadata: IngestMetadata``
+    时完整保留 domain / classification / classification_level / knowledge_space / acl_version，
+    并同步写入文档、版本快照与 outbox payload；不传时退化为仅 workspace/organization
+    （兼容既有调用方）。
+
     Returns:
         (document_id, version_id)
     """
     object_store = object_store or LocalObjectStorage()
+
+    # Phase 4（§4.3）：解析统一 IngestMetadata（缺省时兼容仅 workspace/org）。
+    if metadata is not None:
+        organization_id = metadata.organization_id
+        workspace_id = metadata.workspace_id
+        domain = metadata.domain
+        classification = metadata.classification
+        classification_level = metadata.resolve_classification_level()
+        knowledge_space_id = metadata.knowledge_space_id
+        acl_version = metadata.acl_version
+    else:
+        domain = None
+        classification = None
+        classification_level = None
+        knowledge_space_id = None
+        acl_version = 1
+
     ch = content_hash(content)
     object_key = make_object_key(workspace_id=workspace_id, source_uri=source_uri, checksum=ch)
     object_store.put(object_key, content.encode("utf-8"))
@@ -103,9 +127,22 @@ def submit_document(
             source_uri=source_uri,
             status="ACTIVE",
             organization_id=organization_id,
+            domain=domain,
+            classification=classification,
+            classification_level=classification_level,
+            knowledge_space_id=knowledge_space_id,
+            acl_version=acl_version,
         )
         db.add(doc)
         db.flush()
+    else:
+        # 复用既有文档时，跟随本次提交刷新文档级安全/域元数据（§4.4）。
+        doc.organization_id = organization_id
+        doc.domain = domain
+        doc.classification = classification
+        doc.classification_level = classification_level
+        doc.knowledge_space_id = knowledge_space_id
+        doc.acl_version = acl_version
 
     # 2. 幂等：内容未变化且已发布 → 返回既有版本
     if doc.current_version_id is not None:
@@ -139,23 +176,31 @@ def submit_document(
         chunker_version=pipeline_version,
         storage_uri=object_key,
         status=RECEIVED,
+        # Phase 4（§4.5）：版本级 metadata 快照（domain / classification_level / acl）
+        domain=domain,
+        classification_level=classification_level,
+        acl_version_snapshot=acl_version,
     )
     db.add(version)
     db.flush()
 
-    # 4. 创建 outbox event（与业务事务一起提交；payload 只含引用，不含正文）
+    # 4. 创建 outbox event（与业务事务一起提交；payload 含完整 metadata 引用，不含正文）
+    event_payload = {
+        "document_id": doc.id,
+        "version_id": version.id,
+        "object_key": object_key,
+        "checksum": ch,
+        "source_uri": source_uri,
+        "idempotency_key": idempotency,
+    }
+    if metadata is not None:
+        # Phase 4（§4.6）：完整保留 security/domain/ACL metadata，防止 outbox 丢字段。
+        event_payload.update(metadata.as_dict())
     event = OutboxEvent(
         workspace_id=workspace_id,
         event_type="INGEST",
         document_id=doc.id,
-        payload_json=json.dumps({
-            "document_id": doc.id,
-            "version_id": version.id,
-            "object_key": object_key,
-            "checksum": ch,
-            "source_uri": source_uri,
-            "idempotency_key": idempotency,
-        }),
+        payload_json=json.dumps(event_payload),
         status="PENDING",
     )
     db.add(event)
@@ -338,6 +383,14 @@ def process_job(
             return
         version.status = VALIDATED
         db.flush()
+
+        # ---- SecKB Phase 4（§4.8）：发布前 ACL Version Check ----
+        # 比较 outbox payload 里记录的 ACL 快照与当前 workspace 的 acl_version；
+        # 若不一致则 revalidate/abort（拒绝按旧快照 serving）。
+        acl_ok, acl_msg = _check_acl_version(db, job, payload)
+        if not acl_ok:
+            _fail_job(db, job, "transient", acl_msg)
+            return
 
         # ---- VALIDATED -> PUBLISHED（原子切换 current_version_id） ----
         doc = db.get(KnowledgeDocument, job.document_id)
@@ -541,6 +594,35 @@ def _pending_embeddings(db: Session, *, version_id: int) -> list[int]:
         ):
             pending.append(link.source_index)
     return pending
+
+
+def _check_acl_version(
+    db: Session,
+    job: IndexJob,
+    payload: dict,
+) -> tuple[bool, str]:
+    """SecKB Phase 4（§4.8）：发布前 ACL version inconsistency 检查。
+
+    比较 outbox payload 中记录的 ACL 快照与当前 workspace 的 ``acl_version``：
+    - payload 未携带 acl_version（legacy 提交）→ 通过（不强制）。
+    - workspace 不存在（测试/无租户环境）→ 通过（避免破坏既有流程）。
+    - 快照 != 当前 workspace acl_version → 拒绝发布（重新校验/重建/abort）。
+    """
+    snapshot = payload.get("acl_version")
+    if snapshot is None:
+        return True, ""
+    from app.models.entities import Workspace
+
+    ws = db.get(Workspace, job.workspace_id)
+    if ws is None:
+        return True, ""
+    if ws.acl_version != int(snapshot):
+        return (
+            False,
+            f"ACL version drift on publish: snapshot={snapshot} "
+            f"current={ws.acl_version}; revalidate/rebuild required (§4.8)",
+        )
+    return True, ""
 
 
 def _validate_version(

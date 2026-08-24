@@ -123,6 +123,9 @@ class EvidenceArtifact:
     generation: str = ""
     retrieval_path: str = "hybrid"
     attempt: int = 1
+    # 剩余 8 关键问题 · Phase 2（§2.6）：query 级 metadata
+    # [{query, queryType, candidateCount}, ...]
+    queries_meta: list[dict[str, Any]] = field(default_factory=list)
 
     @property
     def query_coverage(self) -> float:
@@ -140,6 +143,7 @@ class EvidenceArtifact:
             "generation": self.generation,
             "retrievalPath": self.retrieval_path,
             "attempt": self.attempt,
+            "queries": list(self.queries_meta),
         }
 
     @classmethod
@@ -164,6 +168,7 @@ class EvidenceArtifact:
             generation=str(payload.get("generation", "")),
             retrieval_path=str(payload.get("retrievalPath", "hybrid")),
             attempt=int(payload.get("attempt", 1)),
+            queries_meta=list(payload.get("queries") or []),
         )
 
     @classmethod

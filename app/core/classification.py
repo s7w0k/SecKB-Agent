@@ -16,6 +16,14 @@ from enum import IntEnum
 from typing import Optional
 
 
+class InvalidClassificationMetadata(Exception):
+    """分级元数据缺失/非法（§3.4）。
+
+    向量索引写入前，若 ``classification_level`` 为 None 且禁止 fail-open（NULL→0），
+    必须抛此异常（或 quarantine），而不是把 NULL 当作 0 索引后被低权限用户召回。
+    """
+
+
 class DataClassification(IntEnum):
     """统一数据分级枚举。数值 = 安全等级，越高越敏感。"""
 
