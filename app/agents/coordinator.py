@@ -15,8 +15,10 @@ from app.agents.events import (
 )
 from app.agents.registry import AgentCapability, AgentRegistry
 from app.agents.response_artifacts import allow_revision
+from app.agents.retrieval_artifacts import EvidenceArtifact
 from app.core.config import Settings
 from app.core.enums import INTENT_DOMAIN_MAP, IntentType, KnowledgeDomain, RiskLevel
+from app.core.retrieval_budget import RetrievalLoopBudget
 
 
 class EventDrivenCoordinator:
@@ -143,6 +145,10 @@ class EventDrivenCoordinator:
             priority=TaskPriority.CRITICAL if risk == RiskLevel.HIGH else TaskPriority.NORMAL,
             condition=needs_context,
         )
+        # Phase 8/9/10：Agentic Re-query / Re-retrieve Loop。
+        # evidence 被 Critic 判定 insufficient 且预算仍有剩余 → 派生 refine-retrieval 再检索。
+        # Infinite Retrieval Loop = 0：任一强制预算触顶即停止派生。
+        board = self._derive_retrieval_refine(board)
         has_response = board.latest_artifact("response_proposal") is not None
         # Phase 3（§3.7）：Revision 预算门限 —— 超出 max_revision_attempts 后不再提出新的候选回答，
         # 让最终采纳失败 → 落到安全兜底，避免无限 Revision 循环。
@@ -156,6 +162,7 @@ class EventDrivenCoordinator:
             ))
             and revision_budget_ok
             and not has_response
+            and not self._critique_blocks_response(board)
         )
         board = self._ensure_task_for_missing_artifact(
             board,
@@ -228,7 +235,130 @@ class EventDrivenCoordinator:
                     metadata={"kind": "response", "revisionOf": critique.payload.get("responseArtifactId", "")},
                 ),
             )
+        # Phase 13：Groundedness Critic —— 未支撑的事实主张不得直接进入最终输出。
+        board = self._ensure_groundedness_review(board, response, revision_budget_ok)
         return board
+
+    def _ensure_groundedness_review(
+        self,
+        board: CollaborationBlackboard,
+        response: AgentArtifact | None,
+        revision_budget_ok: bool,
+    ) -> CollaborationBlackboard:
+        """Phase 13：候选回答必须通过 groundedness 门禁才能进入最终采纳。
+
+        - grounding 未产生/不绑定当前回答 → 派生判定任务。
+        - grounding 判定 re_retrieve → 重新检索更多证据（refine-retrieval）。
+        - grounding 判定 revise → 修订候选回答。
+        """
+        if not getattr(self.settings, "groundedness_critic_enabled", False) or response is None:
+            return board
+        grounding = board.latest_artifact("grounding")
+        if grounding is None or grounding.metadata.get("responseArtifactId") != response.id:
+            return self._ensure_task(
+                board,
+                AgentTask(
+                    id=f"task:groundedness:{response.id}",
+                    title="Perform groundedness check",
+                    description="Candidate response must be supported by evidence before final acceptance.",
+                    priority=TaskPriority.CRITICAL,
+                    required_capabilities=frozenset({AgentCapability.GROUNDEDNESS_CRITIC.value}),
+                    created_by=self.coordinator_agent.name,
+                    metadata={"kind": "grounding", "responseArtifactId": response.id},
+                ),
+            )
+        supported = bool(grounding.payload.get("supported", False))
+        if supported or not revision_budget_ok:
+            return board
+        decision = str(grounding.payload.get("decision", "revise"))
+        if decision == "re_retrieve":
+            # Evidence missing → Re-retrieve：用未支撑主张作为下一轮查询。
+            retry_queries = list(grounding.payload.get("unsupportedClaims") or []) or ["重新检索"]
+            attempts = len(board.artifacts_by_kind("evidence")) + 1
+            return self._ensure_task(
+                board,
+                AgentTask(
+                    id=f"task:refine-retrieval:{attempts}",
+                    title="Re-retrieve missing evidence for groundedness",
+                    description=";".join(retry_queries),
+                    priority=TaskPriority.NORMAL,
+                    required_capabilities=frozenset({AgentCapability.CONTEXT.value}),
+                    created_by=self.coordinator_agent.name,
+                    metadata={"kind": "refine_retrieval", "attempt": attempts, "nextQueries": retry_queries},
+                ),
+            )
+        # decision == "revise"：Evidence 存在但 synthesis 错 → Revise Response。
+        return self._ensure_task(
+            board,
+            AgentTask(
+                id=f"task:revise-response:{grounding.id}",
+                title="Revise response after groundedness critique",
+                description=";".join(grounding.payload.get("unsupportedClaims") or ["synthesis not grounded"]),
+                priority=TaskPriority.CRITICAL,
+                required_capabilities=frozenset({AgentCapability.RESPONSE.value}),
+                created_by=self.coordinator_agent.name,
+                metadata={
+                    "kind": "response",
+                    "revisionOf": response.id,
+                    "reviewer": "groundedness",
+                },
+            ),
+        )
+
+    def _critique_blocks_response(self, board: CollaborationBlackboard) -> bool:
+        """Agentic 模式下，evidence 仍不足但 refine 还有预算时暂不生成回复（Sufficient → Generate）。"""
+        if not getattr(self.settings, "retrieval_critique_enabled", False):
+            return False
+        critique = board.latest_artifact("retrieval_critique")
+        if critique is None or bool(critique.payload.get("sufficient", False)):
+            return False
+        attempts = len(board.artifacts_by_kind("evidence"))
+        if attempts >= int(getattr(self.settings, "max_retrieval_attempts", 3)):
+            return False  # 已无 refine 预算 → 允许按现有 evidence 生成（并记录 stop_reason）
+        if not (critique.payload.get("nextQueries") or []):
+            return False
+        return True
+
+    def _derive_retrieval_refine(self, board: CollaborationBlackboard) -> CollaborationBlackboard:
+        """Phase 10：evidence 不足 → 派生 refine-retrieval；强制预算触顶即停止（Infinite Loop=0）。"""
+        if not getattr(self.settings, "retrieval_critique_enabled", False):
+            return board
+        critique = board.latest_artifact("retrieval_critique")
+        if critique is None:
+            return board
+        if bool(critique.payload.get("sufficient", False)):
+            return board
+        # Step 2：retrieval_attempts = 已发布的 evidence 数（多次 Evidence Artifact）。
+        attempts = len(board.artifacts_by_kind("evidence"))
+        total_candidates = sum(
+            len(EvidenceArtifact.from_payload(a.payload).evidence_ids)
+            for a in board.artifacts_by_kind("evidence")
+        )
+        budget = RetrievalLoopBudget(
+            max_attempts=int(getattr(self.settings, "max_retrieval_attempts", 3)),
+            max_queries_per_attempt=int(getattr(self.settings, "max_queries_per_attempt", 3)),
+            max_total_candidates=int(getattr(self.settings, "max_total_candidates", 50)),
+        )
+        # Step 3：sufficient==false AND attempts < max AND budget remains → refine task。
+        if not budget.can_attempt(attempts):
+            return board
+        next_queries = list(critique.payload.get("nextQueries") or [])
+        if not next_queries:
+            return board
+        # 每轮查询数受 max_queries_per_attempt 限制
+        next_queries = next_queries[: budget.max_queries_per_attempt]
+        if total_candidates >= budget.max_total_candidates:
+            return board
+        refine_task = AgentTask(
+            id=f"task:refine-retrieval:{attempts + 1}",
+            title="Refine and re-retrieve missing evidence",
+            description=";".join(next_queries),
+            priority=TaskPriority.NORMAL,
+            required_capabilities=frozenset({AgentCapability.CONTEXT.value}),
+            created_by=self.coordinator_agent.name,
+            metadata={"kind": "refine_retrieval", "attempt": attempts + 1, "nextQueries": next_queries},
+        )
+        return self._ensure_task(board, refine_task)
 
     def _ensure_task_for_missing_artifact(
         self,
@@ -316,6 +446,13 @@ class EventDrivenCoordinator:
             if compliance_review.metadata.get("responseArtifactId") != response.id:
                 return board
             if not compliance_review.payload.get("approved"):
+                return board
+        # Phase 13：Groundedness 门禁 —— 未支撑的事实主张不得直接进入最终输出。
+        if getattr(self.settings, "groundedness_critic_enabled", False):
+            grounding = board.latest_artifact("grounding")
+            if grounding is None or grounding.metadata.get("responseArtifactId") != response.id:
+                return board
+            if not grounding.payload.get("supported", False):
                 return board
         if response.confidence < self.final_min_confidence:
             return board

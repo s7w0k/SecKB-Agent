@@ -346,5 +346,83 @@ class IndexPipelineTests(unittest.TestCase):
         self.assertEqual(job.status, "COMPLETED")
 
 
+class UnifiedIngestGateTests(unittest.TestCase):
+    """Phase 5（§Step1-3）：统一知识入库 —— 业务写入口路由 V2，禁止直接改 Serving。"""
+
+    def setUp(self):
+        import tempfile
+
+        from sqlalchemy import create_engine
+
+        from app.core.enums import KnowledgeDomain
+        from app.services.knowledge import KnowledgeService
+
+        self.settings = get_settings()
+        self.settings.database_url = "sqlite:///:memory:"
+        self.settings.allow_deterministic_embedding = True
+        self.engine = create_engine("sqlite:///:memory:")
+        Base.metadata.create_all(bind=self.engine)
+        self.db = SessionLocal()
+        self.db.bind = self.engine
+        self.tmp_dir = tempfile.mkdtemp(prefix="objstore-p5-")
+        self.object_store = LocalObjectStorage(self.tmp_dir)
+        self.svc = KnowledgeService(self.db, self.settings)
+        self.domain = KnowledgeDomain.MENTAL
+
+    def tearDown(self):
+        import shutil
+
+        self.db.close()
+        Base.metadata.drop_all(bind=self.engine)
+        shutil.rmtree(self.tmp_dir, ignore_errors=True)
+
+    def test_legacy_path_writes_serving_store_by_default(self):
+        """默认（unified 关闭）保留 legacy 同步写入 Serving KnowledgeChunk。"""
+        chunks = self.svc.ingest(
+            "p5-legacy.md", "默认 legacy 写入。", domain=self.domain,
+            workspace_id=1, organization_id=1,
+        )
+        self.assertGreater(chunks, 0)
+        self.assertEqual(self.svc.count(), chunks)
+
+    def test_unified_flag_raises_without_workspace(self):
+        """统一 Pipeline 要求 workspace_id（否则无法路由 V2）。"""
+        self.settings.unified_ingest_pipeline = True
+        with self.assertRaises(ValueError):
+            self.svc.ingest("p5.md", "无 workspace", domain=self.domain)
+
+    def test_unified_flag_routes_v2_and_skips_serving_store(self):
+        """统一 Pipeline 开启：ingest 路由 V2（Outbox/IndexJob），不写 Serving KnowledgeChunk。"""
+        self.settings.unified_ingest_pipeline = True
+        chunks = self.svc.ingest(
+            "p5-unified.md", "统一入库内容，禁止直接写 Serving。", domain=self.domain,
+            workspace_id=7, organization_id=1,
+        )
+        # 返回 chunk 数（与 legacy 签名一致），但 Serving 无 publish 数据
+        self.assertGreaterEqual(chunks, 1)
+        self.assertEqual(self.svc.count(), 0, "统一 Pipeline 下不得直接写 Serving KnowledgeChunk")
+        # 已写入 V2：Outbox + IndexJob
+        events = self.db.query(OutboxEvent).filter(OutboxEvent.workspace_id == 7).all()
+        self.assertEqual(len(events), 1)
+        jobs = self.db.query(IndexJob).filter(IndexJob.workspace_id == 7).all()
+        self.assertEqual(len(jobs), 1)
+
+    def test_submit_document_route(self):
+        """submit_document 返回 document_id/version_id 且 via=outbox_indexjob。"""
+        self.settings.unified_ingest_pipeline = True
+        result = self.svc.submit_document(
+            "p5-submit.md", "submit 入口内容。", workspace_id=9, organization_id=1,
+        )
+        self.assertEqual(result["via"], "outbox_indexjob")
+        self.assertIsNotNone(result["document_id"])
+        self.assertIsNotNone(result["version_id"])
+
+    def test_submit_document_refused_when_disabled(self):
+        """unified 关闭时 submit_document 拒绝（legacy 生效）。"""
+        self.settings.unified_ingest_pipeline = False
+        with self.assertRaises(RuntimeError):
+            self.svc.submit_document("p5.md", "x", workspace_id=1)
+
+
 if __name__ == "__main__":
     unittest.main()

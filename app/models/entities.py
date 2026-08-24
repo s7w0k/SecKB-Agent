@@ -213,6 +213,11 @@ class KnowledgeChunk(Base):
     document_id: Mapped[Optional[int]] = mapped_column(Integer, nullable=True, index=True)
     # v2 阶段 1：数据分级（INTERNAL/RESTRICTED/CONFIDENTIAL 等）
     classification: Mapped[Optional[str]] = mapped_column(String(32), nullable=True, index=True)
+    # SecKB Phase 1：数据分级数值等级（INTERNAL=0/RESTRICTED=10/CONFIDENTIAL=20/SECRET=30），
+    # 检索/SQL/向量/缓存按数值比较，避免字符串字典序错误。与 classification 双写。
+    classification_level: Mapped[Optional[int]] = mapped_column(Integer, nullable=True, index=True)
+    # SecKB Phase 2：向量/稀疏/元数据索引代际（Gxxx），跨代 mixing 守卫。
+    generation_id: Mapped[Optional[str]] = mapped_column(String(64), nullable=True, index=True)
 
 
 class PsychologicalReport(Base):
@@ -411,6 +416,10 @@ class KnowledgeDocument(Base):
     organization_id: Mapped[Optional[int]] = mapped_column(Integer, nullable=True, index=True)
     knowledge_space_id: Mapped[Optional[int]] = mapped_column(Integer, nullable=True, index=True)
     classification: Mapped[Optional[str]] = mapped_column(String(32), nullable=True, index=True)
+    # SecKB Phase 1：数据分级数值等级（与 classification 双写）
+    classification_level: Mapped[Optional[int]] = mapped_column(Integer, nullable=True, index=True)
+    # SecKB Phase 2：索引代际
+    generation_id: Mapped[Optional[str]] = mapped_column(String(64), nullable=True, index=True)
 
 
 class KnowledgeDocumentVersion(Base):
@@ -436,6 +445,9 @@ class KnowledgeDocumentVersion(Base):
     error_message: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=now)
     published_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+    # SecKB Phase 1/2：数据分级数值等级 + 索引代际（与迁移 0016 一致；NULL=未分级/未标记）
+    classification_level: Mapped[Optional[int]] = mapped_column(Integer, nullable=True, index=True)
+    generation_id: Mapped[Optional[str]] = mapped_column(String(64), nullable=True, index=True)
 
 
 class KnowledgeChunkV2(Base):

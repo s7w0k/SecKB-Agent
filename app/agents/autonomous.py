@@ -24,6 +24,7 @@ from app.agents.response_artifacts import (
     build_response_artifact,
     safety_guidance_keywords,
 )
+from app.agents.retrieval_artifacts import domain_values
 from app.agents.routing import RoutingDecision
 from app.core.config import Settings
 from app.core.enums import INTENT_DOMAIN_MAP, IntentType, KnowledgeDomain, RiskLevel
@@ -482,6 +483,14 @@ class ContextAgent(BaseAutonomousAgent):
     )
 
     def decide(self, task: AgentTask, board: CollaborationBlackboard) -> AgentDecision:
+        # Phase 10：Re-query Loop 的 refine 任务 —— 即使 context 已存在也要认领（再检索一轮）。
+        if task.metadata.get("kind") == "refine_retrieval":
+            loop_enabled = getattr(self.services.settings, "retrieval_critique_enabled", False)
+            if not loop_enabled:
+                return AgentDecision(False, reason="agentic re-query loop disabled")
+            if board.latest_artifact("retrieval_critique") is None:
+                return AgentDecision(False, reason="refine needs a prior retrieval critique")
+            return AgentDecision(True, 0.8, "refine retrieval with critic next-query")
         if board.latest_artifact("context"):
             return AgentDecision(False, reason="context artifact already exists")
         risk = _risk_level(board)
@@ -499,6 +508,12 @@ class ContextAgent(BaseAutonomousAgent):
 
     def act(self, task: AgentTask, board: CollaborationBlackboard) -> AgentTurnResult:
         from app.services.memory import compact_history_for_prompt
+
+        # Phase 10：Re-query / Re-retrieve Loop 的 refine 分支 —— 用上一轮 Critic 的
+        # next_queries 再检索一轮，发布新的 evidence Artifact（不重复发布 context）。
+        if task.metadata.get("kind") == "refine_retrieval":
+            return self._act_refine(task, board)
+
         from app.services.skills import MindBridgeSkillLibrary
 
         history = self._load_history()
@@ -516,25 +531,8 @@ class ContextAgent(BaseAutonomousAgent):
         always_retrieve = self.services.settings.multi_domain_enabled
         if always_retrieve or intent != IntentType.CHAT or risk != RiskLevel.LOW:
             query = self._rewrite_query(memory_brief, board.model_input)
-            # P4-05：多域启用时优先从 route artifact 读取域，保证同域 RAG
-            if self.services.settings.multi_domain_enabled:
-                domain = _domain_from_board(board) or INTENT_DOMAIN_MAP.get(intent) or KnowledgeDomain.MENTAL
-            else:
-                domain = INTENT_DOMAIN_MAP.get(intent) or KnowledgeDomain.MENTAL
-            # v2 阶段 3（8.4）：主聊天链路检索强制走 RetrievalService（Scope + deadline + 缓存 + 降级）。
-            # 仅当注入 scope 时使用统一检索服务；未注入（旧调用路径）回退旧 KnowledgeService 兼容。
-            retrieval_service = getattr(self.services, "retrieval", None)
-            request_scope = getattr(self.services, "scope", None)
-            if retrieval_service is not None and request_scope is not None:
-                resp = retrieval_service.retrieve(
-                    request_scope,
-                    query,
-                    top_k=self.services.settings.knowledge_top_k,
-                    filters=RetrievalFilters(domain=domain.value if domain else None),
-                )
-                retrieved = resp.results
-            else:
-                retrieved = self.services.knowledge.retrieve(query, domain=domain, top_k=self.services.settings.knowledge_top_k)
+            domain = self._retrieval_domain(board, intent)
+            retrieved = self._run_retrieval(board, query, domain) or []
             skill_context = MindBridgeSkillLibrary.response_skill_context(intent, risk, board.user_input)
         payload = {
             "memoryBrief": memory_brief,
@@ -545,8 +543,16 @@ class ContextAgent(BaseAutonomousAgent):
             "privateMemoryKey": self.services.private_memory._key(self.name, self.services.session.public_id),
         }
         self.remember(f"context intent={intent.value}; risk={risk.value}; retrieved={len(retrieved)}")
+        # Phase 8/9：结构化 retrieval_plan + evidence Artifact（Agentic 控制逻辑的数据基础）。
+        artifacts = [self._artifact("context", payload, task, 0.88)]
+        plan = self._build_plan(task, board, query, [query] if query else [], attempt=1)
+        if plan is not None:
+            artifacts.append(plan)
+        evidence = self._build_evidence(task, board, query, [query] if query else [], retrieved, attempt=1)
+        if evidence is not None:
+            artifacts.append(evidence)
         return AgentTurnResult(
-            artifacts=(self._artifact("context", payload, task, 0.88),),
+            artifacts=tuple(artifacts),
             messages=(
                 AgentMessage(
                     id=f"msg:{uuid.uuid4().hex[:10]}",
@@ -558,6 +564,89 @@ class ContextAgent(BaseAutonomousAgent):
                 ),
             ),
         )
+
+    # ---- Phase 8/9/10 辅助 ----
+    def _retrieval_domain(self, board: CollaborationBlackboard, intent: IntentType) -> KnowledgeDomain:
+        if self.services.settings.multi_domain_enabled:
+            return _domain_from_board(board) or INTENT_DOMAIN_MAP.get(intent) or KnowledgeDomain.MENTAL
+        return INTENT_DOMAIN_MAP.get(intent) or KnowledgeDomain.MENTAL
+
+    def _run_retrieval(self, board: CollaborationBlackboard, query: str, domain: KnowledgeDomain | None) -> list["SearchResult"]:
+        """统一检索：有 RetrievalService + Scope 走统一路径，否则回退 KnowledgeService。"""
+        retrieval_service = getattr(self.services, "retrieval", None)
+        request_scope = getattr(self.services, "scope", None)
+        if retrieval_service is not None and request_scope is not None:
+            resp = retrieval_service.retrieve(
+                request_scope,
+                query,
+                top_k=self.services.settings.knowledge_top_k,
+                filters=RetrievalFilters(domain=domain.value if domain else None),
+            )
+            return list(resp.results)
+        return self.services.knowledge.retrieve(query, domain=domain, top_k=self.services.settings.knowledge_top_k)
+
+    def _build_plan(
+        self,
+        task: AgentTask,
+        board: CollaborationBlackboard,
+        query: str,
+        queries: list[str],
+        *,
+        attempt: int,
+        budget_remaining: bool = True,
+    ) -> AgentArtifact | None:
+        if not query and not queries:
+            return None
+        from app.agents.retrieval_artifacts import RetrievalPlanArtifact
+
+        plan = RetrievalPlanArtifact(
+            need_retrieval=True,
+            goal=query or queries[0],
+            queries=list(queries),
+            domains=domain_values([self._retrieval_domain(board, _intent(board)).value]) if self._retrieval_domain(board, _intent(board)) else [],
+            retrieval_strategy="hybrid",
+            max_attempts=self.services.settings.max_retrieval_attempts,
+            budget_remaining=budget_remaining,
+        )
+        return self._artifact("retrieval_plan", plan.to_payload(), task, 0.85, {"attempt": attempt})
+
+    def _build_evidence(
+        self,
+        task: AgentTask,
+        board: CollaborationBlackboard,
+        query: str,
+        queries: list[str],
+        results: list["SearchResult"],
+        *,
+        attempt: int,
+    ) -> AgentArtifact | None:
+        if not results and not query:
+            return None
+        from app.agents.retrieval_artifacts import EvidenceArtifact
+
+        evidence = EvidenceArtifact.from_results(
+            results,
+            generation=self.services.settings.index_generation,
+            retrieval_path="hybrid",
+            attempt=attempt,
+            queries=queries,
+        )
+        return self._artifact("evidence", evidence.to_payload(), task, 0.8, {"attempt": attempt, "knowledgeQuery": query})
+
+    def _act_refine(self, task: AgentTask, board: CollaborationBlackboard) -> AgentTurnResult:
+        """Phase 10：用上一轮 Critic 建议的 next_queries 再检索，发布新一轮 evidence。"""
+        critique = board.latest_artifact("retrieval_critique")
+        next_queries = list((critique.payload.get("nextQueries") or [])) if critique else []
+        if not next_queries:
+            next_queries = [board.model_input[:60]]
+        query = next_queries[0]
+        domain = self._retrieval_domain(board, _intent(board))
+        retrieved = self._run_retrieval(board, query, domain) or []
+        attempt = len(board.artifacts_by_kind("evidence")) + 1
+        evidence = self._build_evidence(task, board, query, [query], retrieved, attempt=attempt)
+        artifacts = (evidence,) if evidence is not None else ()
+        self.remember(f"refine-retrieval attempt={attempt}; query={query}; retrieved={len(retrieved)}")
+        return AgentTurnResult(artifacts=artifacts)
 
     def _load_history(self) -> list[AiMessage]:
         from app.models.entities import ChatMessage
@@ -612,6 +701,133 @@ class ContextAgent(BaseAutonomousAgent):
         return history[-limit:]
 
 
+class RetrievalCriticAgent(BaseAutonomousAgent):
+    """Phase 9：判断当前 Evidence 是否足以回答用户问题。
+
+    输入：board 上的 ``retrieval_plan`` 与 ``evidence`` Artifact。
+    输出：结构化的 ``retrieval_critique`` Artifact（sufficient / missing_aspects /
+    conflicts / next_queries / stop_reason）。Critic 必须是确定性、可离线验证的，
+    因此基于 ``critique_evidence`` 纯函数，而非自由文本。
+    """
+
+    profile = AgentProfile(
+        name="RetrievalCriticAgent",
+        capabilities=frozenset({AgentCapability.RETRIEVAL_CRITIC}),
+        system_prompt=(
+            "你是 RetrievalCriticAgent。你只判断当前检索到的证据是否足以回答用户问题，"
+            "并给出缺失方面与下一轮查询建议；你不生成最终回复。"
+        ),
+        memory_policy="private_retrieval_critique_ledger",
+        model_profile="critic",
+        tool_permissions=frozenset({"rag.critique"}),
+    )
+
+    def decide(self, task: AgentTask, board: CollaborationBlackboard) -> AgentDecision:
+        from app.agents.retrieval_artifacts import EvidenceArtifact
+
+        if board.latest_artifact("retrieval_plan") is None or board.latest_artifact("evidence") is None:
+            return AgentDecision(False, reason="retrieval critic needs plan + evidence artifacts")
+        latest_evidence = board.latest_artifact("evidence")
+        latest_critique = board.latest_artifact("retrieval_critique")
+        # 只对最新的证据做一次判定（同一 evidence 不重复）
+        latest_evidence_ids = set(EvidenceArtifact.from_payload(latest_evidence.payload).evidence_ids)
+        if latest_critique is not None:
+            judged_ids = set((latest_critique.payload.get("judgedEvidenceIds") or []))
+            if judged_ids == latest_evidence_ids:
+                return AgentDecision(False, reason="latest evidence already critiqued")
+        if AgentCapability.RETRIEVAL_CRITIC.value in task.required_capabilities:
+            return AgentDecision(True, 0.9, "explicit retrieval-critique task")
+        return AgentDecision(True, 0.84, "evidence present; critique warranted")
+
+    def act(self, task: AgentTask, board: CollaborationBlackboard) -> AgentTurnResult:
+        from app.agents.retrieval_artifacts import EvidenceArtifact, RetrievalPlanArtifact, critique_evidence
+
+        plan_artifact = board.latest_artifact("retrieval_plan")
+        ev_artifact = board.latest_artifact("evidence")
+        plan = RetrievalPlanArtifact.from_payload(plan_artifact.payload) if plan_artifact else RetrievalPlanArtifact()
+        evidence = EvidenceArtifact.from_payload(ev_artifact.payload) if ev_artifact else EvidenceArtifact()
+
+        critique = critique_evidence(plan, evidence)
+        lost_queries = list(plan.queries)
+
+        payload = {
+            **critique.to_payload(),
+            "judgedEvidenceIds": evidence.evidence_ids,
+            "planQueries": lost_queries,
+            "attempt": evidence.attempt,
+            "privateMemoryKey": self.services.private_memory._key(self.name, self.services.session.public_id),
+        }
+        self.remember(
+            f"critique sufficient={critique.sufficient} coverage={critique.coverage_score} "
+            f"stop={critique.stop_reason} missing={critique.missing_aspects}"
+        )
+        return AgentTurnResult(
+            artifacts=(self._artifact("retrieval_critique", payload, task, critique.confidence),),
+        )
+
+
+class GroundednessAgent(BaseAutonomousAgent):
+    """Phase 13：判断候选回答是否被证据充分支撑（Groundedness Critic）。
+
+    输入：board 上的 ``response_proposal``（候选回答文本）与最新 ``evidence``。
+    输出：结构化的 ``grounding`` Artifact（supported / claim_coverage /
+    unsupported_claims / missing_citations / decision）。基于确定性纯函数
+    ``critique_groundedness``，保证未支撑的事实主张不会直接进入最终输出。
+    """
+
+    profile = AgentProfile(
+        name="GroundednessAgent",
+        capabilities=frozenset({AgentCapability.GROUNDEDNESS_CRITIC}),
+        system_prompt=(
+            "你是 GroundednessAgent。你只判断候选回答是否被检索证据充分支撑，"
+            "识别未支撑的事实主张；你不生成或修订最终回复。"
+        ),
+        memory_policy="private_groundedness_ledger",
+        model_profile="critic",
+        tool_permissions=frozenset({"rag.groundedness"}),
+    )
+
+    def decide(self, task: AgentTask, board: CollaborationBlackboard) -> AgentDecision:
+        if not getattr(self.services.settings, "groundedness_critic_enabled", False):
+            return AgentDecision(False, reason="groundedness critic disabled")
+        response = board.latest_artifact("response_proposal")
+        if response is None:
+            return AgentDecision(False, reason="no response proposal to ground")
+        grounding = board.latest_artifact("grounding")
+        # 仅对当前候选回答判定一次
+        if grounding is not None and grounding.metadata.get("responseArtifactId") == response.id:
+            return AgentDecision(False, reason="grounding already exists for this response")
+        if AgentCapability.GROUNDEDNESS_CRITIC.value in task.required_capabilities:
+            return AgentDecision(True, 0.9, "explicit groundedness-critique task")
+        return AgentDecision(True, 0.86, "candidate response needs groundedness critique")
+
+    def act(self, task: AgentTask, board: CollaborationBlackboard) -> AgentTurnResult:
+        from app.agents.groundedness_critic import critique_groundedness
+        from app.agents.retrieval_artifacts import EvidenceArtifact
+
+        response = board.latest_artifact("response_proposal")
+        ev_artifact = board.latest_artifact("evidence")
+        evidence = EvidenceArtifact.from_payload(ev_artifact.payload) if ev_artifact else EvidenceArtifact()
+        raw_text = response.payload.get("text") if response else ""
+        critique = critique_groundedness(str(raw_text or ""), evidence)
+
+        payload = {
+            **critique.artifact.to_payload(),
+            "decision": critique.decision,
+            "responseArtifactId": response.id if response else None,
+            "evidenceIds": evidence.evidence_ids,
+            "privateMemoryKey": self.services.private_memory._key(self.name, self.services.session.public_id),
+        }
+        self.remember(
+            f"groundedness supported={critique.supported} coverage={critique.artifact.claim_coverage} "
+            f"decision={critique.decision} unsupported={len(critique.artifact.unsupported_claims)}"
+        )
+        metadata = {"responseArtifactId": response.id} if response else {}
+        return AgentTurnResult(
+            artifacts=(self._artifact("grounding", payload, task, critique.artifact.claim_coverage, metadata),),
+        )
+
+
 class ResponseAgent(BaseAutonomousAgent):
     profile = AgentProfile(
         name="ResponseAgent",
@@ -649,13 +865,14 @@ class ResponseAgent(BaseAutonomousAgent):
         memory_brief = context_payload.get("memoryBrief") or "无相关历史记忆。"
         knowledge = context_payload.get("retrievedKnowledge") or []
         skill_context = context_payload.get("skillContext") or ""
-        knowledge_context = "\n\n".join(f"- [{item.source}] {item.content}" for item in knowledge)
         # v2 阶段 3（8.4）：检索 context token 上限（超限截断，保护模型上下文窗口）
         max_tokens = int(getattr(self.services.settings, "knowledge_context_max_tokens", 0) or 0)
-        if max_tokens > 0 and knowledge_context:
-            knowledge_context = _truncate_knowledge_context(knowledge_context, max_tokens)
         # P4-06：多域启用时使用域感知 Prompt
         domain = _domain_from_board(board) if self.services.settings.multi_domain_enabled else None
+        # SecKB Phase 4/8：证据信任分区（normal_chat 无知识则用空分区）
+        from app.core.prompt_trust import EvidencePartition, build_retrieved_tool_content, partition_contexts
+
+        partition = EvidencePartition()
         if intent == IntentType.CHAT and risk == RiskLevel.LOW and domain is None:
             messages = [
                 PromptTemplates.answer_system_prompt(IntentType.CHAT, RiskLevel.LOW, "", self.services.user.display_name),
@@ -672,16 +889,22 @@ class ResponseAgent(BaseAutonomousAgent):
             ]
             mode = "normal_chat"
         else:
-            system_prompt = PromptTemplates.domain_answer_system_prompt(
+            # SecKB Phase 4：检索正文不拼入 system（Retrieved content 不得覆盖 System）。
+            # 构造成仅含平台规则/域策略的 system → 独立 tool 证据消息（不可信材料）。
+            system_policy = PromptTemplates.domain_answer_system_prompt(
                 domain,
                 intent if intent != IntentType.CHAT else IntentType.CONSULT,
                 risk,
-                knowledge_context,
+                "",
                 self.services.user.display_name,
                 skill_context,
+                include_context=False,
             )
+            contexts = [(item.source, item.content) for item in knowledge]
+            partition = partition_contexts(contexts)
+            tool_content = build_retrieved_tool_content([(k[0], k[1]) for k in partition.kept])
             messages = [
-                system_prompt,
+                system_policy,
                 AiMessage(
                     role="system",
                     content=(
@@ -691,8 +914,12 @@ class ResponseAgent(BaseAutonomousAgent):
                         f"记忆摘要：\n{memory_brief}"
                     ),
                 ),
-                *model_history,
             ]
+            if tool_content:
+                if max_tokens > 0:
+                    tool_content = _truncate_knowledge_context(tool_content, max_tokens)
+                messages.append(AiMessage(role="tool", content=tool_content))
+            messages.extend(model_history)
             mode = "support"
         # Phase 3（§3.4）：ResponseAgent 真正负责生成回答 —— 调用共享模型网关 / AiClient 生成真实文本。
         # 生成失败时回退为空文本（Safety 审核会按缺失指引判定，最终由 Coordinator 兜底）。
@@ -706,6 +933,9 @@ class ResponseAgent(BaseAutonomousAgent):
             model_id="",
             provider=self.services.settings.ai_provider or "mock",
             prompt_version=mode,
+            evidence_ids=partition.evidence_ids,
+            quarantined_evidence_ids=partition.quarantined_evidence_ids,
+            evidence_trust_scores=partition.trust_scores,
             retrieval_generation="rule|" + (domain.value if domain else "MENTAL"),
         )
         payload = {

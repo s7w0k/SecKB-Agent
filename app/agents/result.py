@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
+from app.agents.agentic_metrics import RetrievalRunMetrics
 from app.core.enums import IntentType, KnowledgeDomain, RiskLevel
 from app.schemas.dtos import AiMessage
 from app.services.assessment import DomainAssessment, PsychologyAssessment
@@ -48,6 +49,9 @@ class AgentRunResult:
     # Phase 3（§3.10）：经过 Safety / Compliance 审核并最终采纳的文本。
     # 为 None 时表示无已采纳文本（ChatService 回退流式生成或安全兜底）。
     final_text: str | None = None
+    # Phase 14：本次 Run 的检索指标（retrieval_attempts / query_count /
+    # candidate_count / retrieval_tokens / retrieval_latency / retrieval_cost）。
+    retrieval_metrics: RetrievalRunMetrics | None = None
 
     @property
     def requires_report(self) -> bool:

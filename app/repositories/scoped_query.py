@@ -20,6 +20,7 @@ from typing import TypeVar
 
 from sqlalchemy.orm import Query, Session
 
+from app.core.classification import classification_level
 from app.core.scope import RequestScope
 
 _Model = TypeVar("_Model")
@@ -45,7 +46,14 @@ class ScopedQueryBuilder:
         return query
 
     def apply_classification(self, query: Query, model: type) -> Query:
-        """附加数据分级上限过滤（classification_limit 为 None 时不限制）。"""
+        """附加数据分级上限过滤（数值等级比较，避免字符串字典序错误）。
+
+        - 优先按 ``classification_level <= scope.clearance``（Phase 1 数值语义）。
+        - 无内建 numeric 列时回退 ``classification <= limit``（字典序，仅兼容）。
+        """
+        limit_level = classification_level(self.scope.classification_limit)
+        if limit_level is not None and hasattr(model, "classification_level"):
+            return query.filter(model.classification_level <= limit_level)
         if self.scope.classification_limit and hasattr(model, "classification"):
             query = query.filter(model.classification <= self.scope.classification_limit)
         return query

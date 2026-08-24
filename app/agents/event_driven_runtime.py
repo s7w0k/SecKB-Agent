@@ -13,13 +13,16 @@ from app.agents.autonomous import (
     ComplianceAgent,
     ContextAgent,
     CoordinatorAgent,
+    GroundednessAgent,
     ResponseAgent,
+    RetrievalCriticAgent,
     SafetyAgent,
     UnderstandingAgent,
 )
 from app.agents.coordinator import EventDrivenCoordinator
 from app.agents.events import AgentEvent, AgentEventType, CollaborationBlackboard
 from app.agents.registry import AgentRegistry
+from app.agents.agentic_metrics import metrics_from_run
 from app.agents.response_artifacts import AGENT_SAFE_FALLBACK
 from app.agents.result import AgentRunResult, AgentStep
 from app.core.config import Settings
@@ -171,6 +174,10 @@ class EventDrivenAgentRuntimeService:
             ContextAgent(services),
             ResponseAgent(services),
             ComplianceAgent(services),
+            # Phase 9：从 retrieval_plan + evidence 判定充分性，驱动 Phase 10 Re-query Loop。
+            RetrievalCriticAgent(services),
+            # Phase 13：判断候选回答是否被证据支撑（未支撑主张不得直接进入最终输出）。
+            GroundednessAgent(services),
         ]
         return services, coordinator_agent, agents
 
@@ -265,6 +272,8 @@ class EventDrivenAgentRuntimeService:
             domain_assessment=domain_assessment,
             compliance_review_approved=compliance_approved,
             final_text=final_text,
+            # Phase 14：记录本次 Run 的检索指标（retrieval_attempts/query_count/...）。
+            retrieval_metrics=metrics_from_run(board),
         )
 
     def _select_domain_assessment(self, risk_artifact: AgentArtifact | None):

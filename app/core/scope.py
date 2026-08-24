@@ -17,6 +17,7 @@ import uuid
 from dataclasses import dataclass, field
 from typing import Optional
 
+from app.core.classification import classification_level
 from app.core.config import get_settings
 
 
@@ -39,7 +40,18 @@ class RequestScope:
     acl_version: int
     # v2 6.2：数据分级上限（如 INTERNAL/RESTRICTED/CONFIDENTIAL），None=不额外限制
     classification_limit: Optional[str] = None
+    # SecKB Phase 1：同一分级上限的数值等级（由 classification_limit 换算，=clearance）。
+    # 所有检索/SQL/缓存路径统一按数值比较，避免字符串字典序错误。
+    classification_limit_level: Optional[int] = None
     trace_id: str = field(default_factory=lambda: uuid.uuid4().hex[:16])
+
+    @property
+    def clearance(self) -> Optional[int]:
+        """数据分级"权限上限"的数值等级。
+
+        None 表示不额外限制；否则为 classification_limit_level。
+        """
+        return self.classification_limit_level
 
     def has_role(self, role: str) -> bool:
         return role in self.roles
@@ -68,6 +80,7 @@ class RequestScope:
             "group_ids": sorted(self.group_ids),
             "acl_version": self.acl_version,
             "classification_limit": self.classification_limit,
+            "classification_limit_level": self.classification_limit_level,
             "trace_id": self.trace_id,
         }
 
@@ -169,6 +182,8 @@ class ScopeResolver:
         )
         group_ids = frozenset(row[0] for row in group_rows)
 
+        # §4.5：客户端只能主动降低、不能提高数据分级上限
+        classification_limit = effective_classification_limit(classification_limit, server_clearance)
         return RequestScope(
             organization_id=org_id,
             workspace_id=workspace.id,
@@ -176,8 +191,8 @@ class ScopeResolver:
             roles=roles,
             group_ids=group_ids,
             acl_version=workspace.acl_version,
-            # §4.5：客户端只能主动降低、不能提高数据分级上限
-            classification_limit=effective_classification_limit(classification_limit, server_clearance),
+            classification_limit=classification_limit,
+            classification_limit_level=classification_level(classification_limit),
         )
 
 

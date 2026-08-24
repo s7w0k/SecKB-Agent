@@ -167,6 +167,9 @@ class RetrievalService:
         workspace_id = scope.workspace_id if scope else None
         organization_id = scope.organization_id if scope else None
         classification_limit = scope.classification_limit if scope else None
+        # SecKB Phase 1/2：统一按数值等级 + 当前索引代际传递，所有检索路径口径一致。
+        classification_level_limit = scope.clearance
+        generation_id = self.settings.index_generation
         timing = {}
         retrieval_path = "hybrid"
         degraded = False
@@ -178,6 +181,8 @@ class RetrievalService:
             return self._scoped_retrieve(
                 query, domain=domain, top_k=top_k, workspace_id=workspace_id,
                 organization_id=organization_id, classification_limit=classification_limit,
+                classification_level_limit=classification_level_limit,
+                generation_id=generation_id,
                 enable_rerank=enable_rerank, enable_vector=enable_vector,
             )
 
@@ -315,6 +320,8 @@ class RetrievalService:
         workspace_id: int | None,
         organization_id: int | None,
         classification_limit: str | None,
+        classification_level_limit: int | None,
+        generation_id: str | None,
         enable_rerank: bool,
         enable_vector: bool,
     ) -> list[SearchResult]:
@@ -325,6 +332,8 @@ class RetrievalService:
         return self.knowledge_service.retrieve(
             query, domain=domain, top_k=top_k, workspace_id=workspace_id,
             organization_id=organization_id, classification_limit=classification_limit,
+            classification_level_limit=classification_level_limit,
+            generation_id=generation_id,
             enable_rerank=enable_rerank, enable_vector=enable_vector,
         )
 
@@ -356,11 +365,17 @@ class RetrievalService:
 
     @staticmethod
     def _scope_ok(chunk: KnowledgeChunk, scope: RequestScope) -> bool:
-        """重补水时按当前 Scope/ACL 复核 chunk 是否仍可访问。"""
+        """重补水时按当前 Scope/ACL 复核 chunk 是否仍可访问。
+
+        复用 KnowledgeAccessPolicy 的数值分级语义，与 SQL / 向量 / Expansion 路径口径一致。
+        """
+        from app.core.knowledge_access import assert_chunk_access
+
+        if not assert_chunk_access(chunk, scope):
+            return False
         if chunk.workspace_id != scope.workspace_id:
             return False
-        if chunk.organization_id is not None and chunk.organization_id != scope.organization_id:
-            return False
+        # 兼容：既有（未写 classification_level）数据按字符串 name 判定
         limit = scope.classification_limit
         if limit and chunk.classification:
             rank = lambda c: {"INTERNAL": 0, "RESTRICTED": 1, "CONFIDENTIAL": 2}.get((c or "").upper(), 99)

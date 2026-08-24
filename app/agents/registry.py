@@ -14,6 +14,10 @@ class AgentCapability(str, Enum):
     RESPONSE = "RESPONSE"
     COORDINATION = "COORDINATION"
     COMPLIANCE = "COMPLIANCE"
+    # Phase 9：判断当前 Evidence 是否足以回答用户问题。
+    RETRIEVAL_CRITIC = "RETRIEVAL_CRITIC"
+    # Phase 13：判断候选回答是否被证据充分支撑（Groundedness）。
+    GROUNDEDNESS_CRITIC = "GROUNDEDNESS_CRITIC"
 
 
 @dataclass(frozen=True)

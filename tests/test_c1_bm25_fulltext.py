@@ -71,7 +71,7 @@ class Bm25FulltextRetrieveTests(unittest.TestCase):
         sql, params = svc.db.execute.call_args[0][0].text, svc.db.execute.call_args[0][1]
         self.assertIn("workspace_id = :workspace_id", sql)
         self.assertIn("organization_id = :organization_id", sql)
-        self.assertIn("classification <= :classification", sql)
+        self.assertIn("classification_level <= :classification", sql)
         self.assertEqual(params["workspace_id"], 1)
         self.assertEqual(params["organization_id"], 1)
         self.assertEqual(params["classification"], "INTERNAL")

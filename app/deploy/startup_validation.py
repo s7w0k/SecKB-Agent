@@ -14,6 +14,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Callable, Dict, List, Optional
 
+from app.services.vector_store import is_backend_production_safe
+
 
 class ValidationSeverity:
     """:class:`str` 形式的严重级别常量。"""
@@ -77,6 +79,7 @@ class ProductionStartupValidator:
             ("secret_provider_configured", self._check_secret_provider),
             ("production_db_configured", self._check_production_db),
             ("distributed_rate_limit_configured", self._check_rate_limit),
+            ("vector_backend_production_ready", self._check_vector_backend),
         ]
 
     # --- 各项判定（返回 (ok, message)）---
@@ -113,6 +116,12 @@ class ProductionStartupValidator:
             return True, "distributed rate limit configured"
         return False, msg or "distributed rate limiting is disabled (set DISTRIBUTED_RATE_LIMIT_ENABLED=true)"
 
+    def _check_vector_backend(self, value: bool, msg: str) -> tuple:
+        # value=True 表示"当前的 vector backend 配置可安全用于生产"。
+        if value is True:
+            return True, "vector backend production-ready"
+        return False, msg or "production multi-replica must use a centralized Vector Backend (not local_chroma)"
+
     # --- 判定的适配层：settings 读取 + overrides ---
 
     # 每项检查从 settings 取值的绑定函数；未接线 settings 时整体保守返回 False。
@@ -123,6 +132,11 @@ class ProductionStartupValidator:
         "secret_provider_configured": lambda s: s.get("secret_provider_configured", False),
         "production_db_configured": lambda s: s.get("production_db_configured", False),
         "distributed_rate_limit_configured": lambda s: s.get("distributed_rate_limit_enabled", False),
+        "vector_backend_production_ready": lambda s: is_backend_production_safe(
+            str(s.get("app_env", "dev")),
+            s.get("replicas_count", 1),
+            str(s.get("vector_backend", "local_chroma")),
+        ),
     }
 
     _default_values = {
@@ -132,6 +146,7 @@ class ProductionStartupValidator:
         "secret_provider_configured": False,
         "production_db_configured": False,
         "distributed_rate_limit_configured": False,
+        "vector_backend_production_ready": False,
     }
 
     def _checker_binding(self, name: str, settings: Optional[object]) -> tuple:
@@ -146,6 +161,7 @@ class ProductionStartupValidator:
             "secret_provider_configured": "secret provider configured",
             "production_db_configured": "production DB configured",
             "distributed_rate_limit_configured": "distributed rate limit configured",
+            "vector_backend_production_ready": "vector backend production-ready",
         }
         return labels[name], self._default_values[name], self._bound_getter(name, settings)
 

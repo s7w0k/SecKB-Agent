@@ -104,6 +104,9 @@ class Settings(BaseSettings):
     )
     knowledge_rerank_dashscope_api_key: str = ""
     knowledge_vector_enabled: bool = True
+    # SecKB Phase 2：向量 rehydrate 后强制 KnowledgeAccessPolicy 复核；命中缺失/权限不符的
+    # 向量候选时丢弃并累加 rag_vector_acl_mismatch_total 指标（索引 ACL 漂移检测）。
+    knowledge_vector_acl_enforce: bool = True
     # False=向量检索不可用时 fail-open 回退 BM25（开发环境默认）；
     # True=向量检索不可用时直接报错（生产环境应设为 True，不允许静默降级到全库扫描）。
     # 生产混合检索服务不可用时执行同 Scope 的受控降级，需配合 RetrievalService（阶段 3）实现。
@@ -117,6 +120,14 @@ class Settings(BaseSettings):
     # 避免把确定性 hash 向量当成真实语义向量发布进 Serving Index。
     # 通过环境变量 ALLOW_DETERMINISTIC_EMBEDDING 控制（默认 False，即生产禁止）。
     allow_deterministic_embedding: bool = False
+    # Phase 7：Vector Infrastructure 企业化。local_chroma 保留为 dev/test backend；
+    # production + replicas>1 + local_chroma 会被 Startup Validator 判为 severe（阻止启动）。
+    vector_backend: str = "local_chroma"     # local_chroma / opensearch / elasticsearch
+    replicas_count: int = 1                  # 生产 API Pod 副本数
+    # Phase 5：统一知识入库 Pipeline。开启后业务 API（ingest/ingest_file）不再直接写
+    # Serving Vector Store，而路由到 V2 submit_document（Outbox → IndexJob → Generation →
+    # Validation → Publish）；关闭（默认，dev/test）保留legacy 同步写入路径。
+    unified_ingest_pipeline: bool = False
     # v2 压测优化：向量索引健康检查的节流间隔（秒）。检索热路径原先每请求都做
     # 全库 rows count + has_exact_chunk_ids + hnsw 探针 query，会随并发放大固定开销
     # 并反复访问共享 chroma 目录；改为间隔节流，损坏检测交由检索层 VectorIndexCorrupt 兜底。
@@ -230,6 +241,16 @@ class Settings(BaseSettings):
     # Phase 10（§10.1）：当前 serving 的 Index Generation。由 IndexGenerationManager 管理，
     # 检索缓存键以它为版本前缀（§9.3），发布/回滚后旧缓存自动失效。
     index_generation: str = "G001"
+
+    # Phase 10：Re-query / Re-retrieve Loop 的强制预算（Infinite Retrieval Loop = 0）。
+    # 超过任一上限即停止派生 refine-retrieval，回落到单轮 evidence 或安全兜底。
+    max_retrieval_attempts: int = 3       # 最大尝试轮数
+    max_queries_per_attempt: int = 3      # 每轮最多查询数
+    max_total_candidates: int = 50       # 跨轮累计候选上限
+    retrieval_critique_enabled: bool = False  # 显式启用 Agentic Re-query Loop
+    # Phase 13：Groundedness Critic。启用后候选回答必须通过 groundedness 门禁
+    # （supported）才能进入最终采纳，未支撑的事实主张不得直接进入最终输出。
+    groundedness_critic_enabled: bool = False
 
     # v2 阶段 3（8.2）：分布式限流配置
     # 开启后 chat 入口按 user/org/workspace/IP 多维限流；Redis 不可用时

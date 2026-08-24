@@ -11,11 +11,14 @@ from dataclasses import dataclass
 from typing import Hashable
 
 from pypdf import PdfReader
-from sqlalchemy import func, text
+from sqlalchemy import func, or_, text
 from sqlalchemy.orm import Session
 
+from app.core.classification import classification_level
 from app.core.config import Settings
 from app.core.enums import KnowledgeDomain, KnowledgeChunkStatus
+from app.core.knowledge_access import assert_chunk_access
+from app.core.telemetry import get_metrics
 from app.models.entities import KnowledgeChunk
 from app.services.vector_store import FALLBACK_RETRIEVAL_LABEL, PRIMARY_RETRIEVAL_LABEL, ChromaKnowledgeStore, VectorIndexCorrupt
 
@@ -60,6 +63,40 @@ class KnowledgeService:
         self._vector_check_interval = float(
             getattr(settings, "knowledge_vector_health_interval_seconds", 30.0)
         )
+
+    def submit_document(
+        self,
+        source: str,
+        content: str,
+        *,
+        workspace_id: int,
+        organization_id: int | None = None,
+    ) -> dict:
+        """Phase 5（§Step1）：统一知识入库入口。
+
+        将业务写入路由到 V2 ``submit_document``（对象存储 → Outbox → IndexJob），由
+        Index Worker 经过 Generation 构建 + Candidate Validation + Atomic Publish 后才
+        影响 Serving；本方法自身**不直接修改** Serving Vector Store。
+
+        Returns:
+            {"document_id", "version_id", "via": "outbox_indexjob"}
+        """
+        if not getattr(self.settings, "unified_ingest_pipeline", False):
+            raise RuntimeError("unified_ingest_pipeline is disabled; legacy path in use")
+        from app.services.index_pipeline import submit_document as v2_submit
+
+        doc_id, version_id = v2_submit(
+            self.db,
+            workspace_id=workspace_id,
+            source_uri=source,
+            content=content,
+            organization_id=organization_id,
+        )
+        return {
+            "document_id": doc_id,
+            "version_id": version_id,
+            "via": "outbox_indexjob",
+        }
 
     def count(self, *, domain: KnowledgeDomain | None = None) -> int:
         query = self.db.query(KnowledgeChunk)
@@ -152,10 +189,21 @@ class KnowledgeService:
         status: str = KnowledgeChunkStatus.PUBLISHED.value,
         workspace_id: int | None = None,
         organization_id: int | None = None,
+        classification: str | None = None,
     ) -> int:
         chunks = chunk_text(content, self.settings.knowledge_chunk_size, self.settings.knowledge_chunk_overlap)
+        # Phase 5（§Step2/3）：统一入库 Pipeline 开启时，业务写入口不得直接改 Serving
+        # Vector Store —— 路由到 V2 submit_document（Outbox→IndexJob→Generation→Publish），
+        # 由 Index Worker + Candidate Validation 完成真实验证后才发布到 Serving。
+        if getattr(self.settings, "unified_ingest_pipeline", False):
+            if workspace_id is None:
+                raise ValueError("unified_ingest_pipeline requires workspace_id")
+            self.submit_document(source, content, workspace_id=workspace_id, organization_id=organization_id)
+            return len(chunks)
         source_key = _source_key(domain, source)
         checksum = _md5(content)
+        # SecKB Phase 1：字符串分级 → 数值等级（NULL 视为未分级 = 放行）
+        classification_level_val = classification_level(classification)
         published = KnowledgeChunkStatus.PUBLISHED.value
         retired = status != published
         if not retired:
@@ -215,6 +263,9 @@ class KnowledgeService:
                     version=new_version,
                     workspace_id=workspace_id,
                     organization_id=organization_id,
+                    classification=classification,
+                    classification_level=classification_level_val,
+                    generation_id=self.settings.index_generation,
                 )
                 self.db.add(row)
                 rows.append(row)
@@ -238,6 +289,7 @@ class KnowledgeService:
         workspace_id: int | None = None,
         organization_id: int | None = None,
         reasons: list[str] | None = None,
+        classification: str | None = None,
     ) -> int:
         """v2 阶段 5（10.2）：风险文档进入 quarantine（不发布，不可检索）。
 
@@ -247,6 +299,7 @@ class KnowledgeService:
         chunks = chunk_text(content, self.settings.knowledge_chunk_size, self.settings.knowledge_chunk_overlap)
         source_key = _source_key(domain, source)
         checksum = _md5(content)
+        classification_level_val = classification_level(classification)
         draft = KnowledgeChunkStatus.DRAFT.value
         # 归档同源旧版（含已发布的版本），避免旧版继续可检索
         self.db.query(KnowledgeChunk).filter(
@@ -266,6 +319,9 @@ class KnowledgeService:
                 version=1,
                 workspace_id=workspace_id,
                 organization_id=organization_id,
+                classification=classification,
+                classification_level=classification_level_val,
+                generation_id=self.settings.index_generation,
             ))
         self.db.add_all(rows)
         self.db.commit()
@@ -283,13 +339,14 @@ class KnowledgeService:
         domain: KnowledgeDomain,
         workspace_id: int | None = None,
         organization_id: int | None = None,
+        classification: str | None = None,
     ) -> int:
         lower = filename.lower()
         if lower.endswith(".pdf"):
             text = extract_pdf(data)
         else:
             text = data.decode("utf-8", errors="ignore")
-        return self.ingest(filename, text, domain=domain, workspace_id=workspace_id, organization_id=organization_id)
+        return self.ingest(filename, text, domain=domain, workspace_id=workspace_id, organization_id=organization_id, classification=classification)
 
     def list_sources(self, *, domain: KnowledgeDomain | None = None) -> list[dict]:
         """按来源聚合版本与状态，用于管理端维护知识库、多版本选取。"""
@@ -386,18 +443,24 @@ class KnowledgeService:
         workspace_id: int | None = None,
         organization_id: int | None = None,
         classification_limit: str | None = None,
+        classification_level_limit: int | None = None,
+        generation_id: str | None = None,
         enable_rerank: bool | None = None,
         enable_vector: bool | None = None,
     ) -> list[SearchResult]:
         """检索入口。
 
-        Scope 过滤（v2 6.4）：
+        Scope 过滤（v2 6.4 + SecKB Phase 1/2）：
         - workspace_id / organization_id 非空时，SQL 与向量路径均强制按 Scope 过滤。
-        - classification_limit 非空时按数据分级上限过滤。
+        - classification_limit 或 classification_level_limit 非空时按数据分级上限过滤
+          （优先数值等级，杜绝字符串字典序错误）。
+        - generation_id 非空时只检索指定索引代际（跨代 mixing 守卫）。
         - domain 为 None 时不按域过滤（由 Scope + status 限定，不再默认 MENTAL）。
         - enable_rerank / enable_vector 为请求级策略参数，None 时回退全局 settings，
           不允许通过修改共享 settings 对象临时开关（6.4.8）。
         """
+        if classification_level_limit is None and classification_limit:
+            classification_level_limit = classification_level(classification_limit)
         # P5-05：retrieval observation（白名单 metadata，context 只含 preview；返回值兼容）
         from app.observability import get_observability_adapter
         from app.observability.privacy import capture_text, context_preview
@@ -420,8 +483,8 @@ class KnowledgeService:
                 chunks_query = chunks_query.filter(KnowledgeChunk.workspace_id == workspace_id)
             if organization_id is not None:
                 chunks_query = chunks_query.filter(KnowledgeChunk.organization_id == organization_id)
-            if classification_limit:
-                chunks_query = chunks_query.filter(KnowledgeChunk.classification <= classification_limit)
+            if classification_level_limit is not None:
+                chunks_query = chunks_query.filter(KnowledgeChunk.classification_level <= classification_level_limit)
             # v2 阶段 3（8.4）：请求路径不再加载整个 domain 的 chunk。
             # BM25 只对最新 scan_limit 个已发布 chunk 做有界扫描（生产索引接管前的兜底），
             # 避免超大语料把全部 chunk 拉进内存。
@@ -443,13 +506,15 @@ class KnowledgeService:
                 vector_results = self._retrieve_vector(
                     query, candidate_k, domain=domain, workspace_id=workspace_id,
                     organization_id=organization_id,
+                    classification_level_limit=classification_level_limit,
+                    generation_id=generation_id,
                 )
             else:
                 vector_results = []
             bm25_results = self._retrieve_bm25(
                 query, candidate_k, chunks_for_bm25,
                 domain=domain_str, workspace_id=workspace_id,
-                organization_id=organization_id, classification_limit=classification_limit,
+                organization_id=organization_id, classification_limit=classification_level_limit,
             )
             ranked = self._fuse_and_rerank(
                 query, vector_results, bm25_results, top_k,
@@ -463,7 +528,12 @@ class KnowledgeService:
                 },
             )
             if ranked:
-                return self._finalize_diverse(ranked, top_k, domain=domain)
+                return self._finalize_diverse(
+                    ranked, top_k, domain=domain,
+                    workspace_id=workspace_id, organization_id=organization_id,
+                    classification_level_limit=classification_level_limit,
+                    generation_id=generation_id,
+                )
             return []
 
     def _retrieve_bm25(
@@ -475,7 +545,7 @@ class KnowledgeService:
         domain: str | None = None,
         workspace_id: int | None = None,
         organization_id: int | None = None,
-        classification_limit: str | None = None,
+        classification_limit: int | None = None,
     ) -> list[SearchResult]:
         query = query or ""
         # C1：生产 BM25 索引（MySQL FULLTEXT）。只在方言/开关满足时走 MATCH；
@@ -500,8 +570,8 @@ class KnowledgeService:
                 chunk_query = chunk_query.filter(KnowledgeChunk.workspace_id == workspace_id)
             if organization_id is not None:
                 chunk_query = chunk_query.filter(KnowledgeChunk.organization_id == organization_id)
-            if classification_limit:
-                chunk_query = chunk_query.filter(KnowledgeChunk.classification <= classification_limit)
+            if classification_limit is not None:
+                chunk_query = chunk_query.filter(KnowledgeChunk.classification_level <= classification_limit)
             scan_limit = int(getattr(self.settings, "knowledge_bm25_scan_limit", 0) or 0)
             if scan_limit > 0:
                 chunk_query = chunk_query.order_by(KnowledgeChunk.id.desc()).limit(scan_limit)
@@ -541,7 +611,7 @@ class KnowledgeService:
         domain: str | None = None,
         workspace_id: int | None = None,
         organization_id: int | None = None,
-        classification_limit: str | None = None,
+        classification_limit: int | None = None,
     ) -> list[SearchResult]:
         """生产 BM25 索引冷检索：MySQL FULLTEXT(ngram) MATCH..AGAINST，毫秒级。
 
@@ -561,8 +631,8 @@ class KnowledgeService:
         if organization_id is not None:
             conditions.append("organization_id = :organization_id")
             params["organization_id"] = organization_id
-        if classification_limit:
-            conditions.append("classification <= :classification")
+        if classification_limit is not None:
+            conditions.append("classification_level <= :classification")
             params["classification"] = classification_limit
         where = " AND ".join(conditions)
         sql = (
@@ -689,7 +759,7 @@ class KnowledgeService:
             return sk.split("/", 1)[0]
         return sk
 
-    def _finalize_diverse(self, ranked: list[SearchResult], top_k: int, *, domain: KnowledgeDomain | None = None) -> list[SearchResult]:
+    def _finalize_diverse(self, ranked: list[SearchResult], top_k: int, *, domain: KnowledgeDomain | None = None, workspace_id: int | None = None, organization_id: int | None = None, classification_level_limit: int | None = None, generation_id: str | None = None) -> list[SearchResult]:
         """按"每源上限"从重排后的候选池中选出最终 top-k。
 
         1. 重排顺序遍历，每份来源（SERVICE 按产品、其余按文件）最多保留
@@ -699,7 +769,11 @@ class KnowledgeService:
         """
         limit = self._diversity_limit()
         if limit <= 0 or not ranked:
-            return self._expand_best(ranked, top_k, domain=domain)
+            return self._expand_best(
+                ranked, top_k, domain=domain,
+                workspace_id=workspace_id, organization_id=organization_id,
+                classification_level_limit=classification_level_limit, generation_id=generation_id,
+            )
 
         per_source: dict[str, int] = {}
         picked: list[SearchResult] = []
@@ -716,7 +790,11 @@ class KnowledgeService:
             return []
         # 对最优 chunk 做相邻扩展：扩展结果替换该 chunk，配额仍计入该来源。
         best = picked[0]
-        expanded = self._expand(best, domain=domain)
+        expanded = self._expand(
+            best, domain=domain,
+            workspace_id=workspace_id, organization_id=organization_id,
+            classification_level_limit=classification_level_limit, generation_id=generation_id,
+        )
         results = [expanded]
         for item in picked[1:]:
             if item.chunk_id != best.chunk_id and len(results) < top_k:
@@ -748,7 +826,7 @@ class KnowledgeService:
     def _candidate_k(self, top_k: int) -> int:
         return max(top_k, self.settings.knowledge_candidate_k)
 
-    def _retrieve_vector(self, query: str, top_k: int, *, domain: KnowledgeDomain | None = None, workspace_id: int | None = None, organization_id: int | None = None) -> list[SearchResult]:
+    def _retrieve_vector(self, query: str, top_k: int, *, domain: KnowledgeDomain | None = None, workspace_id: int | None = None, organization_id: int | None = None, classification_level_limit: int | None = None, generation_id: str | None = None) -> list[SearchResult]:
         if not self.vector_store.can_embed:
             return []
         try:
@@ -759,6 +837,8 @@ class KnowledgeService:
                 domain=domain.value if domain else None,
                 workspace_id=workspace_id,
                 organization_id=organization_id,
+                classification_level_limit=classification_level_limit,
+                generation_id=generation_id,
             )
         except Exception as exc:
             self._handle_vector_error("retrieve", exc)
@@ -766,9 +846,27 @@ class KnowledgeService:
         results = []
         for hit in hits:
             chunk = self.db.get(KnowledgeChunk, hit.chunk_id) if hit.chunk_id is not None else None
+            # SecKB Phase 2：DB rehydrate 后复核 ACL/Classification/Generation 漂移，与 SQL/缓存路径
+            # 口径一致。命中缺失或元数据与 DB 当前 ACL 不一致的候选直接丢弃并累加指标。
+            drift_reason = None
+            if chunk is None:
+                drift_reason = "missing_chunk"
+            elif chunk.workspace_id is not None and workspace_id is not None and chunk.workspace_id != workspace_id:
+                drift_reason = "workspace"
+            elif chunk.organization_id is not None and organization_id is not None and chunk.organization_id != organization_id:
+                drift_reason = "organization"
+            elif chunk.status != KnowledgeChunkStatus.PUBLISHED.value:
+                drift_reason = "unpublished"
+            elif classification_level_limit is not None and chunk.classification_level is not None and chunk.classification_level > classification_level_limit:
+                drift_reason = "classification"
+            elif generation_id is not None and chunk.generation_id is not None and chunk.generation_id != generation_id:
+                drift_reason = "generation"
+            if drift_reason is not None:
+                get_metrics().increment("rag_vector_acl_mismatch_total", **{"reason": drift_reason})
+                continue
             results.append(
                 SearchResult(
-                    chunk.id if chunk is not None else hit.chunk_id,
+                    hit.chunk_id,
                     chunk.source if chunk is not None else hit.source,
                     chunk.content if chunk is not None else hit.content,
                     hit.score,
@@ -913,25 +1011,29 @@ class KnowledgeService:
             exc,
         )
 
-    def _expand_best(self, ranked: list[SearchResult], top_k: int, *, domain: KnowledgeDomain | None = None) -> list[SearchResult]:
+    def _expand_best(self, ranked: list[SearchResult], top_k: int, *, domain: KnowledgeDomain | None = None, workspace_id: int | None = None, organization_id: int | None = None, classification_level_limit: int | None = None, generation_id: str | None = None) -> list[SearchResult]:
         if not ranked:
             return []
         best = ranked[0]
-        expanded = self._expand(best, domain=domain)
+        expanded = self._expand(
+            best, domain=domain,
+            workspace_id=workspace_id, organization_id=organization_id,
+            classification_level_limit=classification_level_limit, generation_id=generation_id,
+        )
         results = [expanded]
         for item in ranked[1:]:
             if item.chunk_id != expanded.chunk_id and len(results) < top_k:
                 results.append(item)
         return results
 
-    def _expand(self, result: SearchResult, *, domain: KnowledgeDomain | None = None) -> SearchResult:
+    def _expand(self, result: SearchResult, *, domain: KnowledgeDomain | None = None, workspace_id: int | None = None, organization_id: int | None = None, classification_level_limit: int | None = None, generation_id: str | None = None) -> SearchResult:
         if result.chunk_id is None:
             return result
         chunk = self.db.get(KnowledgeChunk, result.chunk_id)
         if chunk is None:
             return result
         scope_domain = domain.value if domain is not None else (chunk.domain or "MENTAL")
-        neighbors = (
+        neighbors_query = (
             self.db.query(KnowledgeChunk)
             .filter(KnowledgeChunk.domain == scope_domain)
             .filter(KnowledgeChunk.status == KnowledgeChunkStatus.PUBLISHED.value)
@@ -939,13 +1041,36 @@ class KnowledgeService:
             .filter(KnowledgeChunk.version == chunk.version)
             .filter(KnowledgeChunk.source_index >= max(0, chunk.source_index - 1))
             .filter(KnowledgeChunk.source_index <= chunk.source_index + 1)
-            .order_by(KnowledgeChunk.source_index.asc())
-            .all()
         )
+        # SecKB Phase 3：Context Expansion 永远不能扩大原请求权限范围。
+        # 扩展查询必须携带与原请求相同的 Scope / ACL / Classification / Generation 约束，
+        # 且扩展结果再次复核 access（不依赖 source_key 判定权限）。
+        if workspace_id is not None:
+            neighbors_query = neighbors_query.filter(KnowledgeChunk.workspace_id == workspace_id)
+        if organization_id is not None:
+            neighbors_query = neighbors_query.filter(KnowledgeChunk.organization_id == organization_id)
+        if classification_level_limit is not None:
+            neighbors_query = neighbors_query.filter(KnowledgeChunk.classification_level <= classification_level_limit)
+        if generation_id is not None:
+            # Generation 守卫：未标记代际（legacy，generation_id IS NULL）视为当前代际，
+            # 避免严格等值过滤把所有未回填数据排除，导致 Context Expansion 内容被清空。
+            neighbors_query = neighbors_query.filter(
+                or_(
+                    KnowledgeChunk.generation_id.is_(None),
+                    KnowledgeChunk.generation_id == generation_id,
+                )
+            )
+        neighbors = neighbors_query.order_by(KnowledgeChunk.source_index.asc()).all()
+        kept = [
+            item for item in neighbors
+            if item.workspace_id == chunk.workspace_id
+            and (organization_id is None or item.organization_id == organization_id)
+            and (classification_level_limit is None or (item.classification_level or 0) <= classification_level_limit)
+        ]
         return SearchResult(
             chunk.id,
             chunk.source,
-            "\n\n".join(item.content for item in neighbors),
+            "\n\n".join(item.content for item in kept),
             result.score,
             source_key=chunk.source_key,
             version=chunk.version,

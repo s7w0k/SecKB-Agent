@@ -70,7 +70,7 @@ class PromptTemplates:
         ]
 
     @staticmethod
-    def answer_system_prompt(intent: IntentType, risk: RiskLevel, context: str, display_name: str, skill_context: str = "") -> AiMessage:
+    def answer_system_prompt(intent: IntentType, risk: RiskLevel, context: str, display_name: str, skill_context: str = "", include_context: bool = True) -> AiMessage:
         if intent == IntentType.CHAT:
             content = (
                 "你是 MindBridge，一个面向学生的日常陪伴与校园生活助手。"
@@ -90,8 +90,12 @@ class PromptTemplates:
             "回答要共情、谨慎、非评判，不诊断疾病，不开药，不替代持证心理咨询师。"
             "不要向学生输出风险等级、报告分数或后台标签。"
             "优先基于检索知识回答；知识不足时明确说明并给出安全通用建议。"
-            f"\n学生显示名：{display_name}\n检索知识：\n{context}\n\n可用 skill 指引：\n{skill_context or '无'}{crisis_rule}"
+            f"\n学生显示名：{display_name}"
         )
+        # SecKB Phase 4：检索正文不拼入 system；include_context=False 时仅保留平台规则。
+        if include_context:
+            content += f"\n检索知识：\n{context}"
+        content += f"\n\n可用 skill 指引：\n{skill_context or '无'}{crisis_rule}"
         return AiMessage(role="system", content=content)
 
     @staticmethod
@@ -102,13 +106,14 @@ class PromptTemplates:
         context: str,
         display_name: str,
         skill_context: str = "",
+        include_context: bool = True,
     ) -> AiMessage:
         """P4-06 域感知回复 Prompt。非多域或 MENTAL 域回退到旧 answer_system_prompt。"""
         if domain == KnowledgeDomain.SERVICE:
-            return PromptTemplates._service_prompt(risk, context, display_name, skill_context)
+            return PromptTemplates._service_prompt(risk, context, display_name, skill_context, include_context=include_context)
         if domain == KnowledgeDomain.COMPLIANCE:
-            return PromptTemplates._compliance_prompt(risk, context, display_name, skill_context)
-        return PromptTemplates.answer_system_prompt(intent, risk, context, display_name, skill_context)
+            return PromptTemplates._compliance_prompt(risk, context, display_name, skill_context, include_context=include_context)
+        return PromptTemplates.answer_system_prompt(intent, risk, context, display_name, skill_context, include_context=include_context)
 
     @staticmethod
     def trusted_answer_prompt(
@@ -145,7 +150,7 @@ class PromptTemplates:
         return messages, meta
 
     @staticmethod
-    def _service_prompt(risk: RiskLevel, context: str, display_name: str, skill_context: str) -> AiMessage:
+    def _service_prompt(risk: RiskLevel, context: str, display_name: str, skill_context: str, include_context: bool = True) -> AiMessage:
         escalation_rule = ""
         if risk == RiskLevel.HIGH:
             escalation_rule = (
@@ -156,12 +161,16 @@ class PromptTemplates:
             "你是 MindBridge 客服智能体，负责企业产品的售前咨询、售后支持、技术支持和投诉处理。"
             "基于检索知识回答产品规格、部署集成、故障排查、维保与版本问题；不编造指标或政策，不承诺超出权限的事项。"
             "遇到投诉时先安抚情绪，再说明处理流程和时限。"
-            f"\n用户显示名：{display_name}\n检索知识：\n{context}\n\n可用 skill 指引：\n{skill_context or '无'}{escalation_rule}"
+            f"\n用户显示名：{display_name}"
         )
+        # SecKB Phase 4：检索正文不拼入 system；include_context=False 时仅保留平台规则。
+        if include_context:
+            content += f"\n检索知识：\n{context}"
+        content += f"\n\n可用 skill 指引：\n{skill_context or '无'}{escalation_rule}"
         return AiMessage(role="system", content=content)
 
     @staticmethod
-    def _compliance_prompt(risk: RiskLevel, context: str, display_name: str, skill_context: str) -> AiMessage:
+    def _compliance_prompt(risk: RiskLevel, context: str, display_name: str, skill_context: str, include_context: bool = True) -> AiMessage:
         compliance_rule = ""
         if risk == RiskLevel.HIGH:
             compliance_rule = (
@@ -174,8 +183,12 @@ class PromptTemplates:
             "回答要客观、谨慎、基于制度条文。你不得做事实定性、不得确认违规、不得代替正式调查。"
             "涉及举报或违规线索时，引导用户通过授权渠道上报并保留信息。"
             "不输出风险等级、案件编号或后台标签。"
-            f"\n用户显示名：{display_name}\n检索知识：\n{context}\n\n可用 skill 指引：\n{skill_context or '无'}{compliance_rule}"
+            f"\n用户显示名：{display_name}"
         )
+        # SecKB Phase 4：检索正文不拼入 system；include_context=False 时仅保留平台规则。
+        if include_context:
+            content += f"\n检索知识：\n{context}"
+        content += f"\n\n可用 skill 指引：\n{skill_context or '无'}{compliance_rule}"
         return AiMessage(role="system", content=content)
 
 

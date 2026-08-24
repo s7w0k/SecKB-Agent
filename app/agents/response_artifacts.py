@@ -72,6 +72,10 @@ class ResponseArtifact:
     provider: str = ""
     prompt_version: str = ""
     evidence_ids: list[str] = field(default_factory=list)
+    # SecKB Phase 4：证据信任分区 —— 被注入扫描 BLOCK 的证据（不进 prompt）
+    quarantined_evidence_ids: list[str] = field(default_factory=list)
+    # 每个 source_key 的注入风险分（0-100）
+    evidence_trust_scores: dict = field(default_factory=dict)
     retrieval_generation: str = ""
     created_at: float = 0.0
 
@@ -106,6 +110,8 @@ def build_response_artifact(
     provider: str = "",
     prompt_version: str = "",
     evidence_ids: list[str] | None = None,
+    quarantined_evidence_ids: list[str] | None = None,
+    evidence_trust_scores: dict | None = None,
     retrieval_generation: str = "",
     artifact_id: str | None = None,
     created_at: float | None = None,
@@ -119,6 +125,8 @@ def build_response_artifact(
         provider=provider,
         prompt_version=prompt_version,
         evidence_ids=list(evidence_ids or []),
+        quarantined_evidence_ids=list(quarantined_evidence_ids or []),
+        evidence_trust_scores=dict(evidence_trust_scores or {}),
         retrieval_generation=retrieval_generation,
         created_at=round(created_at if created_at is not None else time.time(), 6),
     )

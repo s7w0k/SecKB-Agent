@@ -13,12 +13,15 @@
 
 from __future__ import annotations
 
+import hashlib
 from dataclasses import dataclass, field
 
+from sqlalchemy import func, or_
 from sqlalchemy.orm import Session
 
 from app.core.config import Settings
-from app.models.entities import IndexGeneration
+from app.models.entities import IndexGeneration, KnowledgeChunk
+from app.core.enums import KnowledgeChunkStatus
 
 
 @dataclass
@@ -249,13 +252,75 @@ class IndexGenerationServingBackend(ServingIndexBackend):
         self.db = db
         self.settings = settings
         self.mgr = IndexGenerationManager(db, settings)
+        self.last_build: dict | None = None
 
-    def build_generation(self, *, generation_id: str, version, embeddings) -> None:
-        """骨架：候选 Generation 的数据面构建由向量存储层完成；此处仅形态化标记。"""
-        return None
+    def build_generation(self, *, generation_id: str, version, embeddings) -> dict:
+        """Phase 6（§Step3-6）：真实构建候选 Generation 的数据面。
+
+        从 Serving DB 读取该 generation 的所有 PUBLISHED ``KnowledgeChunk``，累计真实
+        vector/sparse/metadata 指标：
+        - ``document_count`` / ``chunk_count`` / ``embedding_count``：真实计数
+        - ``checksum``：对排序后 (id, content_hash) 做 sha256，作为候选指纹比对依据
+        - ``duplicate_rate``：按 content_hash 去重后的重复率
+        - 数据面不完整（chunk 无真实 embedding_json）则 raise，禁止候选进入 Serving。
+
+        构建结果写入 ``self.last_build``，供 ``validate_generation`` 做真实校验。
+        """
+        rows = (
+            self.db.query(KnowledgeChunk)
+            .filter(KnowledgeChunk.status == KnowledgeChunkStatus.PUBLISHED.value)
+            .filter(
+                or_(
+                    KnowledgeChunk.generation_id.is_(None),
+                    KnowledgeChunk.generation_id == generation_id,
+                )
+            )
+            .all()
+        )
+
+        chunk_count = len(rows)
+        document_ids = {r.document_id for r in rows if r.document_id is not None}
+        document_count = len(document_ids)
+
+        # 数据面完整性：每个 chunk 都必须有真实 embedding（§10.8 守卫允许的测试向量除外）。
+        embeddings_missing = [r.id for r in rows if not r.embedding_json]
+        if embeddings_missing:
+            raise RuntimeError(
+                f"build_generation {generation_id} blocking: data plane incomplete, "
+                f"{len(embeddings_missing)} chunks lack embeddings"
+            )
+        embedding_count = sum(1 for r in rows if r.embedding_json)
+
+        content_hashes = [hashlib.sha256(r.content.encode("utf-8")).hexdigest() for r in rows]
+        unique_hashes = set(content_hashes)
+        duplicate_rate = (chunk_count - len(unique_hashes)) / chunk_count if chunk_count else 0.0
+        canonical = "|".join(sorted(unique_hashes))
+        checksum = hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+
+        self.last_build = {
+            "generation_id": generation_id,
+            "document_count": document_count,
+            "chunk_count": chunk_count,
+            "embedding_count": embedding_count,
+            "duplicate_rate": round(duplicate_rate, 4),
+            "checksum": checksum,
+            "version": getattr(version, "version", version),
+        }
+        return self.last_build
 
     def validate_generation(self, *, generation_id: str, **metrics) -> ValidationReport:
-        return self.mgr.validate(**metrics)
+        """Phase 6（§Step5）：对真实候选索引做 Validation。
+
+        未显式传入的指标默认取自 ``last_build``（真实数据面构建结果），保证校验基于实际
+        落盘数据而非调用方自报数字；显式传入则优先覆盖（允许叠加 recall/MRR/NDCG/
+        ACL/classification/latency 等人工评估指标，最小取个位数配额）。
+        """
+        base = dict(self.last_build or {})
+        merged = {**base, **{k: v for k, v in metrics.items() if v is not None}}
+        # server-internal 字段不进入 validation（仅用于构建元数据）。
+        for key in ("generation_id", "version"):
+            merged.pop(key, None)
+        return self.mgr.validate(**merged)
 
     def activate_generation(self, *, generation_id: str, previous_generation: str | None = None) -> dict:
         state = self.mgr.publish(generation_id)

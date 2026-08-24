@@ -76,3 +76,36 @@ class RetrievalBudget:
     def raise_if_expired(self, component: str) -> None:
         if self.expired:
             raise DeadlineExceeded(component, self.remaining_ms)
+
+
+# Phase 10（§.Phase 10 Step 4）：Re-query Loop 的强制预算。
+# 任一维度触顶即停止派生 refine-retrieval，保证 Infinite Retrieval Loop = 0。
+@dataclass(frozen=True)
+class RetrievalLoopBudget:
+    max_attempts: int = 3
+    max_queries_per_attempt: int = 3
+    max_total_candidates: int = 50
+
+    def can_attempt(self, attempts: int) -> bool:
+        """本轮已尝试 attempts 次，是否还可再发起一轮。"""
+        return attempts < self.max_attempts
+
+    def can_query(self, query_count: int) -> bool:
+        """当前轮已 query_count 个 query，是否还可再加。"""
+        return query_count < self.max_queries_per_attempt
+
+    def exhausted_reason(
+        self,
+        *,
+        attempts: int,
+        query_count: int,
+        total_candidates: int,
+    ) -> str | None:
+        """返回触顶原因（None = 预算仍充足）。"""
+        if attempts >= self.max_attempts:
+            return f"attempt_limit:{self.max_attempts}"
+        if query_count >= self.max_queries_per_attempt:
+            return f"query_limit:{self.max_queries_per_attempt}"
+        if total_candidates >= self.max_total_candidates:
+            return f"candidate_limit:{self.max_total_candidates}"
+        return None

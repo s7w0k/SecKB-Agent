@@ -443,7 +443,7 @@ def ingest_knowledge(
         quarantined = KnowledgeService(db, get_settings()).ingest_quarantined(
             request.source, request.content, domain=domain,
             workspace_id=scope.workspace_id, organization_id=scope.organization_id,
-            reasons=decision.reasons,
+            reasons=decision.reasons, classification=request.classification,
         )
         return KnowledgeIngestResponse(
             source=request.source, chunks=quarantined,
@@ -452,6 +452,7 @@ def ingest_knowledge(
     chunks = KnowledgeService(db, get_settings()).ingest(
         request.source, request.content, domain=domain,
         workspace_id=scope.workspace_id, organization_id=scope.organization_id,
+        classification=request.classification,
     )
     return KnowledgeIngestResponse(source=request.source, chunks=chunks)
 

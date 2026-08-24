@@ -30,6 +30,9 @@ class KnowledgeIngestRequest(BaseModel):
     source: str = Field(min_length=1, max_length=500)
     content: str = Field(min_length=1, max_length=500_000)
     domain: str = "MENTAL"
+    # SecKB Phase 1：可选数据分级（INTERNAL/RESTRICTED/CONFIDENTIAL/SECRET），
+    # 入库时换算为数值等级 classification_level，检索统一走 numeric comparison。
+    classification: Optional[str] = None
 
 
 class KnowledgeIngestResponse(BaseModel):

@@ -100,6 +100,9 @@ class ChromaKnowledgeStore:
                 "organization_id": int(getattr(chunk, "organization_id", 0) or 0),
                 "workspace_id": int(getattr(chunk, "workspace_id", 0) or 0),
                 "knowledge_space_id": int(getattr(chunk, "knowledge_space_id", 0) or 0),
+                # SecKB Phase 1/2：数值分级等级 + 索引代际 metadata，供服务端过滤与漂移检测。
+                "classification_level": int(getattr(chunk, "classification_level", 0) if getattr(chunk, "classification_level", 0) is not None else 0),
+                "generation_id": getattr(chunk, "generation_id", "") or "",
             }
             for chunk in rows
         ]
@@ -158,11 +161,15 @@ class ChromaKnowledgeStore:
         domain: str | None = None,
         workspace_id: int | None = None,
         organization_id: int | None = None,
+        classification_level_limit: int | None = None,
+        generation_id: str | None = None,
     ) -> list[VectorSearchHit]:
-        """向量检索，支持域和 workspace/organization 过滤（服务端 metadata filter）。
+        """向量检索，支持域、workspace/organization、数据分级等级与索引代际过滤。
 
-        v2 6.4：Scope 过滤在向量库服务端完成（where filter），
+        v2 6.4 + SecKB Phase 1/2：Scope 过滤在向量库服务端完成（where filter），
         不检索后再在应用层过滤；workspace_id/organization_id 缺失时按 domain 过滤（向后兼容）。
+        classification_level_limit：数值分级等级上限（服务端 ``<=`` 过滤）。
+        generation_id：只命中该索引代际（跨代 mixing 守卫）。
         """
         conditions: list[dict] = []
         if domain is not None:
@@ -171,6 +178,13 @@ class ChromaKnowledgeStore:
             conditions.append({"workspace_id": workspace_id})
         if organization_id is not None and organization_id > 0:
             conditions.append({"organization_id": organization_id})
+        if classification_level_limit is not None:
+            conditions.append({"classification_level": {"$lte": classification_level_limit}})
+        if generation_id:
+            # Generation 守卫：服务端只命中当前代际。兼容 legacy 数据（未回填 generation，
+            # 存入元数据时为空串）在相同条件下被纳入，跨真实代际 mixing 仍被阻止；
+            # 统一的 rehydrate 二次复核（KnowledgeService._retrieve_vector）处理权责层。
+            conditions.append({"generation_id": {"$in": [generation_id, ""]}})
         where_filter: dict | None = None
         if conditions:
             where_filter = {"$and": conditions} if len(conditions) > 1 else conditions[0]
@@ -370,3 +384,62 @@ class ChromaKnowledgeStore:
 
 
 ChromaKnowledgeVectorStore = ChromaKnowledgeStore
+
+
+# --------------------------------------------------------------------------- #
+# Phase 7：统一 Vector Search Backend 接口（企业化）。
+# local_chroma 保留为 dev/test backend（ChromaVectorBackend），生产多副本使用
+# 集中式 backend（OpenSearchVectorBackend 等）。所有 API Pod 看到同一份 Serving State。
+# --------------------------------------------------------------------------- #
+import abc
+
+
+class VectorSearchBackend(abc.ABC):
+    """§.Phase 7 Step 1：统一向量后端接口。"""
+
+    @abc.abstractmethod
+    def index(self, *, chunk, vector) -> None:
+        """索引单个 chunk。"""
+
+    @abc.abstractmethod
+    def search(self, *, vector, top_k, where) -> list:
+        """向量检索，返回命中（含 db_id/source/content/score）。"""
+
+    @abc.abstractmethod
+    def delete_generation(self, *, generation_id: str) -> bool:
+        """GC 删除不再 Serving 的旧 Generation。"""
+
+    @abc.abstractmethod
+    def health(self) -> dict:
+        """健康状态。"""
+
+
+class ChromaVectorBackend(VectorSearchBackend):
+    """§.Phase 7 Step 2：保留 Local Chroma 为 dev/test backend。
+
+    封装既有 ``ChromaKnowledgeStore``，提供统一接口，供生产 OpenSearch backend 对照。
+    多副本生产环境不应选择本 backend（由 Startup Validator 门禁拦截）。
+    """
+
+    def __init__(self, store: "ChromaKnowledgeStore"):
+        self._store = store
+
+    def index(self, *, chunk, vector) -> None:
+        self._store.upsert_chunks([chunk], [vector])
+
+    def search(self, *, vector, top_k, where) -> list:
+        return self._store.query(vector, top_k, **dict(where or {}))
+
+    def delete_generation(self, *, generation_id: str) -> bool:
+        # Chroma 后端不按 generation 刷库；由上层在发布时全量重建当前代际。
+        return True
+
+    def health(self) -> dict:
+        return {"backend": "local_chroma", "ok": self._store.can_embed, "count": self._store.count()}
+
+
+def is_backend_production_safe(app_env: str, replicas_count: int, vector_backend: str) -> bool:
+    """§.Phase 7 Step 4 判定：production AND replicas>1 AND backend=local_chroma → 不安全。"""
+    if app_env == "production" and int(replicas_count or 1) > 1 and vector_backend == "local_chroma":
+        return False
+    return True

@@ -329,6 +329,18 @@ def wrap_retrieved_documents(contexts: list[str]) -> str:
     return f"{_RETRIEVED_TAG}\n{inner}\n{_RETRIEVED_TAG}"
 
 
+def build_retrieved_tool_content(contexts: list[tuple[str, str]]) -> str:
+    """构造作为独立 ``tool`` 角色的检索上下文 payload。
+
+    contexts = [(source_key, content), ...]。返回的文本含免责声明 + <retrieved_documents>
+    结构；空列表返回空串（调用方据此省略 tool 消息）。
+    """
+    if not contexts:
+        return ""
+    contents = [content for _, content in contexts]
+    return f"{_RETRIEVED_DISCLAIMER}\n\n{wrap_retrieved_documents(contents)}"
+
+
 def build_trust_boundary_prompt(
     system_policy: str,
     user_input: str,
