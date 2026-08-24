@@ -17,6 +17,21 @@ from typing import Callable, Dict, List, Optional
 from app.services.vector_store import is_backend_production_safe
 
 
+def _runtime_backend_matches(d: dict) -> bool:
+    """§4.11 配置后端 == 可构建的运行期后端（Configured/Runtime Mismatch = 0）。
+
+    - local_chroma：dev/test 后端，恒可构建。
+    - opensearch：必须配置 opensearch_hosts 才能由 factory 构建真实传输。
+    - 其它/未知：不允许静默通过。
+    """
+    cfg = str(d.get("vector_backend", "local_chroma"))
+    if cfg == "local_chroma":
+        return True
+    if cfg == "opensearch":
+        return bool((d.get("opensearch_hosts") or "").strip())
+    return False
+
+
 class ValidationSeverity:
     """:class:`str` 形式的严重级别常量。"""
     SEVERE = "severe"
@@ -80,7 +95,9 @@ class ProductionStartupValidator:
             ("production_db_configured", self._check_production_db),
             ("distributed_rate_limit_configured", self._check_rate_limit),
             ("vector_backend_production_ready", self._check_vector_backend),
+            ("vector_backend_runtime_match", self._check_vector_backend_runtime_match),
             ("classification_fail_closed", self._check_classification_fail_closed),
+            ("published_classification_null_probe", self._check_published_classification_null),
         ]
 
     # --- 各项判定（返回 (ok, message)）---
@@ -123,12 +140,26 @@ class ProductionStartupValidator:
             return True, "vector backend production-ready"
         return False, msg or "production multi-replica must use a centralized Vector Backend (not local_chroma)"
 
+    def _check_vector_backend_runtime_match(self, value: bool, msg: str) -> tuple:
+        # value=True 表示"配置的 vector backend == 可构建的 runtime backend"（§4.11）。
+        # 若配置了 opensearch 但缺 hosts，或配置了未知 backend，视为 Configured/Runtime 脱节 → 阻止启动。
+        if value is True:
+            return True, "configured vector backend == runtime backend"
+        return False, msg or "vector backend configured but runtime backend unavailable (opensearch requires opensearch_hosts)"
+
     def _check_classification_fail_closed(self, value: bool, msg: str) -> tuple:
         # value=True 表示"生产环境已开启 classification fail-closed"。
         # Unknown/NULL classification 在生产必须 fail-closed，否则可能被低权限用户召回。
         if value is True:
             return True, "classification fail-closed enabled"
         return False, msg or "classification fail-closed is disabled (set CLASSIFICATION_FAIL_CLOSED=true in production)"
+
+    def _check_published_classification_null(self, value: bool, msg: str) -> tuple:
+        # value=True 表示"DB 中不存在 PUBLISHED 且 classification_level IS NULL 的 chunk"。
+        # §2.9：真实查询（而非仅配置项），NULL 已发布数据=0 才可通过。
+        if value is True:
+            return True, "no published chunks with NULL classification"
+        return False, msg or "DB has PUBLISHED chunks with NULL classification_level (fail-open serving risk)"
 
     # --- 判定的适配层：settings 读取 + overrides ---
 
@@ -145,7 +176,11 @@ class ProductionStartupValidator:
             s.get("replicas_count", 1),
             str(s.get("vector_backend", "local_chroma")),
         ),
+        "vector_backend_runtime_match": lambda s: _runtime_backend_matches(s),
         "classification_fail_closed": lambda s: s.get("classification_fail_closed", False),
+        "published_classification_null_probe": lambda s: s.get(
+            "published_classification_null_probe", False
+        ),
     }
 
     _default_values = {
@@ -156,7 +191,9 @@ class ProductionStartupValidator:
         "production_db_configured": False,
         "distributed_rate_limit_configured": False,
         "vector_backend_production_ready": False,
+        "vector_backend_runtime_match": False,
         "classification_fail_closed": False,
+        "published_classification_null_probe": False,
     }
 
     def _checker_binding(self, name: str, settings: Optional[object]) -> tuple:
@@ -172,7 +209,9 @@ class ProductionStartupValidator:
             "production_db_configured": "production DB configured",
             "distributed_rate_limit_configured": "distributed rate limit configured",
             "vector_backend_production_ready": "vector backend production-ready",
+            "vector_backend_runtime_match": "configured vector backend == runtime backend",
             "classification_fail_closed": "classification fail-closed enabled",
+            "published_classification_null_probe": "no published chunks with NULL classification",
         }
         return labels[name], self._default_values[name], self._bound_getter(name, settings)
 

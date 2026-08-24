@@ -34,7 +34,7 @@ class StartupValidationTests(unittest.TestCase):
     def test_all_unconfigured_fails(self):
         report = self.v.run()
         self.assertFalse(report.ok)
-        self.assertEqual(len(report.failures), 7)
+        self.assertEqual(len(report.failures), 10)
         # severe 失败应拦启动
         self.assertIsNotNone(report.hard_fail)
 
@@ -53,11 +53,14 @@ class StartupValidationTests(unittest.TestCase):
             production_db_configured=True,
             distributed_rate_limit_configured=True,
             vector_backend_production_ready=True,
+            vector_backend_runtime_match=True,
+            classification_fail_closed=True,
+            published_classification_null_probe=True,
         )
         self.assertTrue(report.ok)
         self.assertEqual(len(report.failures), 0)
         self.assertIsNone(report.hard_fail)
-        self.assertEqual(report.summary(), "7/7 checks passed, 0 failed")
+        self.assertEqual(report.summary(), "10/10 checks passed, 0 failed")
 
     def test_run_or_raise_passes_when_ok(self):
         report = self.v.run_or_raise(
@@ -68,6 +71,9 @@ class StartupValidationTests(unittest.TestCase):
             production_db_configured=True,
             distributed_rate_limit_configured=True,
             vector_backend_production_ready=True,
+            vector_backend_runtime_match=True,
+            classification_fail_closed=True,
+            published_classification_null_probe=True,
         )
         self.assertTrue(report.ok)
 
@@ -81,6 +87,9 @@ class StartupValidationTests(unittest.TestCase):
             secret_provider_configured=True,
             production_db_configured=True,
             vector_backend_production_ready=True,
+            vector_backend_runtime_match=True,
+            classification_fail_closed=True,
+            published_classification_null_probe=True,
             # rate limit 未配置 -> 失败
         )
         self.assertFalse(report.ok)
@@ -98,6 +107,9 @@ class StartupValidationTests(unittest.TestCase):
             production_db_configured=True,
             distributed_rate_limit_configured=True,
             vector_backend_production_ready=True,
+            vector_backend_runtime_match=True,
+            classification_fail_closed=True,
+            published_classification_null_probe=True,
         )
         # 人为标记一条为 warn 后 hard_fail 应为 None
         report.checks[0].severity = ValidationSeverity.WARN

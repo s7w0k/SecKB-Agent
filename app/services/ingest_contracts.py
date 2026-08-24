@@ -1,4 +1,4 @@
-"""SecKB-Agent 剩余 8 关键问题 · Phase 4（§4.2）：统一 Ingest 元数据契约。
+"""SecKB-Agent 剩余 8 关键问题 · Phase 4（§4.2）+ 最终 6 项 · Phase 1（§1.3）：统一 Ingest 元数据契约。
 
 统一 V2 Ingest Pipeline 必须在每一层（Outbox → IndexJob → Version 快照 → Chunk →
 Vector metadata）完整保留安全/域/ACL 元数据，禁止丢字段。本模块定义唯一携带入口
@@ -8,6 +8,14 @@ Vector metadata）完整保留安全/域/ACL 元数据，禁止丢字段。本�
 from __future__ import annotations
 
 from dataclasses import dataclass
+
+
+class MissingIngestMetadata(Exception):
+    """生产环境缺失 IngestMetadata（最终 6 项 · Phase 1 §1.3）。
+
+    统一 Pipeline 下，生产任何知识写入口都必须携带 scope 权威来源的完整
+    IngestMetadata；缺失即拒绝，避免 domain / classification / acl_version 丢失。
+    """
 
 
 @dataclass(frozen=True)

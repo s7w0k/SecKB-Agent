@@ -72,6 +72,8 @@ class AgentRuntimeServices:
     # v2 阶段 3（8.4）：统一检索服务 + RequestScope（聊天主链路检索强制走 RetrievalService）
     retrieval: Any = None
     scope: Any = None
+    # 最终 6 项问题 · Phase 3（§3.2）：RetrievalOrchestrator —— Agentic 检索唯一主链
+    retrieval_orchestrator: Any = None
     # v2 阶段 4（9.1）：共享 ModelGateway（model_gateway_enabled 时注入）
     gateway: Any = None
     # 剩余 8 问题计划 · Phase 4（§4.4）：本次 Agent 执行的持久化身份
@@ -612,9 +614,37 @@ class ContextAgent(BaseAutonomousAgent):
         return INTENT_DOMAIN_MAP.get(intent) or KnowledgeDomain.MENTAL
 
     def _run_retrieval(self, board: CollaborationBlackboard, query: str, domain: KnowledgeDomain | None) -> list["SearchResult"]:
-        """统一检索：有 RetrievalService + Scope 走统一路径，否则回退 KnowledgeService。"""
-        retrieval_service = getattr(self.services, "retrieval", None)
+        """统一检索主链：优先 RetrievalOrchestrator（唯一生产主链），否则回退。
+
+        最终 6 项问题 · Phase 3（§3.12）：ContextAgent 不再直接决定具体
+        RetrievalService；有 orchestrator + scope 时一律经其编排（Router →
+        Registry.get_secure → Real Retriever）。
+        """
+        orchestrator = getattr(self.services, "retrieval_orchestrator", None)
         request_scope = getattr(self.services, "scope", None)
+        if orchestrator is not None and request_scope is not None and query:
+            from app.agents.retrieval_artifacts import RetrievalPlanArtifact
+
+            plan = RetrievalPlanArtifact(
+                need_retrieval=True,
+                goal=query,
+                queries=[query],
+                query_types=["single_query"],
+                domains=domain_values([domain.value]) if domain else [],
+                retrieval_strategy="hybrid",
+                max_attempts=self.services.settings.max_retrieval_attempts,
+            )
+            result = orchestrator.retrieve(
+                scope=request_scope,
+                plan=plan,
+                budget=None,
+                run_id=getattr(self.services, "run_id", None),
+                trace_id=None,
+            )
+            from app.agents.evidence_view import evidence_to_search_results
+
+            return evidence_to_search_results(result.evidence)
+        retrieval_service = getattr(self.services, "retrieval", None)
         if retrieval_service is not None and request_scope is not None:
             resp = retrieval_service.retrieve(
                 request_scope,

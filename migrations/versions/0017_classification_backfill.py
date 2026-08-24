@@ -10,13 +10,17 @@ SecKB-Agent 剩余 8 关键问题 · Phase 3（§3.2 Classification Backfill + F
     classification = 'CONFIDENTIAL'   （字符串）
     classification_level = NULL       （数值等级缺失，0016 才新增的可空列）
 
-若向量 metadata 把 NULL 当作 0 索引，会被低权限用户召回，构成 fail-open 泄漏风险。
-本迁移对三张知识表的 ``classification_level IS NULL`` 行按字符串 unified backfill：
+本迁移对两张真实携带字符串 ``classification`` 列的知识表
+（``knowledge_chunks``、``knowledge_documents``）的 ``classification_level IS NULL``
+行按字符串 unified backfill：
 
     INTERNAL=0 / RESTRICTED=10 / CONFIDENTIAL=20 / SECRET=30
 
 无法映射（未知字符串）的保留 NULL —— 由 §3.3/§3.5 的 fail-closed 策略与
 Nat Startup Validator 共同拦截（生产环境不允许 NULL PUBLISHED 数据对外 serving）。
+
+注意：``knowledge_document_versions`` 只有数值 ``classification_level``、无字符串
+``classification`` 列，其等级在版本发布时由业务层写入，故不在回填范围。
 """
 
 from typing import Sequence, Union
@@ -30,26 +34,34 @@ down_revision: Union[str, None] = "0016_classification_level_generation"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
-# classification 字符串 -> 数值等级 的映射（§3.2 CASE 等价物）。
-# SQLAlchemy 2.0 要求 whens 以位置参数传入（非单个 list）。
-_LEVEL_CASE = sa.case(
-    (sa.func.upper(sa.column("classification")) == "INTERNAL", 0),
-    (sa.func.upper(sa.column("classification")) == "RESTRICTED", 10),
-    (sa.func.upper(sa.column("classification")) == "CONFIDENTIAL", 20),
-    (sa.func.upper(sa.column("classification")) == "SECRET", 30),
-    else_=None,
-)
+# 仅对真实携带字符串 classification 列的表执行 backfill；
+# knowledge_document_versions 只有数值 classification_level（无字符串列），
+# 其 level 在版本发布时由业务层写入，此处不需（也不能）UPPER(classification)。
+_TABLES = ("knowledge_chunks", "knowledge_documents")
 
-_TABLES = ("knowledge_chunks", "knowledge_documents", "knowledge_document_versions")
+
+def _backfill_sql(table: str) -> sa.text:
+    # §2.1 显式 SQL（避免把 SQLAlchemy case() 对象插入 f-string）：
+    # 为 classification_level IS NULL 的行按字符串 unified backfill。
+    return sa.text(
+        f"""
+        UPDATE "{table}"
+        SET classification_level =
+            CASE UPPER(classification)
+                WHEN 'INTERNAL' THEN 0
+                WHEN 'RESTRICTED' THEN 10
+                WHEN 'CONFIDENTIAL' THEN 20
+                WHEN 'SECRET' THEN 30
+                ELSE NULL
+            END
+        WHERE classification_level IS NULL
+        """
+    )
 
 
 def upgrade() -> None:
     for table in _TABLES:
-        op.execute(
-            f"UPDATE {table} "
-            f"SET classification_level = {_LEVEL_CASE} "
-            f"WHERE classification_level IS NULL"
-        )
+        op.execute(_backfill_sql(table))
 
 
 def downgrade() -> None:

@@ -127,6 +127,16 @@ class Settings(BaseSettings):
     # production + replicas>1 + local_chroma 会被 Startup Validator 判为 severe（阻止启动）。
     vector_backend: str = "local_chroma"     # local_chroma / opensearch / elasticsearch
     replicas_count: int = 1                  # 生产 API Pod 副本数
+    # Phase 4：真实 OpenSearch 连接参数（vector_backend=opensearch 时生效）。
+    # 服务端 filter 承担 org/ws/classification/generation 过滤，应用层仍做二次 ACL recheck。
+    opensearch_hosts: str = ""               # 逗号分隔，如 "https://node1:9200,https://node2:9200"
+    opensearch_user: str = ""
+    opensearch_password: str = ""
+    opensearch_use_ssl: bool = True
+    opensearch_verify_certs: bool = True
+    opensearch_index_prefix: str = "seckb-rag"
+    opensearch_alias_name: str = "seckb-rag-current"
+    opensearch_embedding_dim: int = 1536     # 与 embedding 模型维度对齐
     # Phase 5：统一知识入库 Pipeline。开启后业务 API（ingest/ingest_file）不再直接写
     # Serving Vector Store，而路由到 V2 submit_document（Outbox → IndexJob → Generation →
     # Validation → Publish）；关闭（默认，dev/test）保留legacy 同步写入路径。

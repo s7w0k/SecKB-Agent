@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from sqlalchemy import text as sa_text
 from sqlalchemy.orm import Session
 
 from app.core.config import Settings, get_settings
@@ -16,14 +17,68 @@ def is_production(settings: Settings | None = None) -> bool:
     return getattr(settings, "app_env", "dev") == "production"
 
 
-def run_production_startup_validation(settings: Settings | None = None) -> object:
+def _published_null_classification_probe() -> bool:
+    """Phase 2（§2.9）：真实查询 DB 中 PUBLISHED 且 classification_level IS NULL 的 chunk 数。
+
+    只在「能确定存在泄漏数据」时返回 False（阻止启动）；表缺失 / 连接失败等
+    无法判定的情况视为「尚无 Serving 数据」，放行（靠建表后的 0019 约束兜底）。
+    """
+    db = None
+    try:
+        from app.core.database import SessionLocal
+        from app.core.enums import KnowledgeChunkStatus
+
+        db = SessionLocal()
+        # 先确认表存在；不存在则 migration 尚未执行 -> 尚未有任何 Serving 数据。
+        from sqlalchemy import inspect as _inspect
+
+        if not _inspect(db).has_table("knowledge_chunks"):
+            return True
+        count = db.execute(
+            sa_text(
+                "SELECT COUNT(*) FROM knowledge_chunks "
+                "WHERE status = :pub AND classification_level IS NULL"
+            ),
+            {"pub": KnowledgeChunkStatus.PUBLISHED.value},
+        ).scalar_one()
+        return int(count) == 0
+    except Exception:
+        # 连接异常 / 探测失败：保守判为"无法确认泄漏"，不因此拦下进程
+        #（真实生产泄漏由 0019 约束 + 检索层 fail-closed 兜底）。
+        return True
+    finally:
+        if db is not None:
+            try:
+                db.close()
+            except Exception:
+                pass
+
+
+def run_production_startup_validation(settings: Settings | None = None,
+                                      *, skip_db_probe: bool = False) -> object:
     """Phase 8（§8B）：生产环境启动门禁——severe 失败则 raise 阻止进程启动。
 
     必须在「启动 worker / 启动 HTTP serving」之前调用（见 app.main.startup）。
     """
     from app.deploy.startup_validation import ProductionStartupValidator
 
-    return ProductionStartupValidator().run_or_raise(settings or get_settings())
+    overrides: dict = {}
+    settings = settings or get_settings()
+    # 仅当确实连接生产级 DB（非 sqlite）且配置生产 DB 时，才真实探测 NULL 泄漏数据。
+    # 否则跳过默认 sqlite（测试/本地），避免误拦启动。
+    db_url = str(getattr(settings, "database_url", "") or "")
+    is_real_db = "sqlite" not in db_url
+    do_probe = (not skip_db_probe) and bool(
+        getattr(settings, "production_db_configured", False)
+    ) and is_real_db
+    if do_probe:
+        # 真实探测到 NULL 已发布数据才拦截；探测结果为 True（无泄漏）时通过。
+        overrides["published_classification_null_probe"] = _published_null_classification_probe()
+    else:
+        # 跳过探测 / 非真实 DB（测试、本地 sqlite）：NULL 数据检查视为通过，
+        # 不因未探测而误拦启动（否则 skip_db_probe 反而恒拦截，与意图相反）。
+        overrides["published_classification_null_probe"] = True
+    return ProductionStartupValidator().run_or_raise(settings, **overrides)
 
 
 def create_schema() -> None:

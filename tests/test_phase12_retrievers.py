@@ -64,7 +64,7 @@ class SecureDecoratorPermissionTests(unittest.TestCase):
         other_tenant = RetrievedEvidence("x", "InternalKB/内容", "他租户数据", score=0.9,
                                          organization_id=99, workspace_id=99, generation="G001")
         mine = RetrievedEvidence("y", "InternalKB/内容", "本租户数据", score=0.5,
-                                 organization_id=1, workspace_id=1, generation="G001")
+                                 organization_id=1, workspace_id=1, classification_level=0, generation="G001")
         decorator = SecureRetrieverDecorator(self._kb(other_tenant, mine), generation="G001")
         result = decorator.retrieve(_plan(), _scope(), None)
         self.assertEqual([c.evidence_id for c in result.chunks], ["y"])
@@ -84,7 +84,7 @@ class SecureDecoratorPermissionTests(unittest.TestCase):
     def test_audit_recorded(self):
         records: list[AuditRecord] = []
         chunk = RetrievedEvidence("z", "InternalKB/内容", "数据", score=0.5,
-                                  organization_id=1, workspace_id=1, generation="G001")
+                                  organization_id=1, workspace_id=1, classification_level=0, generation="G001")
         decorator = SecureRetrieverDecorator(self._kb(chunk), generation="G001", audit=records.append)
         decorator.retrieve(_plan(), _scope(), None)
         self.assertEqual(len(records), 1)

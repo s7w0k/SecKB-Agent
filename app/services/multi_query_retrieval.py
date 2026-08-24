@@ -23,6 +23,7 @@ from typing import Any, Callable
 
 from app.agents.multi_query import MergeReport, merge_evidence
 from app.agents.retrieval_artifacts import EvidenceArtifact, RetrievalPlanArtifact
+from app.core.shared_retrieval_budget import BudgetExhausted, SharedRetrievalBudget
 
 RetrieveFn = Callable[[str], list[Any]]
 
@@ -80,6 +81,7 @@ def execute_multi_query(
     generation: str = "",
     retrieval_path: str = "multi_decomposed",
     attempt: int = 1,
+    shared: SharedRetrievalBudget | None = None,
 ) -> MultiQueryRetrievalResult:
     """对计划内每个 query 独立检索并合并证据（§5.3-§5.4）。
 
@@ -87,7 +89,17 @@ def execute_multi_query(
     - 每个 query 调用 ``retrieve_fn(query)``，记录候选数与耗时。
     - 用 ``merge_evidence`` 对每路证据执行 dedup / score normalization /
       source diversity / conflict detection。
+
+    - Phase 7：若传入 ``shared``（SharedRetrievalBudget），则把单个请求的 query 数、
+      全局候选集、embedding/rerank/cost、统一 deadline 全部收敛到该全局预算，杜绝
+      多路分解放大预算（§7.7 Multi-query Budget Amplification = 0）。
     """
+    if shared is not None:
+        return _execute_with_shared_budget(
+            plan=plan, retrieve_fn=retrieve_fn, shared=shared,
+            generation=generation, retrieval_path=retrieval_path, attempt=attempt,
+        )
+
     if max_queries is None:
         max_queries = getattr(budget, "max_queries_per_attempt", None) or 3
 
@@ -146,6 +158,75 @@ def execute_multi_query(
         runs=runs,
         merged=merged,
         report=report,
+    )
+
+
+def _execute_with_shared_budget(
+    *,
+    plan: RetrievalPlanArtifact,
+    retrieve_fn: RetrieveFn,
+    shared: SharedRetrievalBudget,
+    generation: str,
+    retrieval_path: str,
+    attempt: int,
+) -> MultiQueryRetrievalResult:
+    """Phase 7：把查询数 / 全局候选集 / deadline / embedding / cost 收敛到共享预算。
+
+    - 每个 query 先 ``claim_query()``（受 max_queries 与统一 deadline 约束）。
+    - 每路召回后 ``consume_candidates(n)`` 强制全局候选上限（§7.4）。
+    - rerank/embedding/cost 计数一并上报（调用方 retrieve_fn 内亦可调用 reserve_*）。
+    """
+    plan_queries = list(plan.queries or [])
+    if not plan_queries:
+        plan_queries = [plan.goal] if plan.goal else []
+
+    runs: list[QueryRunStats] = []
+    per_query_artifacts: list[EvidenceArtifact] = []
+    claimed = 0
+    for i, query in enumerate(plan_queries):
+        try:
+            shared.claim_query()  # 受 max_queries + 统一 deadline 约束
+        except BudgetExhausted:
+            break
+        claimed += 1
+        qtype = "single_query"
+        if i < len(plan.query_types) and plan.query_types[i]:
+            qtype = plan.query_types[i]
+        start = time.perf_counter()
+        try:
+            results = list(retrieve_fn(query) or [])
+            shared.consume_candidates(len(results))
+            degraded = False
+        except BudgetExhausted:
+            results = []
+            degraded = True
+        except Exception:
+            results = []
+            degraded = True
+        latency_ms = (time.perf_counter() - start) * 1000.0
+
+        runs.append(QueryRunStats(
+            query=query, query_type=qtype, candidate_count=len(results),
+            latency_ms=latency_ms, retrieval_path=retrieval_path, degraded=degraded,
+        ))
+        if results:
+            per_query_artifacts.append(EvidenceArtifact.from_results(
+                results, generation=generation, retrieval_path=retrieval_path,
+                attempt=attempt, queries=[query],
+            ))
+
+    merged = EvidenceArtifact(
+        evidence_ids=[], chunks=[], generation=generation,
+        retrieval_path=retrieval_path, attempt=attempt,
+    )
+    report = None
+    if per_query_artifacts:
+        # §7.5 只做一次全局 rerank
+        shared.reserve_rerank()
+        merged, report = merge_evidence(*per_query_artifacts)
+
+    return MultiQueryRetrievalResult(
+        plan_queries=plan_queries[:claimed], runs=runs, merged=merged, report=report,
     )
 
 

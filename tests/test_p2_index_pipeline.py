@@ -360,6 +360,7 @@ class UnifiedIngestGateTests(unittest.TestCase):
         self.settings = get_settings()
         self.settings.database_url = "sqlite:///:memory:"
         self.settings.allow_deterministic_embedding = True
+        self.settings.unified_ingest_pipeline = False
         self.engine = create_engine("sqlite:///:memory:")
         Base.metadata.create_all(bind=self.engine)
         self.db = SessionLocal()
@@ -409,9 +410,13 @@ class UnifiedIngestGateTests(unittest.TestCase):
 
     def test_submit_document_route(self):
         """submit_document 返回 document_id/version_id 且 via=outbox_indexjob。"""
+        from tests.closure.fixtures import make_scope
+
         self.settings.unified_ingest_pipeline = True
+        scope = make_scope(org=1, ws=9)
         result = self.svc.submit_document(
-            "p5-submit.md", "submit 入口内容。", workspace_id=9, organization_id=1,
+            "p5-submit.md", "submit 入口内容。",
+            scope=scope, domain=self.domain, classification="INTERNAL",
         )
         self.assertEqual(result["via"], "outbox_indexjob")
         self.assertIsNotNone(result["document_id"])
@@ -419,9 +424,14 @@ class UnifiedIngestGateTests(unittest.TestCase):
 
     def test_submit_document_refused_when_disabled(self):
         """unified 关闭时 submit_document 拒绝（legacy 生效）。"""
+        from tests.closure.fixtures import make_scope
+
         self.settings.unified_ingest_pipeline = False
         with self.assertRaises(RuntimeError):
-            self.svc.submit_document("p5.md", "x", workspace_id=1)
+            self.svc.submit_document(
+                "p5.md", "x", scope=make_scope(org=1, ws=1),
+                domain=self.domain, classification="INTERNAL",
+            )
 
 
 if __name__ == "__main__":

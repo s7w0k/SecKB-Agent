@@ -24,7 +24,7 @@ from app.core.database import Base
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 BASELINE_REVISION = "0001_current_schema_baseline"
 # 每新增 migration revision 时更新为最新 head
-HEAD_REVISION = "0016_classification_level_generation"
+HEAD_REVISION = "0019_classification_generation_constraints"
 
 
 def _sqlite_url(db_path: Path) -> str:

@@ -25,6 +25,9 @@ _HEALTHY = {
     "production_db_configured": True,
     "distributed_rate_limit_configured": True,
     "vector_backend_production_ready": True,
+    "vector_backend_runtime_match": True,
+    "classification_fail_closed": True,
+    "published_classification_null_probe": True,
 }
 
 
@@ -33,7 +36,7 @@ class StartupValidatorTests(unittest.TestCase):
         report = ProductionStartupValidator().run(**dict(_HEALTHY))
         self.assertTrue(report.ok)
         self.assertIsNone(report.hard_fail)
-        self.assertEqual(len(report.checks), 7)
+        self.assertEqual(len(report.checks), 10)
 
     def test_healthy_does_not_raise(self):
         report = ProductionStartupValidator().run_or_raise(**dict(_HEALTHY))
@@ -43,7 +46,7 @@ class StartupValidatorTests(unittest.TestCase):
         """未接线/未配置（全部 False 默认）→ 每项 severe 失败。"""
         report = ProductionStartupValidator().run()
         self.assertFalse(report.ok)
-        self.assertEqual(len(report.failures), 7)
+        self.assertEqual(len(report.failures), 10)
         self.assertIsNotNone(report.hard_fail)
 
     def test_severe_failure_blocks_startup(self):
@@ -68,6 +71,8 @@ class StartupValidatorTests(unittest.TestCase):
             default_account_disabled=True,
             secret_provider_configured=True,
             production_db_configured=True,
+            classification_fail_closed=True,
+            published_classification_null_probe=True,
         )
         report = ProductionStartupValidator().run(settings)
         self.assertTrue(report.ok)

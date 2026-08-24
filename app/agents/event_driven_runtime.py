@@ -152,6 +152,30 @@ class EventDrivenAgentRuntimeService:
             return result
 
     def _build_agents(self, user: UserAccount, session: ChatSession, scope, retrieval_service, *, run_id=None):
+        from app.services.real_retrievers import build_production_registry
+        from app.services.retrieval_orchestrator import RetrievalOrchestrator
+        from app.services.retriever_router import RetrieverRouter
+
+        # 最终 6 项问题 · Phase 3（§3.2 §3.10）：生产检索唯一主链。所有来源均经
+        # Router → Registry.get_secure → SecureRetrieverDecorator → Real Retriever。
+        orchestrator = (
+            RetrievalOrchestrator(
+                self.db,
+                registry=build_production_registry(
+                    self.db,
+                    default_generation=getattr(self.settings, "index_generation", None),
+                ),
+                router=RetrieverRouter(
+                    external_retriever_enabled=bool(
+                        getattr(self.settings, "external_retriever_enabled", False)
+                    )
+                ),
+                generation=getattr(self.settings, "index_generation", None),
+                actor=f"user:{getattr(user, 'id', None)}",
+            )
+            if scope is not None
+            else None
+        )
         services = AgentRuntimeServices(
             db=self.db,
             settings=self.settings,
@@ -164,6 +188,7 @@ class EventDrivenAgentRuntimeService:
             knowledge=self.knowledge,
             retrieval=retrieval_service,
             scope=scope,
+            retrieval_orchestrator=orchestrator,
             gateway=self.gateway,
             run_id=run_id,
         )

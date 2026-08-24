@@ -18,6 +18,7 @@ from app.core.classification import classification_level
 from app.core.config import Settings
 from app.core.enums import KnowledgeDomain, KnowledgeChunkStatus
 from app.core.knowledge_access import assert_chunk_access
+from app.core.scope import RequestScope
 from app.core.telemetry import get_metrics
 from app.models.entities import KnowledgeChunk
 from app.services.vector_store import FALLBACK_RETRIEVAL_LABEL, PRIMARY_RETRIEVAL_LABEL, ChromaKnowledgeStore, VectorIndexCorrupt
@@ -52,10 +53,13 @@ class RetrievalCandidate:
 
 
 class KnowledgeService:
-    def __init__(self, db: Session, settings: Settings):
+    def __init__(self, db: Session, settings: Settings, vector_store=None):
         self.db = db
         self.settings = settings
-        self.vector_store = ChromaKnowledgeStore(settings)
+        # Phase 4（§4.10）：Vector Backend 依赖注入，业务线不再硬编码 new Chroma。
+        # 缺省回退 ChromaKnowledgeStore（dev/test/single-node）；生产经 app-scoped DI
+        # 注入真实集中式 backend（如 OpenSearchVectorBackend/RealOpenSearchBackend）。
+        self.vector_store = vector_store if vector_store is not None else ChromaKnowledgeStore(settings)
         # A1（压测优化）：健康检查节流状态。检索热路径不再每请求全库扫描+探针，
         # 而是间隔节流执行；索引真实损坏由检索层 VectorIndexCorrupt 兜底触发重建。
         self._vector_check_lock = threading.Lock()
@@ -69,34 +73,74 @@ class KnowledgeService:
         source: str,
         content: str,
         *,
-        workspace_id: int,
+        scope: RequestScope,
+        domain: KnowledgeDomain,
+        classification: str,
+        knowledge_space_id: int | None = None,
+        source_type: str | None = None,
         organization_id: int | None = None,
     ) -> dict:
-        """Phase 5（§Step1）：统一知识入库入口。
+        """统一直通 V2 主链的知识入库入口（最终 6 项 · Phase 1 §1.2）。
 
-        将业务写入路由到 V2 ``submit_document``（对象存储 → Outbox → IndexJob），由
-        Index Worker 经过 Generation 构建 + Candidate Validation + Atomic Publish 后才
-        影响 Serving；本方法自身**不直接修改** Serving Vector Store。
+        由不可省略的 ``RequestScope`` 作为权威来源构造 ``IngestMetadata``，再交给
+        ``index_pipeline.submit_document(metadata=metadata)``。客户端不得自报
+        org/workspace/acl_version。
 
         Returns:
             {"document_id", "version_id", "via": "outbox_indexjob"}
         """
         if not getattr(self.settings, "unified_ingest_pipeline", False):
             raise RuntimeError("unified_ingest_pipeline is disabled; legacy path in use")
+        from app.core.scope import require_scope
+        from app.services.index_pipeline import submit_document as v2_submit
+        from app.services.ingest_contracts import IngestMetadata
+
+        scope = require_scope(scope)  # Invariant 1：无 Scope = 无业务数据访问
+        metadata = IngestMetadata(
+            organization_id=scope.organization_id,
+            workspace_id=scope.workspace_id,
+            knowledge_space_id=knowledge_space_id,
+            domain=domain.value,
+            classification=classification,
+            classification_level=self._resolve_classification(classification),
+            acl_version=scope.acl_version,
+            source_type=source_type,
+            source_uri=source,
+        )
+        return self._submit_v2(
+            source, content, metadata=metadata,
+            organization_id=organization_id,
+        )
+
+    def _submit_v2(
+        self,
+        source: str,
+        content: str,
+        *,
+        metadata: "IngestMetadata",
+        organization_id: int | None = None,
+    ) -> dict:
+        """路由到 V2 submit_document，返回 document_id/version_id。"""
         from app.services.index_pipeline import submit_document as v2_submit
 
         doc_id, version_id = v2_submit(
             self.db,
-            workspace_id=workspace_id,
+            workspace_id=metadata.workspace_id,
             source_uri=source,
             content=content,
-            organization_id=organization_id,
+            metadata=metadata,
         )
         return {
             "document_id": doc_id,
             "version_id": version_id,
             "via": "outbox_indexjob",
+            "domain": metadata.domain,
+            "classification": metadata.classification,
+            "knowledge_space_id": metadata.knowledge_space_id,
         }
+
+    def _resolve_classification(self, classification: str | None) -> int | None:
+        return classification_level(classification)
 
     def count(self, *, domain: KnowledgeDomain | None = None) -> int:
         query = self.db.query(KnowledgeChunk)
@@ -198,7 +242,23 @@ class KnowledgeService:
         if getattr(self.settings, "unified_ingest_pipeline", False):
             if workspace_id is None:
                 raise ValueError("unified_ingest_pipeline requires workspace_id")
-            self.submit_document(source, content, workspace_id=workspace_id, organization_id=organization_id)
+            # Phase 1（§1.4）：统一 Pipeline 下业务写入口直接路由 V2，不写 Serving。
+            # 由 scope 构造 IngestMetadata；legacy 调用（无 scope）退化为仅有
+            # org/workspace 的最小 metadata（生产通过 submit_document 强制 scope）。
+            from app.services.ingest_contracts import IngestMetadata
+
+            self._submit_v2(
+                source, content,
+                metadata=IngestMetadata(
+                    organization_id=organization_id or 0,
+                    workspace_id=workspace_id,
+                    domain=domain.value,
+                    classification=classification or "",
+                    classification_level=classification_level(classification),
+                    acl_version=1,
+                ),
+                organization_id=organization_id,
+            )
             return len(chunks)
         source_key = _source_key(domain, source)
         checksum = _md5(content)

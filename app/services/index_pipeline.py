@@ -26,7 +26,7 @@ from datetime import datetime, timedelta
 
 from sqlalchemy.orm import Session
 
-from app.core.config import Settings
+from app.core.config import Settings, get_settings
 from app.models.entities import (
     ChunkRevision,
     DocumentVersionChunk,
@@ -93,6 +93,15 @@ def submit_document(
         (document_id, version_id)
     """
     object_store = object_store or LocalObjectStorage()
+
+    # Phase 1（§1.3）：生产禁止 metadata=None —— 必须携带完整 IngestMetadata
+    # （scope 权威来源），否则直接拒绝，避免丢失 domain/classification/acl_version。
+    if metadata is None:
+        app_env = get_settings().app_env or ""
+        if app_env == "production":
+            from app.services.ingest_contracts import MissingIngestMetadata
+
+            raise MissingIngestMetadata("production requires IngestMetadata (scope authoritative)")
 
     # Phase 4（§4.3）：解析统一 IngestMetadata（缺省时兼容仅 workspace/org）。
     if metadata is not None:

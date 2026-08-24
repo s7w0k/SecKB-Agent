@@ -99,7 +99,7 @@ class RetrieverRegistryMainlineTest(unittest.TestCase):
 
     def test_tenant_isolation_enforced_through_secure(self):
         store = {
-            "own": _evid("own", content="项目 A 的季度报告", org=1, ws=1),
+            "own": _evid("own", content="项目 A 的季度报告", org=1, ws=1, level=0),
             "foreign": _evid("foreign", content="项目 B 的季度报告", org=1, ws=2),
         }
         reg = RetrieverRegistry()
@@ -125,7 +125,7 @@ class RetrieverRegistryMainlineTest(unittest.TestCase):
 
     def test_generation_isolation_enforced_through_secure(self):
         store = {
-            "g103": _evid("g103", content="当前代数据", gen="G103"),
+            "g103": _evid("g103", content="当前代数据", gen="G103", level=0),
             "g104": _evid("g104", content="下一代数据", gen="G104"),
         }
         reg = RetrieverRegistry(default_generation="G103")

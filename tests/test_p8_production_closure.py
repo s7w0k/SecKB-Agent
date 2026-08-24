@@ -84,13 +84,19 @@ class StartupGateTests(unittest.TestCase):
             secret_provider_configured=all_green,
             production_db_configured=all_green,
             distributed_rate_limit_enabled=all_green,
+            classification_fail_closed=all_green,
         )
         return Settings(**kwargs)
 
     def test_production_green_passed(self):
         from app.core.bootstrap import run_production_startup_validation
 
-        report = run_production_startup_validation(self._prod_settings(all_green=True))
+        # skip_db_probe=True：本测试验证「绿色配置不拦启动」；
+        # NULL 已发布数据探测依赖实时成员库状态（不可在此虚构），其判定逻辑
+        # 已由 test_phase14_startup_validation / closure drills 用 overrides 确定性覆盖。
+        report = run_production_startup_validation(
+            self._prod_settings(all_green=True), skip_db_probe=True
+        )
         self.assertTrue(report.ok)
 
     def test_production_unconfigured_blocks_startup(self):

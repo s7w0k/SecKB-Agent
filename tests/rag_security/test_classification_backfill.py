@@ -70,15 +70,18 @@ def test_mapping_matches_intenum_values():
     assert DataClassification.SECRET.value == 30
 
 
-# --- §3.2 迁移覆盖三张知识表 + 仅回填空行 ---
+# --- §3.2 迁移覆盖字符串分类知识表 + 仅回填空行 ---
 
 
-def test_migration_backfills_all_three_knowledge_tables():
+def test_migration_backfills_string_classification_tables():
+    # knowledge_document_versions 只有数值 classification_level、无字符串
+    # classification 列（见 KnowledgeDocumentVersion 模型），无法用
+    # UPPER(classification) 回填，其等级由版本发布业务层写入，故不在 _TABLES。
+    # 这里断言迁移覆盖所有真实携带字符串分类列的知识表。
     mod = _load_migration_names()
     assert set(mod._TABLES) == {
         "knowledge_chunks",
         "knowledge_documents",
-        "knowledge_document_versions",
     }
 
 
@@ -87,17 +90,21 @@ def test_migration_only_targets_null_levels():
     # 升级在 for 循环内对每张表执行同一句 UPDATE + IS NULL guard
     source = MIGRATION_PATH.read_text(encoding="utf-8")
     assert "WHERE classification_level IS NULL" in source
-    # 循环必须遍历三张表（guard 需对每表生效一次）
+    # 循环必须遍历所有可回填的表（guard 需对每表生效一次）
     assert "for table in _TABLES:" in source
     assert "UPDATE {table}" in source
+    # 每张表都执行同一句 raw SQL（含 ELSE NULL fail-closed guard）
+    assert all("ELSE NULL" in mod._backfill_sql(t).text for t in mod._TABLES)
 
 
 def test_migration_case_has_else_null():
-    # 未知字符串必须落到 NULL（fail-closed 前提），而不是默认 0/INTERNAL
-    import textwrap
-
+    # 未知字符串必须落到 NULL（fail-closed 前提），而不是默认 0/INTERNAL；
+    # 0017 使用 §2.1 显式 raw SQL，CASE 的 ELSE 分支为 NULL 字面量
+    # （等价的 SQLAlchemy 写法是 else_=None）。
     source = MIGRATION_PATH.read_text(encoding="utf-8")
-    assert "else_=None" in source
+    assert "ELSE NULL" in source
+    assert "WHEN 'INTERNAL' THEN 0" in source
+    assert "WHEN 'SECRET' THEN 30" in source
 
 
 # --- 501 级：Non-public InvalidClassificationMetadata 存在（供 §3.4 使用） ---

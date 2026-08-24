@@ -40,41 +40,60 @@ jobs:
           RAG_EVAL_JUDGE_BASE_URL: ${{ secrets.RAG_EVAL_JUDGE_BASE_URL || '' }}
           RAG_EVAL_JUDGE_API_KEY: ${{ secrets.RAG_EVAL_JUDGE_API_KEY }}
           RAG_EVAL_GATE_MODE: hard
+          # §6.3/§6.4：持久 baseline 外部存储 + 受控提升。默认 fail-closed：
+          #   无 blessed baseline 且 INITIALIZE_BASELINE!=true => 不回退 seed、job 失败；
+          #   普通 run(APPROVE_PROMOTE!=true) 绝不覆盖 blessed baseline。
+          BASELINE_BUCKET: ${{ secrets.BASELINE_BUCKET || 'mindbridge-baseline' }}
+          S3_ENDPOINT_URL: ${{ secrets.S3_ENDPOINT_URL || '' }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          INITIALIZE_BASELINE: ${{ vars.INITIALIZE_BASELINE || 'false' }}
+          APPROVE_PROMOTE: ${{ vars.APPROVE_PROMOTE || 'false' }}
         run: |
           set -euo pipefail
-          mkdir -p target/rag-eval/candidate target/rag-eval/baseline
+          mkdir -p target/rag-eval/candidate
           echo "=== Running RAGAS regression pipeline ==="
-          # §8.2：禁止吞失败 —— 评测失败必须让 job 非零退出，而不是 || echo
+          # §8.2：禁止吞失败 —— 评测失败必须让 job 非零退出
           python -m app.rag_eval.cli run \
             --dataset data/eval/regression/rag-regression.json \
             --output target/rag-eval/candidate/
-          GATE_EXIT=0
-          if [ -f target/rag-eval/baseline/summary.json ]; then
-            echo "=== Running hard gate evaluation ==="
-            set +e
-            python -m app.rag_eval.gates evaluate \
-              --baseline target/rag-eval/baseline/summary.json \
-              --candidate target/rag-eval/candidate/summary.json \
-              --candidate-per-case target/rag-eval/candidate/cases.jsonl \
-              --mode hard \
-              --dataset-version "$(date -u +%Y-%m-%d).1" \
-              --candidate-run-id "${{ github.run_id }}" \
-              --output target/rag-eval/gate-decision.json
-            GATE_EXIT=$?
-            set -e
-            cat target/rag-eval/gate-decision.json
-          else
-            echo "No baseline found (first run): seeding baseline, not evaluating yet"
-            echo '{"status":"pass","reasons":["no baseline yet, first run seeds baseline"]}' > target/rag-eval/gate-decision.json
-            GATE_EXIT=0
+          mkdir -p target/rag-eval/baseline
+          echo "=== Resolving blessed baseline (external store) ==="
+          # §6.3：从外部持久化存储下载 blessed baseline；缺失且未显式初始化 => fail-closed
+          python -m app.ci.baseline_cli resolve \
+            --bucket "$BASELINE_BUCKET" \
+            --prefix mindbridge \
+            --candidate target/rag-eval/candidate/summary.json \
+            --out target/rag-eval/baseline/resolve.json \
+            --initialize "$INITIALIZE_BASELINE" 2>/dev/null || GATE_OUT=$?
+          if grep -q '"status": "no_baseline"' target/rag-eval/baseline/resolve.json 2>/dev/null; then
+            echo "No blessed baseline and INITIALIZE_BASELINE!=true => blocking (Fresh Runner Baseline Missing = 0)"
+            exit 1
           fi
-          # §8.3：仅 hard gate 通过（exit==0）才把 candidate 提升为下次 baseline；
-          # 失败的候选不得污染稳定 baseline（Unblessed Baseline Usage = 0）。
-          if [ -f target/rag-eval/candidate/summary.json ] && [ "$GATE_EXIT" = "0" ]; then
-            cp target/rag-eval/candidate/summary.json target/rag-eval/baseline/summary.json
+          echo "=== Running hard gate evaluation ==="
+          GATE_EXIT=0
+          set +e
+          python -m app.rag_eval.gates evaluate \
+            --baseline target/rag-eval/baseline/summary.json \
+            --candidate target/rag-eval/candidate/summary.json \
+            --candidate-per-case target/rag-eval/candidate/cases.jsonl \
+            --mode hard \
+            --dataset-version "$(date -u +%Y-%m-%d).1" \
+            --candidate-run-id "${{ github.run_id }}" \
+            --output target/rag-eval/gate-decision.json
+          GATE_EXIT=$?
+          set -e
+          cat target/rag-eval/gate-decision.json
+          # §6.4：仅所有层级 PASS + 显式 APPROVE_PROMOTE=true 才提升候选为 blessed；
+          # 普通 L2 run 绝不覆盖（Unblessed Baseline Promotion = 0）。
+          if [ "$GATE_EXIT" = "0" ] && [ "$APPROVE_PROMOTE" = "true" ]; then
+            python -m app.ci.baseline_cli promote \
+              --bucket "$BASELINE_BUCKET" \
+              --prefix mindbridge \
+              --candidate target/rag-eval/candidate/summary.json
           fi
           echo "L2 gate exit = $GATE_EXIT"
-          # §8.2 §8.9：Gate 失败必须真正阻止 merge/release —— 以真实 exit code 收尾
+          # §8.2：Gate 失败必须真正阻止 merge/release —— 以真实 exit code 收尾
           exit $GATE_EXIT
       - name: Upload artifacts
         if: always()

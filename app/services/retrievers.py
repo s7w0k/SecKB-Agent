@@ -252,11 +252,14 @@ class SecureRetrieverDecorator:
         generation: str | None = None,
         audit: Any | None = None,
         enforce_scope: bool = True,
+        fail_closed_classification: bool = True,
     ):
         self.retriever = retriever
         self.generation = generation
         self.audit = audit or (lambda record: None)  # 审计回调（写入 audit log / 事件）
         self.enforce_scope = enforce_scope
+        # 最终 6 项 · Phase 2（§2.7）：生产主链 NULL classification 必须 drop（fail-closed）。
+        self.fail_closed_classification = fail_closed_classification
 
     def retrieve(self, plan, scope, budget) -> RetrieverResult:
         _start = _perf_counter()
@@ -286,9 +289,15 @@ class SecureRetrieverDecorator:
                     dropped += 1
                     dropped_reason = dropped_reason or "workspace_acl"
                     continue
-            # ---- Classification：按数值等级过滤，高于权限上限丢弃 ----
-            if effective_scope is not None and effective_scope.clearance is not None:
-                if chunk.classification_level is not None and chunk.classification_level > effective_scope.clearance:
+            # ---- Classification：按数值等级过滤（NULL -> fail-closed drop）----
+            if chunk.classification_level is None:
+                # §2.7：NULL 分级在 fail-closed 下必须 drop，不能只过滤 level > clearance
+                if self.fail_closed_classification:
+                    dropped += 1
+                    dropped_reason = dropped_reason or "classification_unknown"
+                    continue
+            elif effective_scope is not None and effective_scope.clearance is not None:
+                if chunk.classification_level > effective_scope.clearance:
                     dropped += 1
                     dropped_reason = dropped_reason or "classification"
                     continue

@@ -1,0 +1,1 @@
+"""rag_production 测试包（确保 unittest discover -s tests 可递归发现）。"""

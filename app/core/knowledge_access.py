@@ -11,6 +11,7 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from typing import Any, Optional
 
 from app.core.classification import classification_level
@@ -18,6 +19,28 @@ from app.core.scope import RequestScope
 
 # 允许隐式导入的类型占位，避免本模块依赖模型层（保持纯逻辑可测）
 _ChunkLike = Any
+
+
+@dataclass(frozen=True)
+class KnowledgeAccessPolicy:
+    """最终 6 项 · Phase 2（§2.4）：统一知识访问策略。
+
+    所有 Serving 检索路径（BM25 / Vector rehydrate / Cache rehydrate / Neighbor /
+    SecureRetrieverDecorator / SQL）必须显式传入统一策略，杜绝各路径自行决定
+    fail-open / fail-closed 语义漂移。
+    """
+
+    fail_closed_classification: bool
+    require_generation: bool
+    require_scope: bool
+
+
+# 生产策略：NULL classification 拒绝；必须绑定 generation；必须携带 scope。
+PRODUCTION_KNOWLEDGE_POLICY = KnowledgeAccessPolicy(
+    fail_closed_classification=True,
+    require_generation=True,
+    require_scope=True,
+)
 
 
 def classification_allowed(
@@ -68,12 +91,27 @@ def build_sql_scope_filters(model: type, scope: RequestScope) -> list:
     return filters
 
 
-def assert_chunk_access(chunk: _ChunkLike, scope: RequestScope) -> bool:
+def assert_chunk_access(
+    chunk: _ChunkLike,
+    scope: RequestScope,
+    *,
+    policy: KnowledgeAccessPolicy | None = None,
+    generation: str | None = None,
+) -> bool:
     """对单个已取回的 chunk 做最终 ACL 复核是否可读。
 
     用于 Vector Rehydrate / Neighbor Expansion / Cache 命中后的二次校验，
     与 SQL 检索路径保持完全一致：org + workspace 强约束 + classification 数值判定。
+
+    - ``policy``：缺省落回 fail-open（兼容旧路径）；**生产 Serving 路径必须显式传
+      ``PRODUCTION_KNOWLEDGE_POLICY``**（fail-closed）。缺省不改旧行为，避免测试/存量行为漂移。
+    - ``generation``：绑定的当前 index generation；缺省不校验，仅在显式传入时启用。
     """
+    policy = policy if policy is not None else KnowledgeAccessPolicy(
+        fail_closed_classification=False,
+        require_generation=False,
+        require_scope=True,
+    )
     if chunk is None:
         return False
     # workspace 强约束：chunk 与 scope 不同 workspace 即拒绝
@@ -84,12 +122,20 @@ def assert_chunk_access(chunk: _ChunkLike, scope: RequestScope) -> bool:
     chunk_org = getattr(chunk, "organization_id", None)
     if chunk_org is not None and scope.organization_id is not None and chunk_org != scope.organization_id:
         return False
-    # classification 数值判定
+    # classification 数值判定：NULL 在生产（fail-closed）直接拒绝
     level = getattr(chunk, "classification_level", None)
     if level is None:
         legacy = getattr(chunk, "classification", None)
         level = classification_level(legacy)
-    return classification_allowed(level, scope.clearance)
+    dao = classification_allowed(level, scope.clearance, fail_closed=policy.fail_closed_classification)
+    if not dao:
+        return False
+    # generation 绑定：生产要求 Serving chunk 必须属于当前代际
+    if policy.require_generation:
+        chunk_gen = getattr(chunk, "generation_id", None) or getattr(chunk, "generation", None)
+        if generation is not None and chunk_gen is not None and chunk_gen != generation:
+            return False
+    return True
 
 
 def build_vector_metadata_filter(scope: RequestScope) -> dict:
