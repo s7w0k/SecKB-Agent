@@ -1,0 +1,97 @@
+{
+  "pdf": {
+    "valid_header": true,
+    "has_eof": true,
+    "approx_pages": 1,
+    "source_image_size": [
+      1240,
+      1754
+    ]
+  },
+  "docx": {
+    "valid_zip": true,
+    "member_count": 19,
+    "bad_member": null,
+    "paragraphs": 15,
+    "tables": 1,
+    "rows_in_first_table": 3,
+    "page_inches": [
+      8.5,
+      11.0
+    ],
+    "margins_inches": [
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "contains_fact": true,
+    "contains_question": true
+  },
+  "pptx": {
+    "valid_zip": true,
+    "member_count": 41,
+    "bad_member": null,
+    "slides": 3,
+    "contains_fact": true,
+    "contains_question": true,
+    "rendered_slides": [
+      {
+        "file": "slide-01.png",
+        "size": [
+          1280,
+          720
+        ],
+        "content_bbox": [
+          85,
+          91,
+          972,
+          523
+        ],
+        "content_touches_edge": false
+      },
+      {
+        "file": "slide-02.png",
+        "size": [
+          1280,
+          720
+        ],
+        "content_bbox": [
+          83,
+          74,
+          1107,
+          574
+        ],
+        "content_touches_edge": false
+      },
+      {
+        "file": "slide-03.png",
+        "size": [
+          1280,
+          720
+        ],
+        "content_bbox": [
+          95,
+          90,
+          1128,
+          531
+        ],
+        "content_touches_edge": false
+      }
+    ]
+  },
+  "xlsx": {
+    "valid_zip": true,
+    "member_count": 11,
+    "bad_member": null,
+    "worksheets": 1,
+    "contains_high_value": true,
+    "contains_report_id_2": true
+  },
+  "markdown": {
+    "contains_fact": true
+  },
+  "text": {
+    "contains_fact": true
+  }
+}

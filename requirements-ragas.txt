@@ -1,0 +1,8 @@
+# SecKB-Agent RAGAS 最终评测依赖（RAGAS 第三方生成质量评测）。
+# 与 requirements-eval.txt 保持一致地固定 ragas==0.4.3：
+# - 已安装版本即最终运行版本，避免升级破坏现有 run 的可复现性；
+# - RAGAS 官方 stable 文档的 collections-based API 在该版本可用
+#   (ragas.metrics.collections)，但 collections 类要求 InstructorBaseRagasLLM，
+#   本项目复用 providers.build_ragas_llm 的 BaseRagasLLM adapter，通过
+#   ragas.evaluate(...) 注入 llm/embeddings（安装版本支持的路径）。
+ragas==0.4.3

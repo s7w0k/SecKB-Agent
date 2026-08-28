@@ -42,6 +42,8 @@ ALLOWED_MIME_TYPES = frozenset({
     "text/plain", "text/markdown", "text/csv",
     "application/pdf",
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     "application/json",
 })
 

@@ -1,0 +1,79 @@
+{
+  "version": "e2e-candidate-v1",
+  "source_reviewed_gold": "target\\rag-benchmark\\release-gold-human.jsonl",
+  "source_snippets": "target\\rag-benchmark\\chunk-snippets.jsonl",
+  "release_cases": 200,
+  "release_pool_cases": 1000,
+  "regression_cases": 300,
+  "smoke_cases": 50,
+  "corpus_chunks": 2116,
+  "release_distribution": {
+    "ACL / Tenant": 24,
+    "Classification": 20,
+    "Conflicting evidence": 16,
+    "Indirect Injection": 16,
+    "Missing evidence": 20,
+    "Multi-hop": 30,
+    "Outdated Evidence": 14,
+    "Reranker Timeout": 10,
+    "Retriever Failure": 10,
+    "Single-hop": 40
+  },
+  "release_pool_distribution": {
+    "ACL / Tenant": 120,
+    "Classification": 100,
+    "Conflicting evidence": 80,
+    "Indirect Injection": 80,
+    "Missing evidence": 100,
+    "Multi-hop": 150,
+    "Outdated Evidence": 70,
+    "Reranker Timeout": 50,
+    "Retriever Failure": 50,
+    "Single-hop": 200
+  },
+  "regression_distribution": {
+    "ACL / Tenant": 36,
+    "Classification": 30,
+    "Conflicting evidence": 24,
+    "Indirect Injection": 24,
+    "Missing evidence": 30,
+    "Multi-hop": 45,
+    "Outdated Evidence": 21,
+    "Reranker Timeout": 15,
+    "Retriever Failure": 15,
+    "Single-hop": 60
+  },
+  "smoke_distribution": {
+    "ACL / Tenant": 6,
+    "Classification": 5,
+    "Conflicting evidence": 4,
+    "Indirect Injection": 4,
+    "Missing evidence": 5,
+    "Multi-hop": 8,
+    "Outdated Evidence": 4,
+    "Reranker Timeout": 2,
+    "Retriever Failure": 2,
+    "Single-hop": 10
+  },
+  "human_review_required": true,
+  "double_review_sample_cases": 60,
+  "extended_double_review_sample_cases": 300,
+  "missing_evidence_variants": {
+    "clear_abstention_canary": 7,
+    "partial_evidence_gap": 13
+  },
+  "source_sha256": {
+    "target\\rag-benchmark\\release-gold-human.jsonl": "7e88db1909d39b28f33ead882ea53238ef14af6266ccda7e3327120c034cb43d",
+    "target\\rag-benchmark\\chunk-snippets.jsonl": "577cde13412f8722f77d57e7e8f83bcc42599f687339393f2e5c6555ae1ac81e"
+  },
+  "artifact_sha256": {
+    "e2e-release-candidate-v1.jsonl": "2844ff11ea0f1a4d3e6d57848ee9a5d72490f55175d96600053d7e03e1081e2b",
+    "e2e-release-human-core-200-v1.jsonl": "df21f8f0b45879728b435b55308790c161dd439263a5fc0b60e26eae812e4e1b",
+    "e2e-regression-candidate-v1.jsonl": "c78ac49fa6b07fd9596f02fd9456ee6fe692266dca74df7c1bf2d7d7b105eb25",
+    "e2e-smoke-candidate-v1.jsonl": "7424afa9127e8fd953874d1665e5f54b7260234009f34599d91afea26e93c00a",
+    "e2e-eval-corpus-v1.jsonl": "b2982df59349e658d27cab1676b44dd8449e69d3b2c744797695c8bba7cd5c67",
+    "e2e-double-review-sample-v1.csv": "6a1778902917adec171145ac3b9981c1e37c0acc3f1343e447a670b8b2b490bf",
+    "e2e-human-double-review-sample-60-v1.csv": "92af4b54d5f8d7d8de8859f4d99041e5d3943f812075b35b217671dc118184db"
+  },
+  "audit_errors": []
+}

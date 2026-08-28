@@ -33,7 +33,7 @@ def upgrade() -> None:
         sa.Column("policy", sa.String(64), nullable=False, server_default=""),
         sa.Column("trace_id", sa.String(64), nullable=True),
         sa.Column("content_hash", sa.String(64), nullable=True),
-        sa.Column("metadata_json", sa.Text(), nullable=False, server_default="{}"),
+        sa.Column("metadata_json", sa.Text(), nullable=False, server_default=sa.text("('{}')")),
         sa.Column("created_at", sa.DateTime(), nullable=False),
     )
     op.create_index("ix_structured_audit_events_actor", "structured_audit_events", ["actor"])

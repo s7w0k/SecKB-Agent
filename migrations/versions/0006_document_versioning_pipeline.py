@@ -108,7 +108,7 @@ def upgrade() -> None:
         sa.Column("workspace_id", sa.Integer),
         sa.Column("event_type", sa.String(64)),
         sa.Column("document_id", sa.Integer, nullable=True),
-        sa.Column("payload_json", sa.Text, server_default="{}"),
+        sa.Column("payload_json", sa.Text, server_default=sa.text("('{}')")),
         sa.Column("status", sa.String(32), server_default="PENDING"),
         sa.Column("created_at", sa.DateTime, server_default=sa.func.now()),
         sa.Column("processed_at", sa.DateTime, nullable=True),

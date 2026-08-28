@@ -106,7 +106,7 @@ def upgrade() -> None:
         sa.Column("action", sa.String(128)),
         sa.Column("resource", sa.String(256)),
         sa.Column("decision", sa.String(32)),
-        sa.Column("reason", sa.Text, server_default=""),
+        sa.Column("reason", sa.Text, server_default=sa.text("('')")),
         sa.Column("trace_id", sa.String(64), nullable=True),
         sa.Column("created_at", sa.DateTime, server_default=sa.func.now()),
     )

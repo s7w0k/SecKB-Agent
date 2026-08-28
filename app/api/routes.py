@@ -517,6 +517,36 @@ async def ingest_file(
         raise HTTPException(415, ";".join(file_decision.reasons))
     filename = file.filename or "uploaded-file"
     service = KnowledgeService(db, settings)
+    mime_type = file.content_type or (
+        "application/pdf" if filename.lower().endswith(".pdf") else "text/plain"
+    )
+    # 统一主链开启后不在 API 内提前 pypdf/切块/写 Serving 表；保留原始 bytes，
+    # 由 worker 执行 MinerU/质量门禁/差异化切块/embedding/代际发布。
+    if settings.unified_ingest_pipeline or settings.document_processing_v2_enabled:
+        from app.models.entities import IndexJob, KnowledgeDocumentVersion
+
+        submitted = service.submit_document_bytes(
+            filename,
+            data,
+            mime_type=mime_type,
+            scope=scope,
+            domain=_parse_domain(domain),
+        )
+        job = (
+            db.query(IndexJob)
+            .filter(IndexJob.document_version_id == submitted["version_id"])
+            .order_by(IndexJob.id.desc())
+            .first()
+        )
+        version = db.get(KnowledgeDocumentVersion, submitted["version_id"])
+        return KnowledgeUploadResponse(
+            source=filename,
+            documentId=submitted["document_id"],
+            versionId=submitted["version_id"],
+            jobId=job.id if job else None,
+            objectKey=version.storage_uri if version else None,
+            status=version.status if version else "RECEIVED",
+        )
     if filename.lower().endswith(".pdf"):
         from app.services.knowledge import extract_pdf
 
@@ -603,7 +633,8 @@ def knowledge_async_upload(
     不同步等待 embedding；通过 /api/admin/knowledge/jobs/{job_id} 查询状态。
     """
     from app.models.entities import IndexJob, KnowledgeDocumentVersion
-    from app.services.index_pipeline import submit_document
+    from app.services.ingest_contracts import IngestMetadata
+    from app.services.index_pipeline import processing_pipeline_fingerprint, submit_document
     from app.services.object_storage import LocalObjectStorage
 
     settings = get_settings()
@@ -615,14 +646,24 @@ def knowledge_async_upload(
     if pollution.action == GateAction.QUARANTINE:
         raise HTTPException(422, f"文档内容含风险特征，已拒绝入库：{';'.join(pollution.reasons[:5])}")
     object_store = LocalObjectStorage(settings.project_root / "data" / "objects")
+    metadata = IngestMetadata(
+        organization_id=scope.organization_id,
+        workspace_id=scope.workspace_id,
+        knowledge_space_id=None,
+        domain=request.domain,
+        classification=request.classification or "INTERNAL",
+        acl_version=scope.acl_version,
+        source_uri=request.source,
+    )
     doc_id, version_id = submit_document(
         db,
         workspace_id=scope.workspace_id,
         source_uri=request.source,
         content=request.content,
-        pipeline_version="v2",
+        pipeline_version=processing_pipeline_fingerprint(settings),
         object_store=object_store,
         organization_id=scope.organization_id,
+        metadata=metadata,
     )
     job = (
         db.query(IndexJob)
@@ -668,6 +709,83 @@ def knowledge_job_status(
         createdAt=job.created_at,
         updatedAt=job.updated_at,
     )
+
+
+@router.get("/api/admin/knowledge/documents/{document_id}/versions")
+def knowledge_document_versions(
+    document_id: int,
+    _: Annotated[UserAccount, Depends(require_admin)],
+    db: Annotated[Session, Depends(get_db)],
+    scope: RequestScope = Depends(get_request_scope),
+):
+    from app.services.document_version_service import DocumentVersionError, DocumentVersionService
+
+    try:
+        versions = DocumentVersionService(db, workspace_id=scope.workspace_id).list_versions(document_id)
+        return {"documentId": document_id, "versions": versions}
+    except DocumentVersionError as exc:
+        raise HTTPException(404, str(exc)) from exc
+
+
+@router.post("/api/admin/knowledge/documents/{document_id}/versions/{version_id}/activate")
+def activate_knowledge_document_version(
+    document_id: int,
+    version_id: int,
+    request: Request,
+    _: Annotated[UserAccount, Depends(require_admin)],
+    db: Annotated[Session, Depends(get_db)],
+    scope: RequestScope = Depends(get_request_scope),
+):
+    from app.services.document_version_service import DocumentVersionError, DocumentVersionService
+
+    settings = get_settings()
+    generation_service = None
+    generation_id = None
+    if settings.vector_backend == "opensearch":
+        generation_service = request.app.state.app_services.build_generation_service(
+            db, actor="admin-version-activate"
+        )
+        generation_id = f"{settings.index_generation}-rollback-v{version_id}"
+    try:
+        return DocumentVersionService(db, workspace_id=scope.workspace_id).activate(
+            document_id,
+            version_id,
+            generation_service=generation_service,
+            generation_id=generation_id,
+        )
+    except DocumentVersionError as exc:
+        raise HTTPException(409, str(exc)) from exc
+
+
+@router.post("/api/admin/knowledge/documents/{document_id}/versions/{version_id}/archive")
+def archive_knowledge_document_version(
+    document_id: int,
+    version_id: int,
+    _: Annotated[UserAccount, Depends(require_admin)],
+    db: Annotated[Session, Depends(get_db)],
+    scope: RequestScope = Depends(get_request_scope),
+):
+    from app.services.document_version_service import DocumentVersionError, DocumentVersionService
+
+    try:
+        ok = DocumentVersionService(db, workspace_id=scope.workspace_id).archive(document_id, version_id)
+        return {"ok": ok}
+    except DocumentVersionError as exc:
+        raise HTTPException(409, str(exc)) from exc
+
+
+@router.post("/api/admin/knowledge/generations/rollback")
+def rollback_knowledge_generation(
+    request: Request,
+    _: Annotated[UserAccount, Depends(require_admin)],
+    db: Annotated[Session, Depends(get_db)],
+):
+    service = request.app.state.app_services.build_generation_service(
+        db, actor="admin-generation-rollback"
+    )
+    if not service.rollback():
+        raise HTTPException(409, "no previous generation available")
+    return {"ok": True}
 
 
 # --------------------------------------------------------------------------- #

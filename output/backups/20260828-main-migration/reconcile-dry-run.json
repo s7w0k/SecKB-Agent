@@ -1,0 +1,678 @@
+{
+  "generated_at": "2026-08-28T02:06:59.849638+00:00",
+  "target_database": "mindbridge",
+  "reference_database": "mindbridge_schema_0012_20260828",
+  "apply": false,
+  "row_counts_before": {
+    "access_audit_events": 0,
+    "agent_run_traces": 17,
+    "alert_records": 1,
+    "answer_feedback": 0,
+    "case_notes": 0,
+    "chat_messages": 37,
+    "chat_sessions": 27,
+    "chunk_revisions": 0,
+    "dead_letter_records": 0,
+    "document_version_chunks": 0,
+    "excel_records": 4,
+    "index_jobs": 0,
+    "knowledge_chunks": 544,
+    "knowledge_chunks_v2": 0,
+    "knowledge_document_chunks": 0,
+    "knowledge_document_versions": 0,
+    "knowledge_documents": 0,
+    "knowledge_spaces": 0,
+    "model_usage_records": 0,
+    "organizations": 0,
+    "outbox_events": 0,
+    "psychological_reports": 8,
+    "resource_acls": 0,
+    "risk_cases": 2,
+    "tool_audit_records": 0,
+    "tool_jobs": 7,
+    "user_accounts": 2,
+    "user_group_members": 0,
+    "user_groups": 0,
+    "workspace_members": 0,
+    "workspaces": 0
+  },
+  "row_counts_after": {
+    "access_audit_events": 0,
+    "agent_run_traces": 17,
+    "alert_records": 1,
+    "answer_feedback": 0,
+    "case_notes": 0,
+    "chat_messages": 37,
+    "chat_sessions": 27,
+    "chunk_revisions": 0,
+    "dead_letter_records": 0,
+    "document_version_chunks": 0,
+    "excel_records": 4,
+    "index_jobs": 0,
+    "knowledge_chunks": 544,
+    "knowledge_chunks_v2": 0,
+    "knowledge_document_chunks": 0,
+    "knowledge_document_versions": 0,
+    "knowledge_documents": 0,
+    "knowledge_spaces": 0,
+    "model_usage_records": 0,
+    "organizations": 0,
+    "outbox_events": 0,
+    "psychological_reports": 8,
+    "resource_acls": 0,
+    "risk_cases": 2,
+    "tool_audit_records": 0,
+    "tool_jobs": 7,
+    "user_accounts": 2,
+    "user_group_members": 0,
+    "user_groups": 0,
+    "workspace_members": 0,
+    "workspaces": 0
+  },
+  "changed_row_counts": {},
+  "missing_columns_before": [
+    {
+      "table": "agent_run_traces",
+      "name": "organization_id",
+      "column_type": "int",
+      "nullable": true,
+      "default": null,
+      "extra": ""
+    },
+    {
+      "table": "agent_run_traces",
+      "name": "workspace_id",
+      "column_type": "int",
+      "nullable": true,
+      "default": null,
+      "extra": ""
+    },
+    {
+      "table": "alert_records",
+      "name": "organization_id",
+      "column_type": "int",
+      "nullable": true,
+      "default": null,
+      "extra": ""
+    },
+    {
+      "table": "alert_records",
+      "name": "workspace_id",
+      "column_type": "int",
+      "nullable": true,
+      "default": null,
+      "extra": ""
+    },
+    {
+      "table": "case_notes",
+      "name": "organization_id",
+      "column_type": "int",
+      "nullable": true,
+      "default": null,
+      "extra": ""
+    },
+    {
+      "table": "case_notes",
+      "name": "workspace_id",
+      "column_type": "int",
+      "nullable": true,
+      "default": null,
+      "extra": ""
+    },
+    {
+      "table": "chat_messages",
+      "name": "organization_id",
+      "column_type": "int",
+      "nullable": true,
+      "default": null,
+      "extra": ""
+    },
+    {
+      "table": "chat_messages",
+      "name": "workspace_id",
+      "column_type": "int",
+      "nullable": true,
+      "default": null,
+      "extra": ""
+    },
+    {
+      "table": "chat_sessions",
+      "name": "workspace_id",
+      "column_type": "int",
+      "nullable": true,
+      "default": null,
+      "extra": ""
+    },
+    {
+      "table": "dead_letter_records",
+      "name": "organization_id",
+      "column_type": "int",
+      "nullable": true,
+      "default": null,
+      "extra": ""
+    },
+    {
+      "table": "dead_letter_records",
+      "name": "workspace_id",
+      "column_type": "int",
+      "nullable": true,
+      "default": null,
+      "extra": ""
+    },
+    {
+      "table": "excel_records",
+      "name": "organization_id",
+      "column_type": "int",
+      "nullable": true,
+      "default": null,
+      "extra": ""
+    },
+    {
+      "table": "excel_records",
+      "name": "workspace_id",
+      "column_type": "int",
+      "nullable": true,
+      "default": null,
+      "extra": ""
+    },
+    {
+      "table": "knowledge_chunks",
+      "name": "organization_id",
+      "column_type": "int",
+      "nullable": true,
+      "default": null,
+      "extra": ""
+    },
+    {
+      "table": "knowledge_chunks",
+      "name": "workspace_id",
+      "column_type": "int",
+      "nullable": true,
+      "default": null,
+      "extra": ""
+    },
+    {
+      "table": "knowledge_chunks",
+      "name": "knowledge_space_id",
+      "column_type": "int",
+      "nullable": true,
+      "default": null,
+      "extra": ""
+    },
+    {
+      "table": "knowledge_chunks",
+      "name": "document_id",
+      "column_type": "int",
+      "nullable": true,
+      "default": null,
+      "extra": ""
+    },
+    {
+      "table": "knowledge_chunks",
+      "name": "classification",
+      "column_type": "varchar(32)",
+      "nullable": true,
+      "default": null,
+      "extra": ""
+    },
+    {
+      "table": "psychological_reports",
+      "name": "organization_id",
+      "column_type": "int",
+      "nullable": true,
+      "default": null,
+      "extra": ""
+    },
+    {
+      "table": "psychological_reports",
+      "name": "workspace_id",
+      "column_type": "int",
+      "nullable": true,
+      "default": null,
+      "extra": ""
+    },
+    {
+      "table": "risk_cases",
+      "name": "organization_id",
+      "column_type": "int",
+      "nullable": true,
+      "default": null,
+      "extra": ""
+    },
+    {
+      "table": "risk_cases",
+      "name": "workspace_id",
+      "column_type": "int",
+      "nullable": true,
+      "default": null,
+      "extra": ""
+    },
+    {
+      "table": "tool_audit_records",
+      "name": "organization_id",
+      "column_type": "int",
+      "nullable": true,
+      "default": null,
+      "extra": ""
+    },
+    {
+      "table": "tool_audit_records",
+      "name": "workspace_id",
+      "column_type": "int",
+      "nullable": true,
+      "default": null,
+      "extra": ""
+    },
+    {
+      "table": "tool_jobs",
+      "name": "organization_id",
+      "column_type": "int",
+      "nullable": true,
+      "default": null,
+      "extra": ""
+    },
+    {
+      "table": "tool_jobs",
+      "name": "workspace_id",
+      "column_type": "int",
+      "nullable": true,
+      "default": null,
+      "extra": ""
+    },
+    {
+      "table": "user_accounts",
+      "name": "organization_id",
+      "column_type": "int",
+      "nullable": true,
+      "default": null,
+      "extra": ""
+    }
+  ],
+  "missing_indexes_before": [
+    {
+      "table": "agent_run_traces",
+      "name": "ix_agent_run_traces_organization_id",
+      "columns": [
+        "organization_id"
+      ],
+      "unique": false,
+      "index_type": "BTREE"
+    },
+    {
+      "table": "agent_run_traces",
+      "name": "ix_agent_run_traces_workspace_id",
+      "columns": [
+        "workspace_id"
+      ],
+      "unique": false,
+      "index_type": "BTREE"
+    },
+    {
+      "table": "alert_records",
+      "name": "ix_alert_records_organization_id",
+      "columns": [
+        "organization_id"
+      ],
+      "unique": false,
+      "index_type": "BTREE"
+    },
+    {
+      "table": "alert_records",
+      "name": "ix_alert_records_workspace_id",
+      "columns": [
+        "workspace_id"
+      ],
+      "unique": false,
+      "index_type": "BTREE"
+    },
+    {
+      "table": "case_notes",
+      "name": "ix_case_notes_organization_id",
+      "columns": [
+        "organization_id"
+      ],
+      "unique": false,
+      "index_type": "BTREE"
+    },
+    {
+      "table": "case_notes",
+      "name": "ix_case_notes_workspace_id",
+      "columns": [
+        "workspace_id"
+      ],
+      "unique": false,
+      "index_type": "BTREE"
+    },
+    {
+      "table": "chat_messages",
+      "name": "ix_chat_messages_organization_id",
+      "columns": [
+        "organization_id"
+      ],
+      "unique": false,
+      "index_type": "BTREE"
+    },
+    {
+      "table": "chat_messages",
+      "name": "ix_chat_messages_workspace_id",
+      "columns": [
+        "workspace_id"
+      ],
+      "unique": false,
+      "index_type": "BTREE"
+    },
+    {
+      "table": "chat_sessions",
+      "name": "ix_chat_sessions_workspace_id",
+      "columns": [
+        "workspace_id"
+      ],
+      "unique": false,
+      "index_type": "BTREE"
+    },
+    {
+      "table": "dead_letter_records",
+      "name": "ix_dead_letter_records_organization_id",
+      "columns": [
+        "organization_id"
+      ],
+      "unique": false,
+      "index_type": "BTREE"
+    },
+    {
+      "table": "dead_letter_records",
+      "name": "ix_dead_letter_records_workspace_id",
+      "columns": [
+        "workspace_id"
+      ],
+      "unique": false,
+      "index_type": "BTREE"
+    },
+    {
+      "table": "excel_records",
+      "name": "ix_excel_records_organization_id",
+      "columns": [
+        "organization_id"
+      ],
+      "unique": false,
+      "index_type": "BTREE"
+    },
+    {
+      "table": "excel_records",
+      "name": "ix_excel_records_workspace_id",
+      "columns": [
+        "workspace_id"
+      ],
+      "unique": false,
+      "index_type": "BTREE"
+    },
+    {
+      "table": "knowledge_chunks",
+      "name": "fx_knowledge_chunks_content_ngram",
+      "columns": [
+        "content"
+      ],
+      "unique": false,
+      "index_type": "FULLTEXT"
+    },
+    {
+      "table": "knowledge_chunks",
+      "name": "ix_knowledge_chunks_classification",
+      "columns": [
+        "classification"
+      ],
+      "unique": false,
+      "index_type": "BTREE"
+    },
+    {
+      "table": "knowledge_chunks",
+      "name": "ix_knowledge_chunks_knowledge_space_id",
+      "columns": [
+        "knowledge_space_id"
+      ],
+      "unique": false,
+      "index_type": "BTREE"
+    },
+    {
+      "table": "knowledge_chunks",
+      "name": "ix_knowledge_chunks_org_ws_user",
+      "columns": [
+        "organization_id",
+        "workspace_id",
+        "id"
+      ],
+      "unique": false,
+      "index_type": "BTREE"
+    },
+    {
+      "table": "knowledge_chunks",
+      "name": "ix_knowledge_chunks_workspace_id",
+      "columns": [
+        "workspace_id"
+      ],
+      "unique": false,
+      "index_type": "BTREE"
+    },
+    {
+      "table": "knowledge_chunks",
+      "name": "ix_knowledge_chunks_ws_domain_status",
+      "columns": [
+        "workspace_id",
+        "domain",
+        "status"
+      ],
+      "unique": false,
+      "index_type": "BTREE"
+    },
+    {
+      "table": "knowledge_chunks",
+      "name": "ix_knowledge_chunks_ws_space_class",
+      "columns": [
+        "workspace_id",
+        "knowledge_space_id",
+        "classification"
+      ],
+      "unique": false,
+      "index_type": "BTREE"
+    },
+    {
+      "table": "knowledge_chunks",
+      "name": "uq_knowledge_chunks_source_version",
+      "columns": [
+        "domain",
+        "source_key",
+        "source_index",
+        "version"
+      ],
+      "unique": true,
+      "index_type": "BTREE"
+    },
+    {
+      "table": "knowledge_chunks_v2",
+      "name": "ix_kcv2_stable_key",
+      "columns": [
+        "stable_key"
+      ],
+      "unique": false,
+      "index_type": "BTREE"
+    },
+    {
+      "table": "psychological_reports",
+      "name": "ix_psychological_reports_organization_id",
+      "columns": [
+        "organization_id"
+      ],
+      "unique": false,
+      "index_type": "BTREE"
+    },
+    {
+      "table": "psychological_reports",
+      "name": "ix_psychological_reports_workspace_id",
+      "columns": [
+        "workspace_id"
+      ],
+      "unique": false,
+      "index_type": "BTREE"
+    },
+    {
+      "table": "risk_cases",
+      "name": "ix_risk_cases_organization_id",
+      "columns": [
+        "organization_id"
+      ],
+      "unique": false,
+      "index_type": "BTREE"
+    },
+    {
+      "table": "risk_cases",
+      "name": "ix_risk_cases_workspace_id",
+      "columns": [
+        "workspace_id"
+      ],
+      "unique": false,
+      "index_type": "BTREE"
+    },
+    {
+      "table": "tool_audit_records",
+      "name": "ix_tool_audit_records_organization_id",
+      "columns": [
+        "organization_id"
+      ],
+      "unique": false,
+      "index_type": "BTREE"
+    },
+    {
+      "table": "tool_audit_records",
+      "name": "ix_tool_audit_records_workspace_id",
+      "columns": [
+        "workspace_id"
+      ],
+      "unique": false,
+      "index_type": "BTREE"
+    },
+    {
+      "table": "tool_jobs",
+      "name": "ix_tool_jobs_organization_id",
+      "columns": [
+        "organization_id"
+      ],
+      "unique": false,
+      "index_type": "BTREE"
+    },
+    {
+      "table": "tool_jobs",
+      "name": "ix_tool_jobs_workspace_id",
+      "columns": [
+        "workspace_id"
+      ],
+      "unique": false,
+      "index_type": "BTREE"
+    },
+    {
+      "table": "tool_jobs",
+      "name": "uq_tool_jobs_idempotency_key",
+      "columns": [
+        "idempotency_key"
+      ],
+      "unique": true,
+      "index_type": "BTREE"
+    },
+    {
+      "table": "user_accounts",
+      "name": "ix_user_accounts_organization_id",
+      "columns": [
+        "organization_id"
+      ],
+      "unique": false,
+      "index_type": "BTREE"
+    },
+    {
+      "table": "workspace_members",
+      "name": "ix_workspace_members_ws_user",
+      "columns": [
+        "workspace_id",
+        "user_id",
+        "status"
+      ],
+      "unique": false,
+      "index_type": "BTREE"
+    },
+    {
+      "table": "workspaces",
+      "name": "ix_workspaces_org_status",
+      "columns": [
+        "organization_id",
+        "status"
+      ],
+      "unique": false,
+      "index_type": "BTREE"
+    }
+  ],
+  "operations": [],
+  "remaining_columns": [
+    "agent_run_traces.organization_id",
+    "agent_run_traces.workspace_id",
+    "alert_records.organization_id",
+    "alert_records.workspace_id",
+    "case_notes.organization_id",
+    "case_notes.workspace_id",
+    "chat_messages.organization_id",
+    "chat_messages.workspace_id",
+    "chat_sessions.workspace_id",
+    "dead_letter_records.organization_id",
+    "dead_letter_records.workspace_id",
+    "excel_records.organization_id",
+    "excel_records.workspace_id",
+    "knowledge_chunks.organization_id",
+    "knowledge_chunks.workspace_id",
+    "knowledge_chunks.knowledge_space_id",
+    "knowledge_chunks.document_id",
+    "knowledge_chunks.classification",
+    "psychological_reports.organization_id",
+    "psychological_reports.workspace_id",
+    "risk_cases.organization_id",
+    "risk_cases.workspace_id",
+    "tool_audit_records.organization_id",
+    "tool_audit_records.workspace_id",
+    "tool_jobs.organization_id",
+    "tool_jobs.workspace_id",
+    "user_accounts.organization_id"
+  ],
+  "remaining_indexes": [
+    "agent_run_traces.ix_agent_run_traces_organization_id",
+    "agent_run_traces.ix_agent_run_traces_workspace_id",
+    "alert_records.ix_alert_records_organization_id",
+    "alert_records.ix_alert_records_workspace_id",
+    "case_notes.ix_case_notes_organization_id",
+    "case_notes.ix_case_notes_workspace_id",
+    "chat_messages.ix_chat_messages_organization_id",
+    "chat_messages.ix_chat_messages_workspace_id",
+    "chat_sessions.ix_chat_sessions_workspace_id",
+    "dead_letter_records.ix_dead_letter_records_organization_id",
+    "dead_letter_records.ix_dead_letter_records_workspace_id",
+    "excel_records.ix_excel_records_organization_id",
+    "excel_records.ix_excel_records_workspace_id",
+    "index_jobs.ix_index_jobs_idempotency_key",
+    "knowledge_chunks.fx_knowledge_chunks_content_ngram",
+    "knowledge_chunks.ix_knowledge_chunks_classification",
+    "knowledge_chunks.ix_knowledge_chunks_knowledge_space_id",
+    "knowledge_chunks.ix_knowledge_chunks_org_ws_user",
+    "knowledge_chunks.ix_knowledge_chunks_workspace_id",
+    "knowledge_chunks.ix_knowledge_chunks_ws_domain_status",
+    "knowledge_chunks.ix_knowledge_chunks_ws_space_class",
+    "knowledge_chunks.uq_knowledge_chunks_source_version",
+    "knowledge_chunks_v2.ix_kcv2_stable_key",
+    "psychological_reports.ix_psychological_reports_organization_id",
+    "psychological_reports.ix_psychological_reports_workspace_id",
+    "risk_cases.ix_risk_cases_organization_id",
+    "risk_cases.ix_risk_cases_workspace_id",
+    "tool_audit_records.ix_tool_audit_records_organization_id",
+    "tool_audit_records.ix_tool_audit_records_workspace_id",
+    "tool_jobs.ix_tool_jobs_organization_id",
+    "tool_jobs.ix_tool_jobs_workspace_id",
+    "tool_jobs.uq_tool_jobs_idempotency_key",
+    "user_accounts.ix_user_accounts_organization_id",
+    "workspace_members.ix_workspace_members_ws_user",
+    "workspaces.ix_workspaces_org_status"
+  ]
+}

@@ -88,14 +88,49 @@ class ChaosScenarioTests(unittest.TestCase):
         self.assertLessEqual(p95, p99)
         self.assertAlmostEqual(o.observations["error_rate"], 0.02, delta=0.05)
 
+    def test_15_1_opensearch_down(self):
+        o = self.engine.scenario_opensearch_down()
+        self.assertTrue(o.ok, o.detail)
+        self.assertTrue(o.observations["backend_down"])
+        self.assertEqual(o.observations["readiness"], "not_ready")
+        self.assertEqual(o.observations["error_rate"], 1.0)
+        self.assertFalse(o.observations["unsafe_local_fallback"])
+        self.assertEqual(o.observations["detection_latency_ms"], 250)
+        self.assertEqual(o.observations["recovery_latency_ms"], 3000)
+
+    def test_15_1_opensearch_no_unsafe_local_fallback(self):
+        o = self.engine.scenario_opensearch_down()
+        # 故障下必须 fail-closed：永不回退到本地/缓存陈旧数据
+        self.assertFalse(o.observations["unsafe_local_fallback"])
+        self.assertEqual(o.observations["readiness"], "not_ready")
+
+    def test_15_2_reranker_timeout_fallback_rrf(self):
+        o = self.engine.scenario_reranker_timeout(requests=300, timeout_rate=0.4)
+        self.assertTrue(o.ok, o.detail)
+        self.assertGreaterEqual(o.observations["fallback_success_rate"], 0.99)
+        self.assertLessEqual(o.observations["quality_degradation"], 0.10)
+        self.assertGreater(o.observations["timed_out"], 0)
+        self.assertGreater(o.observations["latency_ms"], 0)
+
+    def test_15_2_reranker_no_timeout_zero_impact(self):
+        o = self.engine.scenario_reranker_timeout(requests=50, timeout_rate=0.0)
+        self.assertTrue(o.ok, o.detail)
+        self.assertEqual(o.observations["timed_out"], 0)
+        self.assertEqual(o.observations["quality_degradation"], 0.0)
+
 
 class ChaosReportTests(unittest.TestCase):
     def test_run_all_all_pass(self):
         report = ChaosEngine().run_all()
-        self.assertEqual(len(report.outcomes), 7)
+        self.assertEqual(len(report.outcomes), 9)
         self.assertEqual(len(report.failures), 0)
         self.assertTrue(report.ok)
-        self.assertIn("7/7", report.summary())
+        self.assertIn("9/9", report.summary())
+
+    def test_run_all_includes_new_scenarios(self):
+        names = {o.name for o in ChaosEngine().run_all().outcomes}
+        self.assertIn("15.1_opensearch_down", names)
+        self.assertIn("15.2_reranker_timeout", names)
 
     def test_report_detects_failure(self):
         engine = ChaosEngine()

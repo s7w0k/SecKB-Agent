@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import hashlib
 import os
+import re
 from pathlib import Path
 from typing import Protocol
 
@@ -49,7 +50,11 @@ class LocalObjectStorage:
     def _path(self, key: str) -> Path:
         # 防止路径穿越：只允许相对安全字符
         safe_key = key.replace("..", "").replace("/", "_").replace("\\", "_")
-        return self.root / safe_key
+        # Local object keys may originate from URI schemes (for example
+        # ``validation://``).  Colons and several other characters are valid
+        # in an object-store key but invalid in a Windows filename.
+        safe_key = re.sub(r'[<>:"|?*\x00-\x1f]', "_", safe_key).rstrip(". ")
+        return self.root / (safe_key or "object")
 
     def put(self, key: str, data: bytes) -> str:
         path = self._path(key)

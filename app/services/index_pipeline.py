@@ -67,6 +67,21 @@ TRANSIENT_ERRORS = {"timeout", "connection", "rate_limit", "temporary"}
 PERMANENT_ERRORS = {"parse_error", "invalid_content", "unsupported_format"}
 
 
+def processing_pipeline_fingerprint(settings: Settings) -> str:
+    """影响解析、切块或 embedding 输入的配置变化必须创建新文档版本。"""
+    return ":".join(
+        [
+            "dp2" if settings.document_processing_v2_enabled else "legacy",
+            settings.document_parser_default,
+            settings.pdf_parser,
+            settings.chunker_strategy_version,
+            str(settings.chunk_target_tokens),
+            str(settings.chunk_max_tokens),
+            settings.embedding_input_version,
+        ]
+    )
+
+
 def submit_document(
     db: Session,
     *,
@@ -156,7 +171,11 @@ def submit_document(
     # 2. 幂等：内容未变化且已发布 → 返回既有版本
     if doc.current_version_id is not None:
         current_version = db.get(KnowledgeDocumentVersion, doc.current_version_id)
-        if current_version and current_version.content_hash == ch:
+        if (
+            current_version
+            and current_version.content_hash == ch
+            and current_version.pipeline_fingerprint == pipeline_version
+        ):
             return doc.id, current_version.id
 
     # 2b. 已有 pending/running job（同内容同 pipeline 版本）→ 返回既有版本
@@ -180,9 +199,17 @@ def submit_document(
         document_id=doc.id,
         version=max_version + 1,
         content_hash=ch,
+        raw_checksum=ch,
         normalized_hash=normalized_hash(content),
-        parser_version=pipeline_version,
+        mime_type="text/plain",
+        parser_version=pipeline_version[:32],
+        pipeline_fingerprint=pipeline_version,
         chunker_version=pipeline_version,
+        embedding_input_version=(
+            settings.embedding_input_version
+            if (settings := get_settings()).document_processing_v2_enabled
+            else "v1"
+        ),
         storage_uri=object_key,
         status=RECEIVED,
         # Phase 4（§4.5）：版本级 metadata 快照（domain / classification_level / acl）
@@ -200,6 +227,8 @@ def submit_document(
         "object_key": object_key,
         "checksum": ch,
         "source_uri": source_uri,
+        "mime_type": "text/plain",
+        "filename": source_uri.rsplit("/", 1)[-1],
         "idempotency_key": idempotency,
     }
     if metadata is not None:
@@ -215,6 +244,153 @@ def submit_document(
     db.add(event)
 
     # 5. 创建 IndexJob
+    job = IndexJob(
+        workspace_id=workspace_id,
+        document_id=doc.id,
+        document_version_id=version.id,
+        idempotency_key=idempotency,
+        status="PENDING",
+        max_attempts=5,
+    )
+    db.add(job)
+    db.commit()
+
+    return doc.id, version.id
+
+
+def submit_document_bytes(
+    db: Session,
+    *,
+    workspace_id: int,
+    source_uri: str,
+    data: bytes,
+    mime_type: str,
+    metadata: "IngestMetadata",
+    pipeline_version: str = "v2cp",
+    object_store: ObjectStorage | None = None,
+) -> tuple[int, int]:
+    """二进制摄取入口（技术方案 §6.2 / P2-2）。
+
+    - ``raw_checksum`` 基于原始 bytes。
+    - 对象存储保存原始文件，不先转成字符串。
+    - Outbox 只保存 object key、checksum、mime、版本和安全 metadata，不保存正文/二进制。
+    - 幂等键包含 raw checksum 和 pipeline fingerprint。
+
+    Returns:
+        (document_id, version_id)
+    """
+    if metadata is None:
+        from app.services.ingest_contracts import MissingIngestMetadata
+
+        raise MissingIngestMetadata("submit_document_bytes requires IngestMetadata")
+
+    object_store = object_store or LocalObjectStorage()
+
+    organization_id = metadata.organization_id
+    workspace_id = metadata.workspace_id
+    domain = metadata.domain
+    classification = metadata.classification
+    classification_level = metadata.resolve_classification_level()
+    knowledge_space_id = metadata.knowledge_space_id
+    acl_version = metadata.acl_version
+
+    raw_checksum = content_hash(data)  # bytes → sha256
+    object_key = make_object_key(workspace_id=workspace_id, source_uri=source_uri, checksum=raw_checksum)
+    object_store.put(object_key, data)
+
+    doc = (
+        db.query(KnowledgeDocument)
+        .filter(KnowledgeDocument.workspace_id == workspace_id)
+        .filter(KnowledgeDocument.source_uri == source_uri)
+        .first()
+    )
+    if doc is None:
+        doc = KnowledgeDocument(
+            workspace_id=workspace_id,
+            source_uri=source_uri,
+            status="ACTIVE",
+            organization_id=organization_id,
+            domain=domain,
+            classification=classification,
+            classification_level=classification_level,
+            knowledge_space_id=knowledge_space_id,
+            acl_version=acl_version,
+        )
+        db.add(doc)
+        db.flush()
+    else:
+        doc.organization_id = organization_id
+        doc.domain = domain
+        doc.classification = classification
+        doc.classification_level = classification_level
+        doc.knowledge_space_id = knowledge_space_id
+        doc.acl_version = acl_version
+
+    if doc.current_version_id is not None:
+        current_version = db.get(KnowledgeDocumentVersion, doc.current_version_id)
+        if (
+            current_version
+            and current_version.raw_checksum == raw_checksum
+            and current_version.pipeline_fingerprint == pipeline_version
+        ):
+            return doc.id, current_version.id
+
+    idempotency = f"{workspace_id}:{doc.id}:{raw_checksum}:{pipeline_version}"
+    existing_job = (
+        db.query(IndexJob)
+        .filter(IndexJob.idempotency_key == idempotency)
+        .filter(IndexJob.status.in_(["PENDING", "RUNNING"]))
+        .first()
+    )
+    if existing_job is not None:
+        return doc.id, existing_job.document_version_id
+
+    max_version = (
+        db.query(KnowledgeDocumentVersion)
+        .filter(KnowledgeDocumentVersion.document_id == doc.id)
+        .count()
+    )
+    version = KnowledgeDocumentVersion(
+        document_id=doc.id,
+        version=max_version + 1,
+        content_hash=raw_checksum,
+        raw_checksum=raw_checksum,
+        normalized_hash=raw_checksum,
+        mime_type=mime_type,
+        parser_version=pipeline_version[:32],
+        pipeline_fingerprint=pipeline_version,
+        chunker_version=pipeline_version,
+        embedding_input_version=get_settings().embedding_input_version,
+        storage_uri=object_key,
+        status=RECEIVED,
+        domain=domain,
+        classification_level=classification_level,
+        acl_version_snapshot=acl_version,
+    )
+    db.add(version)
+    db.flush()
+
+    event_payload = {
+        "document_id": doc.id,
+        "version_id": version.id,
+        "object_key": object_key,
+        "checksum": raw_checksum,
+        "mime_type": mime_type,
+        "source_uri": source_uri,
+        "idempotency_key": idempotency,
+        "pipeline_version": pipeline_version,
+        "filename": source_uri.rsplit("/", 1)[-1],
+    }
+    event_payload.update(metadata.as_dict())
+    event = OutboxEvent(
+        workspace_id=workspace_id,
+        event_type="INGEST",
+        document_id=doc.id,
+        payload_json=json.dumps(event_payload),
+        status="PENDING",
+    )
+    db.add(event)
+
     job = IndexJob(
         workspace_id=workspace_id,
         document_id=doc.id,
@@ -264,6 +440,160 @@ def claim_pending_job(
     return job
 
 
+# --------------------------------------------------------------------------- #
+# MinerU 二进制文档解析接入（7.4）：PDF/图片 → MinerU → 纯文本 → 复用现有切块链路
+# --------------------------------------------------------------------------- #
+_MINERU_PARSER_CACHE: dict = {}
+_MIMES_NEED_MINERU_PREFIX = ("application/pdf", "image/")
+_MINERU_OFFICE_MIMES = {
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+}
+
+
+def _needs_mineru(mime_type: str) -> bool:
+    """该 mime 是否为 MinerU 负责的二进制文档（PDF / 图片）。"""
+    return mime_type.startswith(_MIMES_NEED_MINERU_PREFIX) or mime_type in _MINERU_OFFICE_MIMES
+
+
+def _build_mineru_parser(settings: Settings):
+    """按 settings.mineru_backend 惰性构造单例 MinerUParser（进程内复用）。"""
+    from app.services.document_processing.parsers.mineru import MinerUParser
+    from app.services.document_processing.parsers.mineru_client import MinerUAgentClient, MinerUClient
+
+    key = (settings.mineru_backend, settings.mineru_base_url)
+    parser = _MINERU_PARSER_CACHE.get(key)
+    if parser is None:
+        if settings.mineru_backend == "agent":
+            client = MinerUAgentClient(timeout_seconds=settings.mineru_timeout_seconds)
+        else:
+            client = MinerUClient(
+                settings.mineru_base_url,
+                timeout_seconds=settings.mineru_timeout_seconds,
+                max_concurrency=settings.mineru_max_concurrency,
+                parse_method="auto",
+            )
+        parser = MinerUParser(client)
+        _MINERU_PARSER_CACHE[key] = parser
+    return parser
+
+
+def _extract_document_text(
+    data: bytes, mime_type: str, source_uri: str, filename: str, settings: Settings
+) -> str:
+    """用 MinerU 解析二进制文档返回纯文本；失败时按策略降级到 pypdf（仅 PDF）。
+
+    返回的全文文本交给现有 ``chunk_text`` 切块 + diff + embedding + 代际落库，从而把
+    MinerU 解析接通到既有生产链路（7.4）。
+    """
+    parser = _build_mineru_parser(settings)
+    fallback_pypdf = settings.mineru_fallback_policy == "quality_gated_pypdf" and mime_type.startswith("application/pdf")
+    try:
+        doc = parser.parse(
+            data,
+            source_uri=source_uri or filename or "file",
+            mime_type=mime_type,
+        )
+        parts = [b.text for b in doc.blocks if (b.text or "").strip()]
+        text = "\n".join(parts)
+        if text.strip():
+            return text
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("mineru parse failed (policy=%s): %s", settings.mineru_fallback_policy, exc)
+    if fallback_pypdf:
+        from app.services.knowledge import extract_pdf
+
+        return extract_pdf(data)
+    raise RuntimeError(f"mineru produced no content for {source_uri}")
+
+
+def _build_document_processing_pipeline(settings: Settings, *, document_id: int, title: str):
+    """按配置构造生产文档处理链；PDF 默认 MinerU，允许显式 pypdf 降级。"""
+    from app.services.document_processing.pipeline import DocumentProcessingPipeline
+    from app.services.document_processing.parsers.pypdf import FallbackDocumentParser, PypdfParser
+    from app.services.document_processing.quality import QualityThresholds
+
+    pdf_parser = None
+    image_parser = None
+    office_parser = None
+    mineru = None
+    if settings.document_parser_default == "mineru" or settings.pdf_parser == "mineru":
+        mineru = _build_mineru_parser(settings)
+        image_parser = mineru
+        office_parser = mineru
+    if settings.pdf_parser == "pypdf":
+        pdf_parser = PypdfParser()
+    else:
+        if mineru is None:
+            mineru = _build_mineru_parser(settings)
+        pdf_parser = (
+            FallbackDocumentParser(mineru, PypdfParser())
+            if settings.mineru_fallback_policy == "quality_gated_pypdf"
+            else mineru
+        )
+    thresholds = QualityThresholds(
+        min_non_empty_page_ratio=settings.parse_quality_min_non_empty_page_ratio,
+        max_replacement_char_ratio=settings.parse_quality_max_replacement_char_ratio,
+        max_repeated_margin_ratio=settings.parse_quality_max_repeated_margin_ratio,
+    )
+    return DocumentProcessingPipeline.build(
+        pdf_parser=pdf_parser,
+        image_parser=image_parser,
+        office_parser=office_parser,
+        gate_mode=settings.parse_quality_gate_mode,
+        embedding_input_version=settings.embedding_input_version,
+        document_id=document_id,
+        document_title=title,
+        quality_thresholds=thresholds,
+        target_tokens=settings.chunk_target_tokens,
+        max_tokens=settings.chunk_max_tokens,
+    )
+
+
+def _save_processing_metadata(version: KnowledgeDocumentVersion, result, *, mime_type: str, settings: Settings) -> None:
+    """把解析、质量、profile 与输入构造版本固化到文档版本快照。"""
+    document = result.document
+    quality = result.parse_quality
+    version.mime_type = mime_type
+    version.parser_name = document.parser_name
+    version.parser_version = document.parser_version
+    version.parse_mode = document.parse_mode.value
+    version.parsed_hash = document.parsed_hash
+    version.normalized_hash = normalized_hash("\n".join(b.text for b in document.top_blocks))
+    version.parse_quality_verdict = quality.verdict.value
+    version.parse_quality_score = quality.score
+    version.parse_quality_json = json.dumps(
+        {"metrics": quality.metrics, "reasons": quality.reasons, "gate_mode": quality.gate_mode},
+        ensure_ascii=False,
+        separators=(",", ":"),
+    )
+    version.document_profile = result.profile.value
+    version.chunker_version = settings.chunker_strategy_version
+    version.embedding_input_version = settings.embedding_input_version
+    version.embedding_model = settings.openai_embedding_model
+
+
+def _existing_embedding(db: Session, *, document_id: int, content_hash_value: str, input_hash: str):
+    """按文档内 revision fingerprint 复用向量；返回 None 表示必须重新 embedding。"""
+    row = (
+        db.query(ChunkRevision)
+        .join(KnowledgeDocumentChunk, KnowledgeDocumentChunk.id == ChunkRevision.chunk_id)
+        .filter(KnowledgeDocumentChunk.document_id == document_id)
+        .filter(ChunkRevision.content_hash == content_hash_value)
+        .filter(ChunkRevision.embedding_text_hash == input_hash)
+        .filter(ChunkRevision.embedding_status == "EMBEDDED")
+        .filter(ChunkRevision.embedding_json.isnot(None))
+        .first()
+    )
+    if row is None:
+        return None
+    try:
+        return json.loads(row.embedding_json)
+    except (TypeError, ValueError):
+        return None
+
+
 def process_job(
     db: Session,
     job: IndexJob,
@@ -271,6 +601,8 @@ def process_job(
     settings: Settings,
     object_store: ObjectStorage | None = None,
     embed_fn=None,
+    generation_service=None,
+    generation_id: str | None = None,
 ) -> None:
     """处理一个 index job：RECEIVED -> ... -> PUBLISHED 全状态机。
 
@@ -278,6 +610,11 @@ def process_job(
     - 仅对新增/修改 chunk 调用 embedding（embed_fn 可注入，便于测试统计调用次数）。
     - 未变化 chunk 复用既有 revision 的 embedding。
     - VALIDATED 校验通过后原子切换 document.current_version_id。
+
+    Phase 6（§6.1/§6.2）：当传入 ``generation_service`` + ``generation_id`` 时，在
+    单文档发布后把该版本的 active chunks + embeddings 写入候选物理代际
+    ``seckb-rag-<generation_id>`` 并原子发布到 serving alias（走 GenerationService）。
+    缺省两参均为 None → 保持既有逐文档发布行为，不创建物理代际。
 
     embed_fn(contents: list[str]) -> list[list[float]]；缺省用 vector_store.embed_texts。
     """
@@ -291,13 +628,10 @@ def process_job(
     doc = db.get(KnowledgeDocument, job.document_id)
     if version.status == PUBLISHED and doc and doc.current_version_id == version.id:
         job.status = "COMPLETED"
+        job.error_class = None
+        job.error_message = None
         job.updated_at = datetime.utcnow()
-        event = (
-            db.query(OutboxEvent)
-            .filter(OutboxEvent.document_id == job.document_id)
-            .order_by(OutboxEvent.id.asc())
-            .first()
-        )
+        event, _ = _event_for_job(db, job, include_processed=True)
         if event and event.status != "PROCESSED":
             event.status = "PROCESSED"
             event.processed_at = datetime.utcnow()
@@ -307,25 +641,74 @@ def process_job(
 
     try:
         # ---- 从 outbox event payload 获取对象引用（7.2：不存正文） ----
-        event = (
-            db.query(OutboxEvent)
-            .filter(OutboxEvent.document_id == job.document_id)
-            .filter(OutboxEvent.status == "PENDING")
-            .order_by(OutboxEvent.id.asc())
-            .first()
-        )
+        event, payload = _event_for_job(db, job)
         if event is None:
             _fail_job(db, job, "permanent", "no pending outbox event")
             return
-        payload = json.loads(event.payload_json)
         object_key = payload.get("object_key")
-        content = object_store.get(object_key).decode("utf-8") if object_key else payload.get("content", "")
+        mime_type = str(payload.get("mime_type") or "text/plain")
+        filename = str(payload.get("filename")
+                         or (doc.source_uri.rsplit("/", 1)[-1] if doc and doc.source_uri else "file"))
+        source_uri = doc.source_uri if doc and doc.source_uri else filename
+        content: str | None = None
+        object_bytes: bytes | None = None
+        if object_key:
+            object_bytes = object_store.get(object_key)
+            if _needs_mineru(mime_type) and not settings.document_processing_v2_enabled:
+                # 7.4：二进制文档（PDF/图片）走 MinerU 解析为纯文本，再复用现有切块链路
+                content = _extract_document_text(object_bytes, mime_type, source_uri, filename, settings)
+            elif not settings.document_processing_v2_enabled:
+                content = object_bytes.decode("utf-8")
+        if content is None and not settings.document_processing_v2_enabled:
+            content = payload.get("content", "")
 
         # ---- RECEIVED -> PARSED（切块，携带显式位置） ----
-        raw_chunks = chunk_text(content, settings.knowledge_chunk_size, settings.knowledge_chunk_overlap)
-        chunks: list[tuple[str, str, str]] = []  # (logical_key, content, chunk_hash)
-        for index, text in enumerate(raw_chunks):
-            chunks.append((logical_chunk_key(job.document_id, None, index), text, chunk_hash(text)))
+        chunk_metadata: dict[str, dict] = {}
+        embedding_inputs: dict[str, str] = {}
+        if settings.document_processing_v2_enabled:
+            raw = object_bytes if object_bytes is not None else str(payload.get("content", "")).encode("utf-8")
+            pipeline = _build_document_processing_pipeline(
+                settings, document_id=job.document_id, title=filename
+            )
+            result = pipeline.run(
+                raw,
+                source_uri=source_uri,
+                mime_type=mime_type,
+                filename=filename,
+                metadata=payload,
+            )
+            _save_processing_metadata(version, result, mime_type=mime_type, settings=settings)
+            from app.core.security_gate import GateAction, SecurityGate
+
+            parsed_text = "\n".join(block.text for block in result.document.top_blocks)
+            pollution = SecurityGate().check_knowledge(parsed_text)
+            if pollution.action == GateAction.QUARANTINE:
+                result.blocked_publish = True
+                result.reasons.extend(pollution.reasons)
+            if result.blocked_publish:
+                version.status = QUARANTINED
+                version.error_message = "parse quality gate: " + "; ".join(result.reasons or [result.parse_quality.verdict.value])
+                job.status = QUARANTINED
+                job.error_class = "permanent"
+                job.error_message = version.error_message
+                event.status = "PROCESSED"
+                event.processed_at = datetime.utcnow()
+                db.commit()
+                return
+            chunks = []
+            for draft, embedding_input in zip(result.chunks, result.embedding_drafts):
+                # revision fingerprint 同时覆盖 display/结构与版本化 embedding 输入。
+                revision_hash = chunk_hash(f"{draft.chunk_hash}:{draft.embedding_text_hash}")
+                chunks.append((draft.logical_key, draft.display_content, revision_hash))
+                embedding_inputs[draft.logical_key] = embedding_input
+                chunk_metadata[draft.logical_key] = draft.to_dict()
+        else:
+            raw_chunks = chunk_text(content or "", settings.knowledge_chunk_size, settings.knowledge_chunk_overlap)
+            chunks = []
+            for index, text in enumerate(raw_chunks):
+                key = logical_chunk_key(job.document_id, None, index)
+                chunks.append((key, text, chunk_hash(text)))
+                embedding_inputs[key] = text
         version.status = PARSED
         version.chunk_count = len(chunks)
         db.flush()
@@ -344,8 +727,9 @@ def process_job(
                 )
                 for row in rows:
                     rev = db.get(ChunkRevision, row.revision_id)
-                    if rev:
-                        old_chunks.append((logical_chunk_key(job.document_id, None, row.source_index), rev.content, rev.content_hash))
+                    doc_chunk = db.get(KnowledgeDocumentChunk, row.chunk_id)
+                    if rev and doc_chunk:
+                        old_chunks.append((doc_chunk.logical_chunk_key, rev.content, rev.content_hash))
         diff = diff_chunks_v2(old_chunks, chunks)
         version.status = DIFFED
         db.flush()
@@ -357,18 +741,45 @@ def process_job(
         )
 
         # ---- DIFFED -> CHUNKED（写入 document_chunk / chunk_revision / version_chunk） ----
-        # 需要 embedding 的文本（仅 added）
-        embed_needed = [content for _, content, _ in diff.added]
+        # 需要 embedding 的输入由 revision + embedding_input fingerprint 决定；
+        # modified/移动块若找不到同 fingerprint 的历史向量，也必须重算。
         embeddings: dict[str, list[float]] = {}
+        embed_keys: list[str] = []
+        embed_needed: list[str] = []
+        for logical_key, _display, ch_hash in chunks:
+            embedding_input = embedding_inputs[logical_key]
+            input_hash = chunk_hash(embedding_input)
+            reused = _existing_embedding(
+                db,
+                document_id=job.document_id,
+                content_hash_value=ch_hash,
+                input_hash=input_hash,
+            )
+            if reused is not None:
+                embeddings[logical_key] = reused
+            else:
+                embed_keys.append(logical_key)
+                embed_needed.append(embedding_input)
 
         # ---- CHUNKED -> EMBEDDED（真实 embedding；仅 changed 内容） ----
         if embed_needed:
             emb = _do_embed(embed_needed, settings, embed_fn)
-            for text, vec in zip(embed_needed, emb):
-                embeddings[chunk_hash(text)] = vec
+            if len(emb) != len(embed_needed):
+                raise RuntimeError(
+                    f"embedding result count mismatch: expected={len(embed_needed)} actual={len(emb)}"
+                )
+            for logical_key, vec in zip(embed_keys, emb):
+                embeddings[logical_key] = vec
 
         _write_version_chunks(
-            db, job=job, version=version, diff=diff, chunks=chunks, embeddings=embeddings,
+            db,
+            job=job,
+            version=version,
+            diff=diff,
+            chunks=chunks,
+            embeddings=embeddings,
+            embedding_inputs=embedding_inputs,
+            chunk_metadata=chunk_metadata,
         )
         version.status = EMBEDDED
         db.flush()
@@ -407,6 +818,9 @@ def process_job(
         # 先归档旧版本关联（延迟 tombstone：保留 revision 供回滚/复用）
         if old_version_id is not None and old_version_id != version.id:
             _archive_version_chunks(db, version_id=old_version_id)
+            old_version = db.get(KnowledgeDocumentVersion, old_version_id)
+            if old_version is not None:
+                old_version.status = "ARCHIVED"
 
         version.status = PUBLISHED
         version.published_at = datetime.utcnow()
@@ -419,6 +833,23 @@ def process_job(
         job.status = "COMPLETED"
         job.updated_at = datetime.utcnow()
 
+        # ---- Phase 6（§6.1/§6.2）：可选物理代际发布（逐文档发布后，不影响默认行为） ----
+        if generation_service is not None and generation_id is not None:
+            version.generation_id = generation_id
+            # SessionLocal disables autoflush. Persist the newly activated
+            # current_version_id and chunk links before querying the complete
+            # serving snapshot, otherwise the first generation is empty.
+            db.flush()
+            chunks, vectors = _collect_serving_generation_payload(db, generation_id=generation_id)
+            generation_service.create_candidate(generation_id)
+            generation_service.build(generation_id, chunks, vectors)
+            report = generation_service.validate(generation_id, active_chunk_count=len(chunks))
+            if not report.get("ok"):
+                raise RuntimeError(f"generation validation failed: {report}")
+            generation_service.publish(generation_id)
+
+        job.error_class = None
+        job.error_message = None
         db.commit()
         logger.info("IndexJob %s completed: version %d published", job.id, version.version)
 
@@ -435,6 +866,23 @@ def _do_embed(contents: list[str], settings: Settings, embed_fn=None) -> list[li
     return _default_embed(contents, settings)
 
 
+def _event_for_job(
+    db: Session, job: IndexJob, *, include_processed: bool = False
+) -> tuple[OutboxEvent | None, dict]:
+    """精确匹配当前 job 的 version event，禁止同文档多版本串单。"""
+    query = db.query(OutboxEvent).filter(OutboxEvent.document_id == job.document_id)
+    if not include_processed:
+        query = query.filter(OutboxEvent.status == "PENDING")
+    for event in query.order_by(OutboxEvent.id.asc()).all():
+        try:
+            payload = json.loads(event.payload_json)
+        except (TypeError, ValueError):
+            continue
+        if int(payload.get("version_id") or 0) == int(job.document_version_id or 0):
+            return event, payload
+    return None, {}
+
+
 def _default_embed(contents: list[str], settings: Settings) -> list[list[float]]:
     """默认 embedding 实现：通过 vector_store（若可用）或确定性 fallback。
 
@@ -442,14 +890,18 @@ def _default_embed(contents: list[str], settings: Settings) -> list[list[float]]
     直接 raise（上层→重试→死信→保留上一 Generation serving）。仅显式
     ``allow_deterministic_embedding=True``（test/dev）才允许 hash 向量。
     """
-    from app.core.database import SessionLocal
-    from app.services.knowledge import KnowledgeService
+    from app.services.embedding_provider import build_embedding_provider
     from app.services.index_generation import EmbeddeddingGuardError
 
-    ks = KnowledgeService(SessionLocal(), settings)
     try:
-        if ks.vector_store.can_embed:
-            return ks.vector_store.embed_texts(contents)
+        provider_type = getattr(settings, "embedding_provider_type", "remote")
+        if (
+            getattr(settings, "allow_deterministic_embedding", False)
+            and provider_type == "remote"
+            and not (getattr(settings, "openai_embedding_api_key", "") or getattr(settings, "openai_api_key", ""))
+        ):
+            provider_type = "mock"
+        return build_embedding_provider(settings, explicit_type=provider_type).embed_documents(contents)
     except Exception as exc:
         logger.warning("embedding call failed: %s", exc)
     if not getattr(settings, "allow_deterministic_embedding", False):
@@ -480,8 +932,12 @@ def _write_version_chunks(
     diff,
     chunks: list[tuple[str, str, str]],
     embeddings: dict[str, list[float]],
+    embedding_inputs: dict[str, str] | None = None,
+    chunk_metadata: dict[str, dict] | None = None,
 ) -> None:
     """把 diff 结果写入三张稳定身份表（7.1）。"""
+    embedding_inputs = embedding_inputs or {}
+    chunk_metadata = chunk_metadata or {}
     source_index_map: dict[str, int] = {}
     for index, (logical_key, _, _) in enumerate(chunks):
         source_index_map[logical_key] = index
@@ -503,6 +959,14 @@ def _write_version_chunks(
             )
             db.add(doc_chunk)
             db.flush()
+        metadata = chunk_metadata.get(logical_key, {})
+        section_path = metadata.get("section_path") or []
+        doc_chunk.section_path = " / ".join(str(v) for v in section_path) or None
+        doc_chunk.content_type = metadata.get("content_type")
+        doc_chunk.page_start = metadata.get("page_start")
+        doc_chunk.page_end = metadata.get("page_end")
+        doc_chunk.document_profile = metadata.get("document_profile")
+        doc_chunk.parent_key = metadata.get("parent_key")
 
         # chunk_revision：同 (chunk_id, content_hash) 幂等
         rev = (
@@ -513,19 +977,27 @@ def _write_version_chunks(
             )
             .first()
         )
+        embedding_input = embedding_inputs.get(logical_key, content)
+        input_hash = chunk_hash(embedding_input)
         if rev is None:
-            vec = embeddings.get(ch_hash)
+            vec = embeddings.get(logical_key)
             rev = ChunkRevision(
                 chunk_id=doc_chunk.id,
                 content_hash=ch_hash,
                 content=content,
+                embedding_text=embedding_input,
+                embedding_text_hash=input_hash,
+                token_count=metadata.get("token_count"),
                 embedding_status="EMBEDDED" if vec is not None else "PENDING",
                 embedding_json=json.dumps(vec, separators=(",", ":")) if vec is not None else None,
                 embedding_hash=embedding_hash(vec) if vec is not None else None,
             )
             db.add(rev)
             db.flush()
-        elif vec := embeddings.get(ch_hash):
+        elif vec := embeddings.get(logical_key):
+            rev.embedding_text = embedding_input
+            rev.embedding_text_hash = input_hash
+            rev.token_count = metadata.get("token_count")
             rev.embedding_status = "EMBEDDED"
             rev.embedding_json = json.dumps(vec, separators=(",", ":"))
             rev.embedding_hash = embedding_hash(vec)
@@ -632,6 +1104,85 @@ def _check_acl_version(
             f"current={ws.acl_version}; revalidate/rebuild required (§4.8)",
         )
     return True, ""
+
+
+def _collect_generation_payload(db: Session, *, version_id: int) -> tuple[list[Any], list[list[float]]]:
+    """Phase 6（§6.1/§6.2）：收集版本 active chunks + embeddings 供物理代际 build。
+
+    返回 (chunks, vectors)：chunks 为带 OpenSearch 元数据字段的对象（bulk_index 契约），
+    vectors 为对应的 embedding 向量；顺序一一对应。
+    """
+    from types import SimpleNamespace
+
+    workspace_id = version_workspace(db, version_id)
+    links = (
+        db.query(DocumentVersionChunk)
+        .filter(DocumentVersionChunk.document_version_id == version_id)
+        .filter(DocumentVersionChunk.status == "ACTIVE")
+        .order_by(DocumentVersionChunk.source_index.asc())
+        .all()
+    )
+    chunks: list[Any] = []
+    vectors: list[list[float]] = []
+    for link in links:
+        rev = db.get(ChunkRevision, link.revision_id) if link.revision_id is not None else None
+        if rev is None or rev.embedding_status != "EMBEDDED" or not rev.embedding_json:
+            continue
+        try:
+            vec = json.loads(rev.embedding_json)
+        except (TypeError, ValueError):
+            continue
+        doc = db.get(KnowledgeDocumentChunk, link.chunk_id) if link.chunk_id is not None else None
+        version = db.get(KnowledgeDocumentVersion, version_id)
+        parent_doc = db.get(KnowledgeDocument, version.document_id) if version else None
+        chunks.append(SimpleNamespace(
+            id=link.chunk_id,
+            content=rev.content,
+            source=getattr(parent_doc, "source_uri", "") if parent_doc else "",
+            source_key=f"{link.chunk_id or 0}:{link.source_index}",
+            source_index=link.source_index,
+            organization_id=getattr(parent_doc, "organization_id", None) if parent_doc else None,
+            workspace_id=workspace_id,
+            classification_level=getattr(parent_doc, "classification_level", None) if parent_doc else None,
+            generation_id=getattr(version, "generation_id", None) if version else None,
+            domain=getattr(parent_doc, "domain", None) if parent_doc else None,
+            document_title=(getattr(parent_doc, "source_uri", "") or "").rsplit("/", 1)[-1] if parent_doc else "",
+            section_path=getattr(doc, "section_path", None) if doc else None,
+            content_type=getattr(doc, "content_type", None) if doc else None,
+            document_profile=getattr(doc, "document_profile", None) if doc else None,
+            page_start=getattr(doc, "page_start", None) if doc else None,
+            page_end=getattr(doc, "page_end", None) if doc else None,
+        ))
+        vectors.append(vec)
+    return chunks, vectors
+
+
+def _collect_serving_generation_payload(
+    db: Session, *, generation_id: str | None = None
+) -> tuple[list[Any], list[list[float]]]:
+    """构建完整 serving 快照，避免逐文档候选发布时丢失其他文档。"""
+    document_ids = [row[0] for row in db.query(KnowledgeDocument.current_version_id).filter(
+        KnowledgeDocument.current_version_id.isnot(None),
+        KnowledgeDocument.status == "ACTIVE",
+    ).all()]
+    all_chunks: list[Any] = []
+    all_vectors: list[list[float]] = []
+    for version_id in document_ids:
+        chunks, vectors = _collect_generation_payload(db, version_id=version_id)
+        if generation_id is not None:
+            for chunk in chunks:
+                chunk.generation_id = generation_id
+        all_chunks.extend(chunks)
+        all_vectors.extend(vectors)
+    return all_chunks, all_vectors
+
+
+def version_workspace(db: Session, version_id: int) -> int | None:
+    v = db.get(KnowledgeDocumentVersion, version_id)
+    if v is None:
+        return None
+    doc = db.get(KnowledgeDocument, v.document_id)
+    return getattr(doc, "workspace_id", None) if doc else None
 
 
 def _validate_version(

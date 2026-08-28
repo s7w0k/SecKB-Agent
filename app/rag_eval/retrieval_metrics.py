@@ -35,6 +35,8 @@ class RetrievedItem:
     rank: int
     chunk_key: str | None
     domain: str | None = None
+    equivalent_keys: tuple[str, ...] = ()
+    content: str = ""
 
 
 def precision_at_k(retrieved: Sequence[RetrievedItem], gold_keys: Sequence[str], k: int) -> float:

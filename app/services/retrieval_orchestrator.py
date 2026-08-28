@@ -113,12 +113,16 @@ class RetrievalOrchestrator:
         router: RetrieverRouter | None = None,
         generation: str | None = None,
         actor: str = "agent",
+        rrf_k: int = 60,
+        rrf_top_k: int = 20,
     ):
         self.db = db
         self.registry = registry
         self.router = router or RetrieverRouter()
         self.generation = generation
         self._actor = actor
+        self.rrf_k = max(1, int(rrf_k))
+        self.rrf_top_k = max(1, int(rrf_top_k))
 
     def retrieve(
         self,
@@ -142,6 +146,7 @@ class RetrievalOrchestrator:
             run_id=run_id,
         )
         attempts = []
+        ranked_runs: list[tuple[str, list[Any]]] = []
         for kind in kinds:
             try:
                 secure = self.registry.get_secure(kind, generation=generation, audit=sink.record)
@@ -153,13 +158,39 @@ class RetrievalOrchestrator:
                 continue  # fail-closed：该来源整体拒绝，不作为证据进入
             except Exception:
                 continue
+            ranked_runs.append((kind, list(result.chunks)))
             for chunk in result.chunks:
                 attempts.append((kind, chunk))
         sink.flush()
 
-        evidence = self._to_evidence(attempts, plan, generation)
+        fused = self._rrf_fuse(ranked_runs)
+        evidence = self._to_evidence(fused, plan, generation)
         runs = self._stats(attempts)
         return OrchestratorResult(evidence=evidence, runs=runs, route_kinds=kinds)
+
+    def _rrf_fuse(self, ranked_runs: list[tuple[str, list[Any]]]) -> list[tuple[str, Any]]:
+        """对多 query、多来源排名做 Reciprocal Rank Fusion，并按稳定证据 ID 去重。"""
+        fused_scores: dict[str, float] = {}
+        selected: dict[str, tuple[str, Any]] = {}
+        for kind, chunks in ranked_runs:
+            seen_in_run: set[str] = set()
+            for rank, chunk in enumerate(chunks, start=1):
+                key = chunk.evidence_id or f"{kind}:{chunk.source}:{chunk.content}"
+                if key in seen_in_run:
+                    continue
+                seen_in_run.add(key)
+                fused_scores[key] = fused_scores.get(key, 0.0) + 1.0 / (self.rrf_k + rank)
+                selected.setdefault(key, (kind, chunk))
+        ordered = sorted(
+            selected.items(),
+            key=lambda item: (fused_scores[item[0]], float(getattr(item[1][1], "score", 0.0))),
+            reverse=True,
+        )[: self.rrf_top_k]
+        output: list[tuple[str, Any]] = []
+        for key, (kind, chunk) in ordered:
+            chunk.score = fused_scores[key]
+            output.append((kind, chunk))
+        return output
 
     def _to_evidence(self, attempts: list[tuple[str, Any]], plan, generation: str) -> EvidenceArtifact:
         chunks: list[EvidenceChunk] = []

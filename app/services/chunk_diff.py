@@ -53,6 +53,17 @@ def logical_chunk_key(document_id: int, section_path: str | None, source_index: 
     return f"doc-{document_id}:{section}:{source_index}"
 
 
+def section_aware_chunk_key(document_id: int, section_anchor: str, content_type: str, local_ordinal: int) -> str:
+    """结构感知 logical key：`doc-<id>:<section_anchor>:<content_type>:<local_ordinal>`。
+
+    技术方案 §9.1 / P6-2。section_anchor 指当前层级标题/条款锚点，content_type 区分
+    profile 产物（policy_clause/qa/table_rows...），local_ordinal 为分组内序号。
+    前文插入时未变化的 section_anchor + content_type + ordinal 保持不变 → embedding 可复用。
+    """
+    anchor = (section_anchor or "").strip().replace(":", "_")[:64] or "_root"
+    return f"doc-{document_id}:{anchor}:{content_type}:{local_ordinal}"
+
+
 def stable_chunk_key(document_id: int, section_path: str | None, chunk_hash_str: str) -> str:
     """兼容旧版 stable chunk key：document_id + section_path + normalized_chunk_hash。
 
@@ -169,5 +180,80 @@ def diff_chunks(
     for stable_key, _, ch_hash in old_chunks:
         if ch_hash not in new_hashes:
             diff.deleted.append(stable_key)
+
+    return diff
+
+
+_ChunkRecord = tuple[str, str, str, str, str]  # (logical_key, section_anchor, content_type, content, chunk_hash)
+
+
+def diff_chunks_structural(
+    old_chunks: list[_ChunkRecord],
+    new_chunks: list[_ChunkRecord],
+) -> ChunkDiff:
+    """结构感知差异（技术方案 §9.1 / P6-2）。
+
+    比较顺序：
+    1. logical key 完全匹配（同 key 同 hash）→ unchanged。
+    2. content hash 匹配（跨位置）→ moved。
+    3. 同 section 邻近序列匹配（同 anchor 相邻，内容变化）→ modified。
+    4. 其余 → added / deleted。
+
+    目标是前文插入一段后，后续未变化章节不全部重新 embedding。
+    """
+    diff = ChunkDiff()
+    old_by_key: dict[str, tuple[str, str, str, str]] = {}
+    for key, anchor, ctype, content, ch in old_chunks:
+        old_by_key[key] = (anchor, ctype, content, ch)
+    old_by_hash: dict[str, tuple[str, str, str, str]] = {}
+    for key, anchor, ctype, content, ch in old_chunks:
+        old_by_hash.setdefault(ch, (key, anchor, ctype, content))
+
+    # 同 section 邻近序列：old 中按 (anchor, ctype) 分组的顺序列表
+    old_seq: dict[tuple[str, str], list[tuple[str, str]]] = {}
+    for key, anchor, ctype, content, ch in old_chunks:
+        old_seq.setdefault((anchor, ctype), []).append((key, ch))
+
+    new_hashes = {ch for _, _, _, _, ch in new_chunks}
+    consumed_old_keys: set[str] = set()
+    consumed_old_hashes: set[str] = set()
+
+    for key, anchor, ctype, content, ch in new_chunks:
+        old_hit = old_by_key.get(key)
+        if old_hit is not None:
+            old_anchor, old_ctype, old_content, old_ch = old_hit
+            if old_ch == ch:
+                diff.unchanged.append((key, content, ch))
+                consumed_old_keys.add(key)
+                consumed_old_hashes.add(old_ch)
+                continue
+            # 同 key 内容变化：同 section 邻近序列内视为 modified（若内容在旧库出现则 moved）
+            if ch in old_by_hash:
+                diff.moved.append((key, content, ch))
+                consumed_old_keys.add(key)
+                consumed_old_hashes.add(old_by_hash[ch][3])
+                continue
+            diff.modified.append((key, content, ch))
+            consumed_old_keys.add(key)
+            continue
+        # key 变了：按内容 hash 尝试 moved
+        if ch in old_by_hash:
+            diff.moved.append((key, content, ch))
+            consumed_old_keys.add(old_by_hash[ch][0])
+            consumed_old_hashes.add(ch)
+            continue
+        # 同 anchor 邻近序列内内容匹配 → modified
+        neighbors = old_seq.get((anchor, ctype), [])
+        if any(seq_hash == ch for _, seq_hash in neighbors):
+            diff.modified.append((key, content, ch))
+            # 记下该 section 序列全部视为已处理（保守：避免重复新增）
+            consumed_old_hashes.add(ch)
+            continue
+        diff.added.append((key, content, ch))
+
+    # deleted：旧 key 未被任何新记录消费
+    for key, anchor, ctype, content, ch in old_chunks:
+        if key not in consumed_old_keys and ch not in consumed_old_hashes:
+            diff.deleted.append(key)
 
     return diff

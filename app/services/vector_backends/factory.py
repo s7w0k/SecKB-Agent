@@ -33,7 +33,7 @@ def build_vector_backend(settings: Any, *, store: Any = None):
 
 
 def _build_chroma(settings, store):
-    from app.services.vector_store import ChromaVectorBackend
+    from app.services.vector_store import ChromaKnowledgeStore, ChromaVectorBackend
 
     if store is None:
         store = ChromaKnowledgeStore(settings)
@@ -62,6 +62,12 @@ def _build_opensearch(settings):
         index_prefix=getattr(settings, "opensearch_index_prefix", "seckb-rag"),
         alias_name=getattr(settings, "opensearch_alias_name", "seckb-rag-current"),
         embedding_dim=getattr(settings, "opensearch_embedding_dim", 1536),
+        bm25_weight=getattr(settings, "knowledge_hybrid_bm25_weight", 1.0),
+        vector_weight=getattr(settings, "knowledge_hybrid_vector_weight", 1.0),
+        rerank_candidate_k=getattr(settings, "knowledge_rerank_candidate_k", 5),
+        local_metadata_rerank_enabled=getattr(settings, "knowledge_local_metadata_rerank_enabled", False),
+        local_metadata_rerank_window=getattr(settings, "knowledge_local_metadata_rerank_window", 20),
+        exact_content_dedupe_enabled=getattr(settings, "knowledge_exact_content_dedupe_enabled", False),
     )
 
 

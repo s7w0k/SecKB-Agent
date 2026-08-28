@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import time
 import uuid
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
@@ -546,15 +547,29 @@ class ContextAgent(BaseAutonomousAgent):
             query_types = decomposition.types
             multi = None
             if plan_queries:
+                # Phase 7（§7）：每请求只构建一个全局共享检索预算，覆盖 Query
+                # Decomposition / Embedding / Retriever / Reranker / Re-retrieval。
+                from app.core.shared_retrieval_budget import SharedRetrievalBudget
+
+                _s = self.services.settings
+                shared_budget = SharedRetrievalBudget(
+                    deadline_at=time.time() + float(getattr(_s, "multi_query_deadline_seconds", 5.0)),
+                    max_queries=int(getattr(_s, "max_queries_per_attempt", 3) or 3),
+                    max_total_candidates=int(getattr(_s, "multi_query_max_total_candidates", 60) or 60),
+                    max_embedding_calls=int(getattr(_s, "multi_query_max_embedding_calls", 3) or 3),
+                    max_rerank_calls=1,
+                    max_cost_usd=float(getattr(_s, "multi_query_max_cost_usd", 0.0) or 0.0),
+                )
                 try:
                     multi = execute_multi_query(
                         plan=self._plan_obj(board, query, plan_queries, query_types),
                         retrieve_fn=lambda q: self._run_retrieval(board, q, domain) or [],
-                        max_queries=self.services.settings.max_queries_per_attempt,
+                        shared=shared_budget,
                         generation=self.services.settings.index_generation,
                         attempt=1,
                         retrieval_path="multi_decomposed" if len(plan_queries) > 1 else "hybrid",
                     )
+                    _observe_budget(shared_budget)
                 except Exception:
                     multi = None
             if multi is not None and multi.merged.chunks:
@@ -804,12 +819,26 @@ class ContextAgent(BaseAutonomousAgent):
         # P5-05：query-rewrite 作为独立 generation operation 观测
         try:
             query = self.client().complete([
-                AiMessage(role="system", content=f"{self.profile.system_prompt}\n把用户输入改写成适合检索知识库的中文查询词，只输出查询词。"),
+                AiMessage(role="system", content=(
+                    f"{self.profile.system_prompt}\n"
+                    "把用户输入改写成可独立检索的中文查询。保留产品名、制度名、版本号、日期、"
+                    "错误码和约束条件；消解代词；不要回答问题；只输出一行查询。"
+                )),
                 AiMessage(role="user", content=f"记忆摘要：\n{memory_brief}\n\n当前输入：\n{model_input}"),
             ], operation="query-rewrite").strip()
-            return (query or model_input)[:60]
+            return self._sanitize_rewritten_query(query, model_input)
         except Exception:
-            return model_input[:60]
+            return self._sanitize_rewritten_query("", model_input)
+
+    def _sanitize_rewritten_query(self, query: str, original: str) -> str:
+        import re
+
+        candidate = re.sub(r"^(查询(词|语句)?|改写结果)\s*[:：]\s*", "", str(query or "").strip())
+        candidate = " ".join(line.strip() for line in candidate.splitlines() if line.strip())
+        if len(candidate) < 2 or candidate.lower() in {"无", "none", "null"}:
+            candidate = str(original or "").strip()
+        max_chars = max(60, int(getattr(self.services.settings, "query_rewrite_max_chars", 256)))
+        return candidate[:max_chars]
 
     def _summarize_memory(self, history: list[AiMessage], current_input: str, fallback: str) -> str:
         max_chars = max(120, self.services.settings.memory_summary_max_chars)
@@ -1275,6 +1304,40 @@ class CoordinatorAgent(BaseAutonomousAgent):
 
     def remember_acceptance(self, artifact_id: str, reason: str) -> None:
         self.remember(f"accepted={artifact_id}; reason={reason}")
+
+
+def _observe_budget(shared) -> None:
+    """Phase 7（§7）：请求结束后记录共享检索预算观测指标。
+
+    记录 retrieval_budget_exhaust_rate / average_candidates_per_query /
+    average_total_candidates / average_rerank_calls / deadline_degradation_rate。
+    线下通过 app.observability.metrics.MetricRecorder 快照断言。
+    """
+    snap = shared.snapshot()
+    total_candidates = snap.get("candidates_used", 0)
+    queries = max(1, snap.get("queries_used", 0))
+    avg_per_query = round(total_candidates / queries, 3)
+    try:
+        from app.core.telemetry import get_collector
+        from app.observability.metrics import MetricRecorder
+
+        recorder = MetricRecorder(get_collector())
+        recorder.set_gauge("rag", "budget_exhaust_rate", _budget_exhaust_rate(snap))
+        recorder.set_gauge("rag", "average_candidates_per_query", avg_per_query)
+        recorder.set_gauge("rag", "average_total_candidates", total_candidates)
+        recorder.set_gauge("rag", "average_rerank_calls", snap.get("rerank_used", 0))
+        recorder.set_gauge("rag", "deadline_degradation_rate", _deadline_degradation_rate(snap))
+    except Exception:  # noqa: BLE001 - 指标采集失败不阻塞主链
+        pass
+
+
+def _budget_exhaust_rate(snap: dict) -> float:
+    attempts = max(1, snap.get("query_attempts", 0))
+    return round(snap.get("exhaust_events", 0) / attempts, 4)
+
+
+def _deadline_degradation_rate(snap: dict) -> float:
+    return 1.0 if snap.get("remaining_seconds", 0) <= 0 else 0.0
 
 
 def _intent(board: CollaborationBlackboard) -> IntentType:

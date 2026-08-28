@@ -38,8 +38,9 @@ class PhysicalGenerationTest(unittest.TestCase):
     """物理代际构建 + 校验 + 严格代际隔离。"""
 
     def test_generation_index_naming(self):
-        self.assertEqual(generation_index_name("G104"), "seckb-rag-G104")
-        self.assertEqual(generation_index_name("G001", prefix="kb"), "kb-G001")
+        # OpenSearch 索引名必须小写（opensearch_backend.generation_index_name 统一 lowercase）
+        self.assertEqual(generation_index_name("G104"), "seckb-rag-g104")
+        self.assertEqual(generation_index_name("G001", prefix="kb"), "kb-g001")
 
     def test_build_writes_to_candidate_not_current(self):
         backend = OpenSearchVectorBackend()
@@ -98,7 +99,7 @@ class PhysicalGenerationTest(unittest.TestCase):
         backend.bulk_index(generation_id="G103", chunks=[_chunk(1, "旧问答")], vectors=[[1.0, 0.0]])
         backend.activate_generation(generation_id="G103")
         backend.bulk_index(generation_id="G104", chunks=[_chunk(2, "新问答")], vectors=[[0.0, 1.0]])
-        cand = backend.search(vector=[0.0, 1.0], top_k=5, generation_id="seckb-rag-G104")
+        cand = backend.search(vector=[0.0, 1.0], top_k=5, generation_id="seckb-rag-g104")
         curr = backend.search(vector=[0.0, 1.0], top_k=5)
         self.assertEqual([h.content for h in cand], ["新问答"])
         self.assertEqual([h.content for h in curr], ["旧问答"])

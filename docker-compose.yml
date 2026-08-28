@@ -31,6 +31,28 @@ services:
       timeout: 3s
       retries: 30
 
+  opensearch:
+    image: opensearchproject/opensearch:2.11.1
+    environment:
+      - discovery.type=single-node
+      - DISABLE_SECURITY_PLUGIN=true   # 本地评测：关闭安全插件，纯 HTTP
+      - OPENSEARCH_JAVA_OPTS=-Xms1g -Xmx1g
+      - bootstrap.memory_lock=true
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    ports:
+      - "19200:9200"
+    volumes:
+      - opensearch-data:/usr/share/opensearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fs http://localhost:9200/_cluster/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+
   app:
     build: .
     depends_on:
@@ -38,7 +60,10 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-    environment:
+      opensearch:
+        condition: service_healthy
+    environment: &app-environment
+      RUN_MODE: api
       AGENT_FRAMEWORK: ${AGENT_FRAMEWORK:-event_driven_multi_agent}
       MULTI_DOMAIN_ENABLED: ${MULTI_DOMAIN_ENABLED:-false}
       SERVICE_DOMAIN_ENABLED: ${SERVICE_DOMAIN_ENABLED:-false}
@@ -50,11 +75,27 @@ services:
       OPENAI_EMBEDDING_MODEL: ${OPENAI_EMBEDDING_MODEL:-text-embedding-3-small}
       OPENAI_EMBEDDING_BASE_URL: ${OPENAI_EMBEDDING_BASE_URL:-}
       OPENAI_EMBEDDING_API_KEY: ${OPENAI_EMBEDDING_API_KEY:-}
+      EMBEDDING_PROVIDER_TYPE: ${EMBEDDING_PROVIDER_TYPE:-remote}
+      ALLOW_DETERMINISTIC_EMBEDDING: "false"
       OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
       OLLAMA_MODEL: ${OLLAMA_MODEL:-mindbridge-qwen2.5-7b-ft:latest}
       OLLAMA_EMBEDDING_MODEL: ${OLLAMA_EMBEDDING_MODEL:-nomic-embed-text:latest}
       DATABASE_URL: mysql+pymysql://mindbridge:mindbridge@mysql:3306/mindbridge?charset=utf8mb4
       REDIS_URL: redis://redis:6379/0
+      VECTOR_BACKEND: opensearch
+      OPENSEARCH_HOSTS: http://opensearch:9200
+      OPENSEARCH_USE_SSL: "false"
+      OPENSEARCH_VERIFY_CERTS: "false"
+      OPENSEARCH_EMBEDDING_DIM: ${OPENSEARCH_EMBEDDING_DIM:-1024}
+      OPENSEARCH_ALIAS_NAME: seckb-rag-current
+      UNIFIED_INGEST_PIPELINE: "true"
+      DOCUMENT_PROCESSING_V2_ENABLED: "true"
+      DOCUMENT_PARSER_DEFAULT: mineru
+      PDF_PARSER: mineru
+      MINERU_BASE_URL: ${MINERU_BASE_URL:-https://mineru.net}
+      MINERU_BACKEND: ${MINERU_BACKEND:-agent}
+      PARSE_QUALITY_GATE_MODE: enforce
+      EMBEDDING_INPUT_VERSION: v2
       KNOWLEDGE_VECTOR_ENABLED: ${KNOWLEDGE_VECTOR_ENABLED:-true}
       KNOWLEDGE_VECTOR_REQUIRED: ${KNOWLEDGE_VECTOR_REQUIRED:-false}
       CHROMA_PERSIST_DIR: /app/data/chroma
@@ -82,10 +123,45 @@ services:
       EXCEL_PATH: /app/data/mindbridge-risk-ledger.xlsx
     ports:
       - "8080:8080"
-    volumes:
+    volumes: &app-volumes
       - ./data:/app/data
       - ./app:/app/app:ro
+
+  index-worker:
+    build: .
+    command: ["python", "-m", "app.workers.index_worker"]
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      opensearch:
+        condition: service_healthy
+    environment:
+      <<: *app-environment
+      RUN_MODE: index-worker
+    volumes: *app-volumes
+
+  # 先按 MinerU 官方 Dockerfile 构建本地 mineru:latest，再用 --profile mineru 启动。
+  mineru:
+    image: mineru:latest
+    profiles: ["mineru"]
+    restart: unless-stopped
+    entrypoint: mineru-api
+    command: ["--host", "0.0.0.0", "--port", "8000"]
+    environment:
+      MINERU_MODEL_SOURCE: local
+    ports:
+      - "18000:8000"
+    ipc: host
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fs http://localhost:8000/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
 
 volumes:
   mysql-data:
   redis-data:
+  opensearch-data:

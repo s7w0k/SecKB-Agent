@@ -1,0 +1,12 @@
+{
+  "source_dataset": "data/eval/rag-data-plane/retrieval-gold-v2-600.jsonl",
+  "total_probed": 600,
+  "hard_set_target": 120,
+  "hard_set_built": 120,
+  "by_hard_type": {
+    "H2: Multi-hop": 60,
+    "H1: Lexical mismatch": 60
+  },
+  "candidate_k": 50,
+  "seed": 42
+}

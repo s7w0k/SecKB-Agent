@@ -1,0 +1,412 @@
+{
+  "started_at": "2026-08-28T03:11:30.387735Z",
+  "generation_id": "G20260828MT1",
+  "configuration": {
+    "mineru_backend": "agent",
+    "document_parser_default": "mineru",
+    "embedding_provider_type": "remote",
+    "embedding_model": "BAAI/bge-m3",
+    "embedding_dimension": 1024,
+    "opensearch_index_prefix": "seckb-rag"
+  },
+  "documents": {
+    "pdf": {
+      "kind": "pdf",
+      "file": "ocr-incident-report.pdf",
+      "document_id": 2,
+      "version_id": 1,
+      "version_status": "PUBLISHED",
+      "job_id": 1,
+      "job_status": "COMPLETED",
+      "error": null,
+      "parser": "mineru_adapter:mineru",
+      "parse_mode": "hybrid",
+      "parse_quality_verdict": "PASS",
+      "parse_quality_score": 0.8176,
+      "document_profile": "narrative",
+      "chunk_count": 1,
+      "embedding_model": "BAAI/bge-m3",
+      "query": "值班人员发现高风险信号后应在多少分钟内完成上报？",
+      "expected": "十分钟",
+      "generation_id": "G20260828MT1"
+    },
+    "docx": {
+      "kind": "docx",
+      "file": "incident-isolation-brief.docx",
+      "document_id": 3,
+      "version_id": 2,
+      "version_status": "PUBLISHED",
+      "job_id": 2,
+      "job_status": "COMPLETED",
+      "error": null,
+      "parser": "mineru_adapter:mineru",
+      "parse_mode": "hybrid",
+      "parse_quality_verdict": "PASS",
+      "parse_quality_score": 0.8241,
+      "document_profile": "narrative",
+      "chunk_count": 1,
+      "embedding_model": "BAAI/bge-m3",
+      "query": "异常外联隔离必须在多少分钟内完成？",
+      "expected": "17 分钟",
+      "generation_id": "G20260828MT1"
+    },
+    "pptx": {
+      "kind": "pptx",
+      "file": "recovery-drill-brief.pptx",
+      "document_id": 4,
+      "version_id": 3,
+      "version_status": "PUBLISHED",
+      "job_id": 3,
+      "job_status": "COMPLETED",
+      "error": null,
+      "parser": "mineru_adapter:mineru",
+      "parse_mode": "hybrid",
+      "parse_quality_verdict": "PASS",
+      "parse_quality_score": 0.8206,
+      "document_profile": "narrative",
+      "chunk_count": 1,
+      "embedding_model": "BAAI/bge-m3",
+      "query": "How quickly must PPTX-7319 restore the previous index generation?",
+      "expected": "23 minutes",
+      "generation_id": "G20260828MT1"
+    },
+    "xlsx": {
+      "kind": "xlsx",
+      "file": "mindbridge-risk-ledger.xlsx",
+      "document_id": 5,
+      "version_id": 4,
+      "version_status": "PUBLISHED",
+      "job_id": 4,
+      "job_status": "COMPLETED",
+      "error": null,
+      "parser": "mineru_adapter:mineru",
+      "parse_mode": "hybrid",
+      "parse_quality_verdict": "PASS",
+      "parse_quality_score": 0.8379,
+      "document_profile": "narrative",
+      "chunk_count": 1,
+      "embedding_model": "BAAI/bge-m3",
+      "query": "风险台账中 reportId 2 的 riskLevel 是什么？",
+      "expected": "HIGH",
+      "generation_id": "G20260828MT1"
+    },
+    "markdown": {
+      "kind": "markdown",
+      "file": "release-notes.md",
+      "document_id": 6,
+      "version_id": 5,
+      "version_status": "PUBLISHED",
+      "job_id": 5,
+      "job_status": "COMPLETED",
+      "error": null,
+      "parser": "markdown",
+      "parse_mode": "native_text",
+      "parse_quality_verdict": "PASS",
+      "parse_quality_score": 0.8043,
+      "document_profile": "narrative",
+      "chunk_count": 1,
+      "embedding_model": "BAAI/bge-m3",
+      "query": "MD-2608 的灰度流量上限是多少？",
+      "expected": "35%",
+      "generation_id": "G20260828MT1"
+    },
+    "text": {
+      "kind": "text",
+      "file": "oncall-note.txt",
+      "document_id": 7,
+      "version_id": 6,
+      "version_status": "PUBLISHED",
+      "job_id": 6,
+      "job_status": "COMPLETED",
+      "error": null,
+      "parser": "plain_text",
+      "parse_mode": "native_text",
+      "parse_quality_verdict": "PASS",
+      "parse_quality_score": 0.8039,
+      "document_profile": "narrative",
+      "chunk_count": 1,
+      "embedding_model": "BAAI/bge-m3",
+      "query": "缓存雪崩告警后的首轮健康检查间隔是多少秒？",
+      "expected": "42 秒",
+      "generation_id": "G20260828MT1"
+    }
+  },
+  "generation": {
+    "status": "PUBLISHED",
+    "generation_id": "G20260828MT1",
+    "indexed_chunks": 6,
+    "vector_dimensions": [
+      1024
+    ],
+    "validation": {
+      "ok": true,
+      "reason": "",
+      "chunk_count": 6,
+      "embedding_count": 6,
+      "generation_id": "G20260828MT1",
+      "db_active_count": 6,
+      "count_match": true
+    },
+    "publication": {
+      "from": "seckb-rag-g900",
+      "to": "seckb-rag-g20260828mt1",
+      "generation_id": "G20260828MT1",
+      "skipped": false
+    }
+  },
+  "retrieval": {
+    "pdf": {
+      "query": "值班人员发现高风险信号后应在多少分钟内完成上报？",
+      "expected": "十分钟",
+      "matched_rank": 2,
+      "passed": true,
+      "hits": [
+        {
+          "rank": 1,
+          "source": "validation://multitype/20260828/incident-isolation-brief.docx",
+          "score": 0.01628935727296383,
+          "content": "**应急隔离操作简报**\n\n文档编号 DOCX-4821｜真实 DOCX 解析与切块验证\n\n**适用范围：** 生产环境异常连接隔离\n\n**责任角色：** 安全值班经理\n\n**密级：** INTERNAL\n\n# **关键要求**\n\n**检测到异常外联后，隔离动作必须在 17 分钟内完成；** 随后由安全值班经理在工单中登记证据链。\n\n# **执行步骤**\n\n**1.** 确认告警指纹与资产归属，避免误隔离共享出口。\n\n**2.** 执行网络隔离并保存策略变更编号、时间戳和操作者。\n\n**3.** 验证异常连接归零，将结果写入 DOCX-4821 处置记录。\n\n# **升级矩阵**\n\n<table><tr><td><p><strong>级别</strong></p></td><td><p><strong>触发条件</strong></p></td><td><p><strong>升级对象</strong></p></td></tr><tr><td><p>P1</p></td><td><p>隔离超过 17 分钟</p></td><td><p>安全负责人</p></td></tr><tr><t"
+        },
+        {
+          "rank": 2,
+          "source": "validation://multitype/20260828/ocr-incident-report.pdf",
+          "score": 0.016181914331041776,
+          "content": "## MindBridgeRAG文档解析测试\n\n第一章事件响应流程\n\n当系统检测到高风险事件时，应在十分钟内完成上报。\n\n步骤一：确认事件编号；步骤二：检索知识库；步骤三：记录处理结果。\n\n<table><tr><td rowspan=1 colspan=1>事件</td><td rowspan=1 colspan=1>等级</td><td rowspan=1 colspan=1>时限</td></tr><tr><td rowspan=1 colspan=1>账号泄露</td><td rowspan=1 colspan=1>高</td><td rowspan=1 colspan=1>10分钟</td></tr><tr><td rowspan=1 colspan=1>服务异常</td><td rowspan=1 colspan=1>中</td><td rowspan=1 colspan=1>30分钟</td></tr></table>\n\n<!-- image-->  \n图1：安全事件处理链路"
+        },
+        {
+          "rank": 3,
+          "source": "validation://multitype/20260828/oncall-note.txt",
+          "score": 0.015924219150025603,
+          "content": "值班交接编号 TXT-9064。\n缓存雪崩告警触发后，首轮健康检查间隔固定为 42 秒。\n若连续三次失败，则切换只读降级并通知平台负责人。\n检索问题：首轮健康检查间隔是多少秒？预期答案：42 秒。"
+        },
+        {
+          "rank": 4,
+          "source": "validation://multitype/20260828/release-notes.md",
+          "score": 0.015530303030303031,
+          "content": "检索网关发布说明\n\n灰度规则\n\n版本 `MD-2608` 的灰度流量上限为 **35%**。当错误率连续两个窗口高于 1.5% 时，必须回滚到上一代索引。\n\n查询验证\n\n问题：MD-2608 的灰度流量上限是多少？\n\n预期答案：35%。"
+        },
+        {
+          "rank": 5,
+          "source": "validation://multitype/20260828/mindbridge-risk-ledger.xlsx",
+          "score": 0.003125,
+          "content": "<table>\n  <tr>\n    <th><p>reportId</p></th>\n    <th><p>riskLevel</p></th>\n    <th><p>category</p></th>\n    <th><p>confidence</p></th>\n    <th><p>summary</p></th>\n    <th><p>createdAt</p></th>\n    <th><p>action</p></th>\n  </tr>\n  <tr>\n    <td><p>1</p></td>\n    <td><p>MEDIUM</p></td>\n    <td><p>LOAD_TEST</p></td>\n    <td><p>0.85</p></td>\n    <td><p>Synthetic baseline load test</p></td>\n    <td><p>2026-08-28T09:00:00</p></td>\n    <td><p>MONITOR</p></td>\n  </tr>\n  <tr>\n    <td><p>2</p></td>\n    <td>"
+        }
+      ]
+    },
+    "docx": {
+      "query": "异常外联隔离必须在多少分钟内完成？",
+      "expected": "17 分钟",
+      "matched_rank": 1,
+      "passed": true,
+      "hits": [
+        {
+          "rank": 1,
+          "source": "validation://multitype/20260828/incident-isolation-brief.docx",
+          "score": 0.01639344262295082,
+          "content": "**应急隔离操作简报**\n\n文档编号 DOCX-4821｜真实 DOCX 解析与切块验证\n\n**适用范围：** 生产环境异常连接隔离\n\n**责任角色：** 安全值班经理\n\n**密级：** INTERNAL\n\n# **关键要求**\n\n**检测到异常外联后，隔离动作必须在 17 分钟内完成；** 随后由安全值班经理在工单中登记证据链。\n\n# **执行步骤**\n\n**1.** 确认告警指纹与资产归属，避免误隔离共享出口。\n\n**2.** 执行网络隔离并保存策略变更编号、时间戳和操作者。\n\n**3.** 验证异常连接归零，将结果写入 DOCX-4821 处置记录。\n\n# **升级矩阵**\n\n<table><tr><td><p><strong>级别</strong></p></td><td><p><strong>触发条件</strong></p></td><td><p><strong>升级对象</strong></p></td></tr><tr><td><p>P1</p></td><td><p>隔离超过 17 分钟</p></td><td><p>安全负责人</p></td></tr><tr><t"
+        },
+        {
+          "rank": 2,
+          "source": "validation://multitype/20260828/ocr-incident-report.pdf",
+          "score": 0.016129032258064516,
+          "content": "## MindBridgeRAG文档解析测试\n\n第一章事件响应流程\n\n当系统检测到高风险事件时，应在十分钟内完成上报。\n\n步骤一：确认事件编号；步骤二：检索知识库；步骤三：记录处理结果。\n\n<table><tr><td rowspan=1 colspan=1>事件</td><td rowspan=1 colspan=1>等级</td><td rowspan=1 colspan=1>时限</td></tr><tr><td rowspan=1 colspan=1>账号泄露</td><td rowspan=1 colspan=1>高</td><td rowspan=1 colspan=1>10分钟</td></tr><tr><td rowspan=1 colspan=1>服务异常</td><td rowspan=1 colspan=1>中</td><td rowspan=1 colspan=1>30分钟</td></tr></table>\n\n<!-- image-->  \n图1：安全事件处理链路"
+        },
+        {
+          "rank": 3,
+          "source": "validation://multitype/20260828/release-notes.md",
+          "score": 0.015728715728715727,
+          "content": "检索网关发布说明\n\n灰度规则\n\n版本 `MD-2608` 的灰度流量上限为 **35%**。当错误率连续两个窗口高于 1.5% 时，必须回滚到上一代索引。\n\n查询验证\n\n问题：MD-2608 的灰度流量上限是多少？\n\n预期答案：35%。"
+        },
+        {
+          "rank": 4,
+          "source": "validation://multitype/20260828/oncall-note.txt",
+          "score": 0.015674603174603174,
+          "content": "值班交接编号 TXT-9064。\n缓存雪崩告警触发后，首轮健康检查间隔固定为 42 秒。\n若连续三次失败，则切换只读降级并通知平台负责人。\n检索问题：首轮健康检查间隔是多少秒？预期答案：42 秒。"
+        },
+        {
+          "rank": 5,
+          "source": "validation://multitype/20260828/recovery-drill-brief.pptx",
+          "score": 0.003125,
+          "content": "**DISASTER RECOVERY / INTERNAL**\n\n## **Retrieval Gateway Recovery Drill**\n\nDrill PPTX-7319 validates real presentation parsing, layout semantics, and retrieval.\n\n## **Restore the previous index generation within 23 minutes**\n\n**0 min**\n\n**8 min**\n\nTrigger rollback\n\nSwitch alias\n\n**23 min**\n\nRecovery deadline\n\n### **Acceptance fact: recovery limit = 23 minutes; owner = Retrieval Platform Lead.**\n\n**VALIDATION QUERY**\n\n### **How quickly must PPTX-7319 restore the previous index generation?**\n\n## *"
+        }
+      ]
+    },
+    "pptx": {
+      "query": "How quickly must PPTX-7319 restore the previous index generation?",
+      "expected": "23 minutes",
+      "matched_rank": 1,
+      "passed": true,
+      "hits": [
+        {
+          "rank": 1,
+          "source": "validation://multitype/20260828/recovery-drill-brief.pptx",
+          "score": 0.01639344262295082,
+          "content": "**DISASTER RECOVERY / INTERNAL**\n\n## **Retrieval Gateway Recovery Drill**\n\nDrill PPTX-7319 validates real presentation parsing, layout semantics, and retrieval.\n\n## **Restore the previous index generation within 23 minutes**\n\n**0 min**\n\n**8 min**\n\nTrigger rollback\n\nSwitch alias\n\n**23 min**\n\nRecovery deadline\n\n### **Acceptance fact: recovery limit = 23 minutes; owner = Retrieval Platform Lead.**\n\n**VALIDATION QUERY**\n\n### **How quickly must PPTX-7319 restore the previous index generation?**\n\n## *"
+        },
+        {
+          "rank": 2,
+          "source": "validation://multitype/20260828/mindbridge-risk-ledger.xlsx",
+          "score": 0.01607782898105479,
+          "content": "<table>\n  <tr>\n    <th><p>reportId</p></th>\n    <th><p>riskLevel</p></th>\n    <th><p>category</p></th>\n    <th><p>confidence</p></th>\n    <th><p>summary</p></th>\n    <th><p>createdAt</p></th>\n    <th><p>action</p></th>\n  </tr>\n  <tr>\n    <td><p>1</p></td>\n    <td><p>MEDIUM</p></td>\n    <td><p>LOAD_TEST</p></td>\n    <td><p>0.85</p></td>\n    <td><p>Synthetic baseline load test</p></td>\n    <td><p>2026-08-28T09:00:00</p></td>\n    <td><p>MONITOR</p></td>\n  </tr>\n  <tr>\n    <td><p>2</p></td>\n    <td>"
+        },
+        {
+          "rank": 3,
+          "source": "validation://multitype/20260828/incident-isolation-brief.docx",
+          "score": 0.0032258064516129032,
+          "content": "**应急隔离操作简报**\n\n文档编号 DOCX-4821｜真实 DOCX 解析与切块验证\n\n**适用范围：** 生产环境异常连接隔离\n\n**责任角色：** 安全值班经理\n\n**密级：** INTERNAL\n\n# **关键要求**\n\n**检测到异常外联后，隔离动作必须在 17 分钟内完成；** 随后由安全值班经理在工单中登记证据链。\n\n# **执行步骤**\n\n**1.** 确认告警指纹与资产归属，避免误隔离共享出口。\n\n**2.** 执行网络隔离并保存策略变更编号、时间戳和操作者。\n\n**3.** 验证异常连接归零，将结果写入 DOCX-4821 处置记录。\n\n# **升级矩阵**\n\n<table><tr><td><p><strong>级别</strong></p></td><td><p><strong>触发条件</strong></p></td><td><p><strong>升级对象</strong></p></td></tr><tr><td><p>P1</p></td><td><p>隔离超过 17 分钟</p></td><td><p>安全负责人</p></td></tr><tr><t"
+        },
+        {
+          "rank": 4,
+          "source": "validation://multitype/20260828/ocr-incident-report.pdf",
+          "score": 0.003125,
+          "content": "## MindBridgeRAG文档解析测试\n\n第一章事件响应流程\n\n当系统检测到高风险事件时，应在十分钟内完成上报。\n\n步骤一：确认事件编号；步骤二：检索知识库；步骤三：记录处理结果。\n\n<table><tr><td rowspan=1 colspan=1>事件</td><td rowspan=1 colspan=1>等级</td><td rowspan=1 colspan=1>时限</td></tr><tr><td rowspan=1 colspan=1>账号泄露</td><td rowspan=1 colspan=1>高</td><td rowspan=1 colspan=1>10分钟</td></tr><tr><td rowspan=1 colspan=1>服务异常</td><td rowspan=1 colspan=1>中</td><td rowspan=1 colspan=1>30分钟</td></tr></table>\n\n<!-- image-->  \n图1：安全事件处理链路"
+        },
+        {
+          "rank": 5,
+          "source": "validation://multitype/20260828/oncall-note.txt",
+          "score": 0.003076923076923077,
+          "content": "值班交接编号 TXT-9064。\n缓存雪崩告警触发后，首轮健康检查间隔固定为 42 秒。\n若连续三次失败，则切换只读降级并通知平台负责人。\n检索问题：首轮健康检查间隔是多少秒？预期答案：42 秒。"
+        }
+      ]
+    },
+    "xlsx": {
+      "query": "风险台账中 reportId 2 的 riskLevel 是什么？",
+      "expected": "HIGH",
+      "matched_rank": 2,
+      "passed": true,
+      "hits": [
+        {
+          "rank": 1,
+          "source": "validation://multitype/20260828/ocr-incident-report.pdf",
+          "score": 0.01634056054997356,
+          "content": "## MindBridgeRAG文档解析测试\n\n第一章事件响应流程\n\n当系统检测到高风险事件时，应在十分钟内完成上报。\n\n步骤一：确认事件编号；步骤二：检索知识库；步骤三：记录处理结果。\n\n<table><tr><td rowspan=1 colspan=1>事件</td><td rowspan=1 colspan=1>等级</td><td rowspan=1 colspan=1>时限</td></tr><tr><td rowspan=1 colspan=1>账号泄露</td><td rowspan=1 colspan=1>高</td><td rowspan=1 colspan=1>10分钟</td></tr><tr><td rowspan=1 colspan=1>服务异常</td><td rowspan=1 colspan=1>中</td><td rowspan=1 colspan=1>30分钟</td></tr></table>\n\n<!-- image-->  \n图1：安全事件处理链路"
+        },
+        {
+          "rank": 2,
+          "source": "validation://multitype/20260828/mindbridge-risk-ledger.xlsx",
+          "score": 0.016181914331041776,
+          "content": "<table>\n  <tr>\n    <th><p>reportId</p></th>\n    <th><p>riskLevel</p></th>\n    <th><p>category</p></th>\n    <th><p>confidence</p></th>\n    <th><p>summary</p></th>\n    <th><p>createdAt</p></th>\n    <th><p>action</p></th>\n  </tr>\n  <tr>\n    <td><p>1</p></td>\n    <td><p>MEDIUM</p></td>\n    <td><p>LOAD_TEST</p></td>\n    <td><p>0.85</p></td>\n    <td><p>Synthetic baseline load test</p></td>\n    <td><p>2026-08-28T09:00:00</p></td>\n    <td><p>MONITOR</p></td>\n  </tr>\n  <tr>\n    <td><p>2</p></td>\n    <td>"
+        },
+        {
+          "rank": 3,
+          "source": "validation://multitype/20260828/release-notes.md",
+          "score": 0.015728715728715727,
+          "content": "检索网关发布说明\n\n灰度规则\n\n版本 `MD-2608` 的灰度流量上限为 **35%**。当错误率连续两个窗口高于 1.5% 时，必须回滚到上一代索引。\n\n查询验证\n\n问题：MD-2608 的灰度流量上限是多少？\n\n预期答案：35%。"
+        },
+        {
+          "rank": 4,
+          "source": "validation://multitype/20260828/oncall-note.txt",
+          "score": 0.015674603174603174,
+          "content": "值班交接编号 TXT-9064。\n缓存雪崩告警触发后，首轮健康检查间隔固定为 42 秒。\n若连续三次失败，则切换只读降级并通知平台负责人。\n检索问题：首轮健康检查间隔是多少秒？预期答案：42 秒。"
+        },
+        {
+          "rank": 5,
+          "source": "validation://multitype/20260828/incident-isolation-brief.docx",
+          "score": 0.015384615384615385,
+          "content": "**应急隔离操作简报**\n\n文档编号 DOCX-4821｜真实 DOCX 解析与切块验证\n\n**适用范围：** 生产环境异常连接隔离\n\n**责任角色：** 安全值班经理\n\n**密级：** INTERNAL\n\n# **关键要求**\n\n**检测到异常外联后，隔离动作必须在 17 分钟内完成；** 随后由安全值班经理在工单中登记证据链。\n\n# **执行步骤**\n\n**1.** 确认告警指纹与资产归属，避免误隔离共享出口。\n\n**2.** 执行网络隔离并保存策略变更编号、时间戳和操作者。\n\n**3.** 验证异常连接归零，将结果写入 DOCX-4821 处置记录。\n\n# **升级矩阵**\n\n<table><tr><td><p><strong>级别</strong></p></td><td><p><strong>触发条件</strong></p></td><td><p><strong>升级对象</strong></p></td></tr><tr><td><p>P1</p></td><td><p>隔离超过 17 分钟</p></td><td><p>安全负责人</p></td></tr><tr><t"
+        }
+      ]
+    },
+    "markdown": {
+      "query": "MD-2608 的灰度流量上限是多少？",
+      "expected": "35%",
+      "matched_rank": 1,
+      "passed": true,
+      "hits": [
+        {
+          "rank": 1,
+          "source": "validation://multitype/20260828/release-notes.md",
+          "score": 0.01639344262295082,
+          "content": "检索网关发布说明\n\n灰度规则\n\n版本 `MD-2608` 的灰度流量上限为 **35%**。当错误率连续两个窗口高于 1.5% 时，必须回滚到上一代索引。\n\n查询验证\n\n问题：MD-2608 的灰度流量上限是多少？\n\n预期答案：35%。"
+        },
+        {
+          "rank": 2,
+          "source": "validation://multitype/20260828/oncall-note.txt",
+          "score": 0.015933528836754644,
+          "content": "值班交接编号 TXT-9064。\n缓存雪崩告警触发后，首轮健康检查间隔固定为 42 秒。\n若连续三次失败，则切换只读降级并通知平台负责人。\n检索问题：首轮健康检查间隔是多少秒？预期答案：42 秒。"
+        },
+        {
+          "rank": 3,
+          "source": "validation://multitype/20260828/ocr-incident-report.pdf",
+          "score": 0.015873015873015872,
+          "content": "## MindBridgeRAG文档解析测试\n\n第一章事件响应流程\n\n当系统检测到高风险事件时，应在十分钟内完成上报。\n\n步骤一：确认事件编号；步骤二：检索知识库；步骤三：记录处理结果。\n\n<table><tr><td rowspan=1 colspan=1>事件</td><td rowspan=1 colspan=1>等级</td><td rowspan=1 colspan=1>时限</td></tr><tr><td rowspan=1 colspan=1>账号泄露</td><td rowspan=1 colspan=1>高</td><td rowspan=1 colspan=1>10分钟</td></tr><tr><td rowspan=1 colspan=1>服务异常</td><td rowspan=1 colspan=1>中</td><td rowspan=1 colspan=1>30分钟</td></tr></table>\n\n<!-- image-->  \n图1：安全事件处理链路"
+        },
+        {
+          "rank": 4,
+          "source": "validation://multitype/20260828/incident-isolation-brief.docx",
+          "score": 0.015576923076923078,
+          "content": "**应急隔离操作简报**\n\n文档编号 DOCX-4821｜真实 DOCX 解析与切块验证\n\n**适用范围：** 生产环境异常连接隔离\n\n**责任角色：** 安全值班经理\n\n**密级：** INTERNAL\n\n# **关键要求**\n\n**检测到异常外联后，隔离动作必须在 17 分钟内完成；** 随后由安全值班经理在工单中登记证据链。\n\n# **执行步骤**\n\n**1.** 确认告警指纹与资产归属，避免误隔离共享出口。\n\n**2.** 执行网络隔离并保存策略变更编号、时间戳和操作者。\n\n**3.** 验证异常连接归零，将结果写入 DOCX-4821 处置记录。\n\n# **升级矩阵**\n\n<table><tr><td><p><strong>级别</strong></p></td><td><p><strong>触发条件</strong></p></td><td><p><strong>升级对象</strong></p></td></tr><tr><td><p>P1</p></td><td><p>隔离超过 17 分钟</p></td><td><p>安全负责人</p></td></tr><tr><t"
+        },
+        {
+          "rank": 5,
+          "source": "validation://multitype/20260828/mindbridge-risk-ledger.xlsx",
+          "score": 0.0032258064516129032,
+          "content": "<table>\n  <tr>\n    <th><p>reportId</p></th>\n    <th><p>riskLevel</p></th>\n    <th><p>category</p></th>\n    <th><p>confidence</p></th>\n    <th><p>summary</p></th>\n    <th><p>createdAt</p></th>\n    <th><p>action</p></th>\n  </tr>\n  <tr>\n    <td><p>1</p></td>\n    <td><p>MEDIUM</p></td>\n    <td><p>LOAD_TEST</p></td>\n    <td><p>0.85</p></td>\n    <td><p>Synthetic baseline load test</p></td>\n    <td><p>2026-08-28T09:00:00</p></td>\n    <td><p>MONITOR</p></td>\n  </tr>\n  <tr>\n    <td><p>2</p></td>\n    <td>"
+        }
+      ]
+    },
+    "text": {
+      "query": "缓存雪崩告警后的首轮健康检查间隔是多少秒？",
+      "expected": "42 秒",
+      "matched_rank": 1,
+      "passed": true,
+      "hits": [
+        {
+          "rank": 1,
+          "source": "validation://multitype/20260828/oncall-note.txt",
+          "score": 0.01639344262295082,
+          "content": "值班交接编号 TXT-9064。\n缓存雪崩告警触发后，首轮健康检查间隔固定为 42 秒。\n若连续三次失败，则切换只读降级并通知平台负责人。\n检索问题：首轮健康检查间隔是多少秒？预期答案：42 秒。"
+        },
+        {
+          "rank": 2,
+          "source": "validation://multitype/20260828/release-notes.md",
+          "score": 0.015933528836754644,
+          "content": "检索网关发布说明\n\n灰度规则\n\n版本 `MD-2608` 的灰度流量上限为 **35%**。当错误率连续两个窗口高于 1.5% 时，必须回滚到上一代索引。\n\n查询验证\n\n问题：MD-2608 的灰度流量上限是多少？\n\n预期答案：35%。"
+        },
+        {
+          "rank": 3,
+          "source": "validation://multitype/20260828/incident-isolation-brief.docx",
+          "score": 0.015873015873015872,
+          "content": "**应急隔离操作简报**\n\n文档编号 DOCX-4821｜真实 DOCX 解析与切块验证\n\n**适用范围：** 生产环境异常连接隔离\n\n**责任角色：** 安全值班经理\n\n**密级：** INTERNAL\n\n# **关键要求**\n\n**检测到异常外联后，隔离动作必须在 17 分钟内完成；** 随后由安全值班经理在工单中登记证据链。\n\n# **执行步骤**\n\n**1.** 确认告警指纹与资产归属，避免误隔离共享出口。\n\n**2.** 执行网络隔离并保存策略变更编号、时间戳和操作者。\n\n**3.** 验证异常连接归零，将结果写入 DOCX-4821 处置记录。\n\n# **升级矩阵**\n\n<table><tr><td><p><strong>级别</strong></p></td><td><p><strong>触发条件</strong></p></td><td><p><strong>升级对象</strong></p></td></tr><tr><td><p>P1</p></td><td><p>隔离超过 17 分钟</p></td><td><p>安全负责人</p></td></tr><tr><t"
+        },
+        {
+          "rank": 4,
+          "source": "validation://multitype/20260828/ocr-incident-report.pdf",
+          "score": 0.015725806451612905,
+          "content": "## MindBridgeRAG文档解析测试\n\n第一章事件响应流程\n\n当系统检测到高风险事件时，应在十分钟内完成上报。\n\n步骤一：确认事件编号；步骤二：检索知识库；步骤三：记录处理结果。\n\n<table><tr><td rowspan=1 colspan=1>事件</td><td rowspan=1 colspan=1>等级</td><td rowspan=1 colspan=1>时限</td></tr><tr><td rowspan=1 colspan=1>账号泄露</td><td rowspan=1 colspan=1>高</td><td rowspan=1 colspan=1>10分钟</td></tr><tr><td rowspan=1 colspan=1>服务异常</td><td rowspan=1 colspan=1>中</td><td rowspan=1 colspan=1>30分钟</td></tr></table>\n\n<!-- image-->  \n图1：安全事件处理链路"
+        },
+        {
+          "rank": 5,
+          "source": "validation://multitype/20260828/mindbridge-risk-ledger.xlsx",
+          "score": 0.003125,
+          "content": "<table>\n  <tr>\n    <th><p>reportId</p></th>\n    <th><p>riskLevel</p></th>\n    <th><p>category</p></th>\n    <th><p>confidence</p></th>\n    <th><p>summary</p></th>\n    <th><p>createdAt</p></th>\n    <th><p>action</p></th>\n  </tr>\n  <tr>\n    <td><p>1</p></td>\n    <td><p>MEDIUM</p></td>\n    <td><p>LOAD_TEST</p></td>\n    <td><p>0.85</p></td>\n    <td><p>Synthetic baseline load test</p></td>\n    <td><p>2026-08-28T09:00:00</p></td>\n    <td><p>MONITOR</p></td>\n  </tr>\n  <tr>\n    <td><p>2</p></td>\n    <td>"
+        }
+      ]
+    }
+  },
+  "finished_at": "2026-08-28T03:13:54.392093Z",
+  "final_verification": {
+    "verified_at": "2026-08-28T03:28:47.568371+00:00",
+    "alembic_version": "0020_document_processing_metadata",
+    "model_table_count": 38,
+    "database_table_count": 39,
+    "missing_model_tables": [],
+    "current_generation": "G20260828MT1",
+    "previous_generation": "G900",
+    "serving_alias": "seckb-rag-current",
+    "serving_indices": [
+      "seckb-rag-g20260828mt1"
+    ],
+    "embedding_model": "BAAI/bge-m3",
+    "vector_dimensions": [
+      1024
+    ],
+    "retrieval_all_passed": true,
+    "targeted_regression": "115 passed",
+    "backup": {
+      "path": "output\\backups\\20260828-main-migration\\mindbridge-pre-0020.sql",
+      "bytes": 8339429,
+      "sha256": "0FA002E3269CEEA56845558C6755E79F689BA3EF27A0CC3BA854C6851C411103"
+    }
+  }
+}

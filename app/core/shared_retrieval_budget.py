@@ -70,6 +70,9 @@ class SharedRetrievalBudget:
         self._embedding_used = 0
         self._rerank_used = 0
         self._cost_used = 0.0
+        # Phase 7（§7）：预算耗尽观测（exhaust_rate = exhaust / attempts）
+        self._query_attempts = 0
+        self._exhaust_events = 0
 
     # ------------------------------------------------------------------ #
     # 剩余量查询
@@ -104,7 +107,9 @@ class SharedRetrievalBudget:
     def claim_query(self) -> QueryLease:
         self.assert_deadline_ok()
         with self._lock:
+            self._query_attempts += 1
             if self._queries_used >= self.max_queries:
+                self._exhaust_events += 1
                 raise BudgetExhausted("max_queries exhausted")
             idx = self._queries_used
             self._queries_used += 1
@@ -123,10 +128,12 @@ class SharedRetrievalBudget:
         """reserve 候选；超全局上限抛 BudgetExhausted。返回实际允许的候选数。"""
         self.assert_deadline_ok()
         with self._lock:
+            self._query_attempts += 1
             if count < 0:
                 count = 0
             allowed = min(count, max(0, self.max_total_candidates - self._candidates_used))
             if allowed < count:
+                self._exhaust_events += 1
                 raise BudgetExhausted(
                     f"global candidate cap exceeded: need {count}, remaining {self.max_total_candidates - self._candidates_used}"
                 )
@@ -171,6 +178,8 @@ class SharedRetrievalBudget:
         return {
             "max_queries": self.max_queries,
             "queries_used": self._queries_used,
+            "query_attempts": self._query_attempts,
+            "exhaust_events": self._exhaust_events,
             "max_total_candidates": self.max_total_candidates,
             "candidates_used": self._candidates_used,
             "max_embedding_calls": self.max_embedding_calls,

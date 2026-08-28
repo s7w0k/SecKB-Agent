@@ -322,7 +322,7 @@ class GenerationFailureAndRollbackDrillTest(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             self.svc.publish("G104")
         # §8.8：alias 必须回滚到 G103
-        self.assertEqual(self.backend.current_generation, "G103")
+        self.assertEqual(self.backend.current_generation, "g103")
         row = self.db.query(self.IndexGeneration).filter_by(id=1).first()
         self.assertEqual(row.current_generation, "G103")
 
@@ -332,7 +332,7 @@ class GenerationFailureAndRollbackDrillTest(unittest.TestCase):
         # 发布前 current 正常服务（no downtime 前提）。
         self.assertEqual(self.backend.search(vector=[1.0, 0.0], top_k=5)[0].content, "当前代")
         self.svc.publish("G104")
-        self.assertEqual(self.backend.current_generation, "G104")
+        self.assertEqual(self.backend.current_generation, "g104")  # 物理索引名小写化
         pre = set(self.backend._physical.keys())
         ok = self.svc.rollback()
         self.assertTrue(ok)

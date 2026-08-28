@@ -123,12 +123,15 @@ class KnowledgeService:
         """路由到 V2 submit_document，返回 document_id/version_id。"""
         from app.services.index_pipeline import submit_document as v2_submit
 
+        from app.services.index_pipeline import processing_pipeline_fingerprint
+
         doc_id, version_id = v2_submit(
             self.db,
             workspace_id=metadata.workspace_id,
             source_uri=source,
             content=content,
             metadata=metadata,
+            pipeline_version=processing_pipeline_fingerprint(self.settings),
         )
         return {
             "document_id": doc_id,
@@ -137,6 +140,54 @@ class KnowledgeService:
             "domain": metadata.domain,
             "classification": metadata.classification,
             "knowledge_space_id": metadata.knowledge_space_id,
+        }
+
+    def submit_document_bytes(
+        self,
+        source: str,
+        data: bytes,
+        *,
+        mime_type: str,
+        scope: RequestScope,
+        domain: KnowledgeDomain,
+        classification: str = "INTERNAL",
+        knowledge_space_id: int | None = None,
+        source_type: str | None = None,
+    ) -> dict:
+        """统一二进制摄取入口：原始 bytes → Outbox/IndexJob → 文档处理 v2。"""
+        from app.core.scope import require_scope
+        from app.services.index_pipeline import submit_document_bytes as v2_submit_bytes
+        from app.services.ingest_contracts import IngestMetadata
+
+        scope = require_scope(scope)
+        metadata = IngestMetadata(
+            organization_id=scope.organization_id,
+            workspace_id=scope.workspace_id,
+            knowledge_space_id=knowledge_space_id,
+            domain=domain.value,
+            classification=classification,
+            classification_level=self._resolve_classification(classification),
+            acl_version=scope.acl_version,
+            source_type=source_type,
+            source_uri=source,
+        )
+        from app.services.index_pipeline import processing_pipeline_fingerprint
+
+        document_id, version_id = v2_submit_bytes(
+            self.db,
+            workspace_id=scope.workspace_id,
+            source_uri=source,
+            data=data,
+            mime_type=mime_type,
+            metadata=metadata,
+            pipeline_version=processing_pipeline_fingerprint(self.settings),
+        )
+        return {
+            "document_id": document_id,
+            "version_id": version_id,
+            "via": "outbox_indexjob_binary",
+            "domain": metadata.domain,
+            "classification": metadata.classification,
         }
 
     def _resolve_classification(self, classification: str | None) -> int | None:
@@ -777,16 +828,24 @@ class KnowledgeService:
         # 词法分作平局裁决；报告分数用 0.7 语义 + 0.3 词法。实现不可用时 fail-open 回退。
         reranker = self._semantic_reranker()
         if reranker is not None and reranker.is_available():
-            contents = [item.content for item in reranked]
+            window_k = max(
+                top_k,
+                int(getattr(self.settings, "knowledge_rerank_candidate_k", top_k) or top_k),
+            )
+            window_k = min(len(reranked), window_k)
+            head = reranked[:window_k]
+            tail = reranked[window_k:]
+            contents = [item.content for item in head]
             try:
                 semantic_scores = reranker.score(query, contents)
             except Exception:
                 semantic_scores = None
-            if semantic_scores is not None and len(semantic_scores) == len(reranked):
-                sem_map = {id(item): sem for item, sem in zip(reranked, semantic_scores)}
-                reranked.sort(key=lambda item: (sem_map[id(item)], item.score), reverse=True)
+            if semantic_scores is not None and len(semantic_scores) == len(head):
+                sem_map = {id(item): sem for item, sem in zip(head, semantic_scores)}
+                head.sort(key=lambda item: (sem_map[id(item)], item.score), reverse=True)
+                reranked = head + tail
                 scale = max([abs(v) for v in semantic_scores] + [1e-9])
-                for item in reranked:
+                for item in head:
                     item.score = sem_map[id(item)] / scale
                 return reranked[:self._select_pool(top_k)]
         reranked.sort(key=lambda item: item.score, reverse=True)
@@ -873,6 +932,16 @@ class KnowledgeService:
                     api_key=self.settings.knowledge_rerank_dashscope_api_key or None,
                 )
             return self._dashscope_reranker
+        if getattr(self.settings, "knowledge_rerank_siliconflow_enabled", False):
+            if getattr(self, "_siliconflow_reranker", None) is None:
+                from app.services.reranker import SiliconFlowReranker
+
+                self._siliconflow_reranker = SiliconFlowReranker(
+                    model=self.settings.knowledge_rerank_siliconflow_model,
+                    base_url=self.settings.knowledge_rerank_siliconflow_base_url,
+                    api_key=self.settings.knowledge_rerank_siliconflow_api_key or None,
+                )
+            return self._siliconflow_reranker
         if getattr(self.settings, "knowledge_rerank_cross_encoder_enabled", False):
             if getattr(self, "_cross_encoder", None) is None:
                 from app.services.reranker import CrossEncoderReranker

@@ -34,11 +34,12 @@ class PhysicalHit:
     classification_level: int | None = None
     generation_id: str | None = None
     source_key: str | None = None
+    equivalent_keys: tuple[str, ...] = field(default_factory=tuple)
 
 
 def generation_index_name(generation_id: str, *, prefix: str = "seckb-rag") -> str:
-    """物理索引名：``<prefix>-<Gxxx>``（§7.3）。"""
-    return f"{prefix}-{generation_id}"
+    """物理索引名：``<prefix>-<gxxx>``（§7.3）。OpenSearch 索引名必须小写，故统一 lowercase。"""
+    return f"{prefix}-{str(generation_id).lower()}"
 
 
 class OpenSearchVectorBackend:
@@ -64,6 +65,7 @@ class OpenSearchVectorBackend:
         self._physical: dict[str, dict[str, PhysicalHit]] = {}   # generation -> id -> hit
         self._vectors: dict[str, dict[str, list[float]]] = {}    # generation -> id -> vector
         self._alias: str | None = None                           # 当前 alias 指向的 generation
+        self._alias_generation_id: str | None = None             # 保留对外 generation ID 原始大小写
         self._generation_meta: dict[str, dict] = {}
 
     # ------------------------------------------------------------------ #
@@ -164,8 +166,14 @@ class OpenSearchVectorBackend:
         if idx not in self._physical:
             raise RuntimeError(f"candidate physical index {idx} not built")
         old = self._alias
+        old_generation_id = self._alias_generation_id
         self._alias = idx  # 一次赋值等价于 remove old + add new（模块内原子）
-        return {"from": old, "to": idx, "generation_id": generation_id}
+        self._alias_generation_id = str(generation_id)
+        old_display = (
+            f"{self.index_prefix}-{old_generation_id}" if old_generation_id is not None else None
+        )
+        new_display = f"{self.index_prefix}-{generation_id}"
+        return {"from": old_display, "to": new_display, "generation_id": generation_id}
 
     def rollback_generation(self, *, generation_id: str, previous_generation: str | None = None) -> bool:
         """回滚：alias 绑回上一代际（§7.8），无需重建 embedding。"""
@@ -173,6 +181,7 @@ class OpenSearchVectorBackend:
         if prev_idx is None or prev_idx not in self._physical:
             return False
         self._alias = prev_idx
+        self._alias_generation_id = str(previous_generation)
         return True
 
     def delete_generation(self, *, generation_id: str) -> bool:
@@ -189,14 +198,19 @@ class OpenSearchVectorBackend:
     def current_generation(self) -> str | None:
         if self._alias is None:
             return None
-        return self._alias.removeprefix(f"{self.index_prefix}-")
+        return self._alias_generation_id or self._alias.removeprefix(f"{self.index_prefix}-")
 
     def health(self) -> dict:
+        alias_display = (
+            f"{self.index_prefix}-{self.current_generation}"
+            if self.current_generation is not None
+            else None
+        )
         return {
             "backend": "opensearch",
             "mode": self.mode,
             "ok": self.mode == "simulate" or bool(self.hosts),
-            "alias": self._alias,
+            "alias": alias_display,
             "current_generation": self.current_generation,
             "physical_generations": sorted(self._physical.keys()),
         }

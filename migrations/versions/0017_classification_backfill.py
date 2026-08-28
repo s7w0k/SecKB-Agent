@@ -45,7 +45,7 @@ def _backfill_sql(table: str) -> sa.text:
     # 为 classification_level IS NULL 的行按字符串 unified backfill。
     return sa.text(
         f"""
-        UPDATE "{table}"
+        UPDATE {table}
         SET classification_level =
             CASE UPPER(classification)
                 WHEN 'INTERNAL' THEN 0

@@ -55,6 +55,9 @@ class EvaluationRun:
     loop_success: bool = True
     cost_per_answer: float = 0.0
     latency_per_answer_ms: float = 0.0
+    # §11.4 Re-retrieval Recovery：首检是否失败、重检后是否恢复
+    first_retrieval_hit: bool = False
+    recovered_after_reretrieve: bool = False
 
 
 @dataclass
@@ -143,7 +146,11 @@ def _answer_relevance(answer: str, gold_points: Sequence[str]) -> float:
 # Trajectory 指标
 # --------------------------------------------------------------------------- #
 def trajectory_metrics(runs: Sequence[EvaluationRun]) -> dict:
-    """聚合多个 Run 的 Trajectory 指标（§.Phase 15）。"""
+    """聚合多个 Run 的 Trajectory 指标（§.Phase 15）。
+
+    §11.4 Re-retrieval Recovery Rate：首检失败但 rewrite/re-retrieve 后成功的 case
+    占比，是证明 Agentic 闭环价值（对比 one-shot RAG）的核心数字。
+    """
     total = len(runs) or 1
     sum_attempts = sum(r.retrieval_attempts for r in runs)
     sum_unnecessary = sum(r.unnecessary_retrievals for r in runs)
@@ -158,6 +165,12 @@ def trajectory_metrics(runs: Sequence[EvaluationRun]) -> dict:
 
     loops_success = sum(1 for r in runs if r.loop_success)
 
+    first_failed = sum(1 for r in runs if not r.first_retrieval_hit)
+    recovered = sum(
+        1 for r in runs
+        if r.recovered_after_reretrieve and not r.first_retrieval_hit
+    )
+
     return {
         "retrieval_attempt_count": sum_attempts / total,
         "unnecessary_retrieval_rate": sum_unnecessary / total,
@@ -166,6 +179,7 @@ def trajectory_metrics(runs: Sequence[EvaluationRun]) -> dict:
         "critic_recall": (tp / ap) if ap else 0.0,
         "loop_success_rate": loops_success / total,
         "average_retrieval_steps": sum_attempts / total,
+        "re_retrieval_recovery_rate": (recovered / first_failed) if first_failed else 0.0,
         "avg_cost_per_answer": _mean(r.cost_per_answer for r in runs),
         "avg_latency_per_answer_ms": _mean(r.latency_per_answer_ms for r in runs),
         "finalized_answer_rate": sum_finalized / total,

@@ -1,0 +1,132 @@
+{
+  "title": "差异化切块真实压力验证",
+  "args": {
+    "root": "app\\knowledge",
+    "docs": 197,
+    "repeat": 1,
+    "baseline": true,
+    "allowed_max_chunk_tokens": 700
+  },
+  "run_sec": 0.153,
+  "totals": {
+    "docs_ok": 197,
+    "docs_failed": 0,
+    "total_chars": 146414,
+    "total_tokens": 143583,
+    "total_chunks": 559,
+    "chunks_per_doc": 2.84,
+    "token_per_doc": 728.85,
+    "char_per_doc": 743.22,
+    "sum_embedding_tokens": 143583
+  },
+  "throughput": {
+    "docs_per_sec": 1291.479,
+    "chars_per_sec": 959850.74,
+    "chunks_per_sec": 3664.65
+  },
+  "stage_ms": {
+    "parse": {
+      "count": 197,
+      "mean": 0.13,
+      "p50": 0.11,
+      "p95": 0.19,
+      "max": 2.0
+    },
+    "quality": {
+      "count": 197,
+      "mean": 0.03,
+      "p50": 0.03,
+      "p95": 0.04,
+      "max": 0.13
+    },
+    "profile": {
+      "count": 197,
+      "mean": 0.03,
+      "p50": 0.03,
+      "p95": 0.06,
+      "max": 0.23
+    },
+    "chunk": {
+      "count": 197,
+      "mean": 0.18,
+      "p50": 0.15,
+      "p95": 0.34,
+      "max": 2.24
+    },
+    "embed": {
+      "count": 197,
+      "mean": 0.01,
+      "p50": 0.0,
+      "p95": 0.01,
+      "max": 0.04
+    },
+    "total": {
+      "count": 197,
+      "mean": 189.03,
+      "p50": 153.5,
+      "p95": 339.82,
+      "max": 2252.78
+    }
+  },
+  "boundary": {
+    "chunks_over_max_tokens": 0,
+    "empty_chunks": 0,
+    "empty_docs_boundary_ok": true
+  },
+  "by_profile": [
+    {
+      "profile": "faq",
+      "docs": 19,
+      "chunks": 190,
+      "tokens": 11635,
+      "chunks_per_doc": 10.0,
+      "token_per_doc": 612.37,
+      "chunk_tokens": {
+        "count": 190,
+        "mean": 61.24,
+        "p50": 58,
+        "p95": 91,
+        "max": 118
+      }
+    },
+    {
+      "profile": "narrative",
+      "docs": 168,
+      "chunks": 348,
+      "tokens": 124974,
+      "chunks_per_doc": 2.07,
+      "token_per_doc": 743.89,
+      "chunk_tokens": {
+        "count": 348,
+        "mean": 359.12,
+        "p50": 421,
+        "p95": 504,
+        "max": 525
+      }
+    },
+    {
+      "profile": "procedure",
+      "docs": 10,
+      "chunks": 21,
+      "tokens": 6974,
+      "chunks_per_doc": 2.1,
+      "token_per_doc": 697.4,
+      "chunk_tokens": {
+        "count": 21,
+        "mean": 332.1,
+        "p50": 411,
+        "p95": 440,
+        "max": 443
+      }
+    }
+  ],
+  "failures": {},
+  "baseline_char512": {
+    "docs": 197,
+    "chunks": 348,
+    "tokens": 130568,
+    "chunks_per_doc": 1.77,
+    "diff_chunks_reduction_pct": -60.63,
+    "diff_tokens_reduction_pct": -9.97
+  }
+}

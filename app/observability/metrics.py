@@ -42,6 +42,12 @@ _METRIC_FAMILIES: dict[str, dict[str, str]] = {
         "cache_hit": "counter",
         "rerank_skip_total": "counter",
         "degraded_total": "counter",
+        # Phase 7（§7）：共享检索预算观测
+        "budget_exhaust_rate": "gauge",
+        "average_candidates_per_query": "gauge",
+        "average_total_candidates": "gauge",
+        "average_rerank_calls": "gauge",
+        "deadline_degradation_rate": "gauge",
     },
     "security": {
         "input_block_total": "counter",

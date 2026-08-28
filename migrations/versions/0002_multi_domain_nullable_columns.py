@@ -21,6 +21,16 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
+    # Several revision identifiers in this project exceed Alembic's default
+    # VARCHAR(32). Widen the version table before Alembic records this revision.
+    with op.batch_alter_table("alembic_version") as batch_op:
+        batch_op.alter_column(
+            "version_num",
+            existing_type=sa.String(length=32),
+            type_=sa.String(length=128),
+            existing_nullable=False,
+        )
+
     # knowledge_chunks
     op.add_column("knowledge_chunks", sa.Column("domain", sa.String(32), nullable=True))
     op.add_column("knowledge_chunks", sa.Column("source_key", sa.String(256), nullable=True))

@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Any
 
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
@@ -13,6 +14,25 @@ from app.core.bootstrap import (
 from app.core.config import get_settings
 from app.core.database import SessionLocal
 from app.services.tool_queue import get_tool_queue_worker
+
+
+def _verify_backend_ready(backend: Any, settings: Any) -> None:
+    """校验运行期后端真实可服务（plan §1.5）。
+
+    - 生产 opensearch 后端必须 health.ok 且集群可达，否则启动失败。
+    - dev local_chroma 后端跳过强校验，仅记录。
+    """
+    backend_name = getattr(type(backend), "__name__", "?")
+    if getattr(settings, "vector_backend", "local_chroma") != "opensearch":
+        return  # dev/test 只用启动即可
+    try:
+        health = backend.health()
+    except Exception as exc:  # noqa: BLE001
+        raise RuntimeError(f"OpenSearch 后端健康检查失败: {exc}") from exc
+    if not health.get("ok"):
+        raise RuntimeError(
+            f"OpenSearch 后端 health={health} 不通过，startup 拒绝启动（backend={backend_name}）"
+        )
 
 
 def create_app() -> FastAPI:
@@ -45,6 +65,15 @@ def create_app() -> FastAPI:
         from app.model_gateway import get_model_gateway
 
         app.state.model_gateway = get_model_gateway(settings)
+        # Phase 1（§1.2/§1.4）：App-scoped 唯一 Vector Backend + AppServices 容器。
+        # 生产 VECTOR_BACKEND=opensearch 时 startup 必须真正构建 RealOpenSearchBackend
+        # 并校验健康/alias，否则启动失败（杜绝 configured≠running 脱节）。
+        from app.core.app_services import get_app_services
+
+        app_services = get_app_services(settings)
+        app.state.vector_backend = app_services.backend
+        app.state.app_services = app_services
+        _verify_backend_ready(app_services.backend, settings)
         # Phase 8（§8E）：Tool 生产 Worker 分离——仅 api / tool-worker 角色拉起队列 worker；
         # index-worker 由独立部署以 RUN_MODE=index-worker 运行。
         if settings.run_mode in ("api", "tool-worker"):

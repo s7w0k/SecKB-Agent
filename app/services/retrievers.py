@@ -301,9 +301,14 @@ class SecureRetrieverDecorator:
                     dropped += 1
                     dropped_reason = dropped_reason or "classification"
                     continue
-            # ---- Generation：只放行当前 generation（禁用跨代串用） ----
+            # ---- Generation：只放行当前 generation（§5.1：require_generation=True 且
+            #      chunk.generation=None → DENY，禁用跨代/未发布串用） ----
             if self.generation is not None:
-                if chunk.generation is not None and chunk.generation != self.generation:
+                if chunk.generation is None:
+                    dropped += 1
+                    dropped_reason = dropped_reason or "generation_required"
+                    continue
+                if chunk.generation != self.generation:
                     dropped += 1
                     dropped_reason = dropped_reason or "generation_mismatch"
                     continue

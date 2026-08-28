@@ -1,0 +1,100 @@
+{
+  "generated_at": "2026-08-28T02:21:50.770375+00:00",
+  "target_database": "mindbridge",
+  "reference_database": "mindbridge_schema_0012_20260828",
+  "apply": true,
+  "row_counts_before": {
+    "access_audit_events": 0,
+    "agent_run_traces": 17,
+    "alert_records": 1,
+    "answer_feedback": 0,
+    "case_notes": 0,
+    "chat_messages": 37,
+    "chat_sessions": 27,
+    "chunk_revisions": 0,
+    "dead_letter_records": 0,
+    "document_version_chunks": 0,
+    "excel_records": 4,
+    "index_jobs": 0,
+    "knowledge_chunks": 544,
+    "knowledge_chunks_v2": 0,
+    "knowledge_document_chunks": 0,
+    "knowledge_document_versions": 0,
+    "knowledge_documents": 0,
+    "knowledge_spaces": 0,
+    "model_usage_records": 0,
+    "organizations": 0,
+    "outbox_events": 0,
+    "psychological_reports": 8,
+    "resource_acls": 0,
+    "risk_cases": 2,
+    "tool_audit_records": 0,
+    "tool_jobs": 7,
+    "user_accounts": 2,
+    "user_group_members": 0,
+    "user_groups": 0,
+    "workspace_members": 0,
+    "workspaces": 0
+  },
+  "row_counts_after": {
+    "access_audit_events": 0,
+    "agent_run_traces": 17,
+    "alert_records": 1,
+    "answer_feedback": 0,
+    "case_notes": 0,
+    "chat_messages": 37,
+    "chat_sessions": 27,
+    "chunk_revisions": 0,
+    "dead_letter_records": 0,
+    "document_version_chunks": 0,
+    "excel_records": 4,
+    "index_jobs": 0,
+    "knowledge_chunks": 544,
+    "knowledge_chunks_v2": 0,
+    "knowledge_document_chunks": 0,
+    "knowledge_document_versions": 0,
+    "knowledge_documents": 0,
+    "knowledge_spaces": 0,
+    "model_usage_records": 0,
+    "organizations": 0,
+    "outbox_events": 0,
+    "psychological_reports": 8,
+    "resource_acls": 0,
+    "risk_cases": 2,
+    "tool_audit_records": 0,
+    "tool_jobs": 7,
+    "user_accounts": 2,
+    "user_group_members": 0,
+    "user_groups": 0,
+    "workspace_members": 0,
+    "workspaces": 0
+  },
+  "changed_row_counts": {},
+  "missing_columns_before": [],
+  "missing_indexes_before": [
+    {
+      "table": "workspace_members",
+      "name": "ix_workspace_members_workspace_id",
+      "columns": [
+        "workspace_id"
+      ],
+      "unique": false,
+      "index_type": "BTREE"
+    },
+    {
+      "table": "workspaces",
+      "name": "ix_workspaces_organization_id",
+      "columns": [
+        "organization_id"
+      ],
+      "unique": false,
+      "index_type": "BTREE"
+    }
+  ],
+  "operations": [
+    "CREATE INDEX `ix_workspace_members_workspace_id` ON `workspace_members` (`workspace_id`)",
+    "CREATE INDEX `ix_workspaces_organization_id` ON `workspaces` (`organization_id`)"
+  ],
+  "remaining_columns": [],
+  "remaining_indexes": []
+}

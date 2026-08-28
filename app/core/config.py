@@ -95,9 +95,15 @@ class Settings(BaseSettings):
     knowledge_diversity_max_per_source: int = 0
     knowledge_chunk_size: int = 512
     knowledge_chunk_overlap: int = 64
-    knowledge_hybrid_vector_weight: float = 0.65
-    knowledge_hybrid_bm25_weight: float = 0.35
+    knowledge_hybrid_vector_weight: float = 0.20
+    knowledge_hybrid_bm25_weight: float = 0.80
     knowledge_rerank_enabled: bool = True
+    knowledge_rerank_candidate_k: int = 5
+    # 本地结构化候选压缩：利用文档标题/章节/版本信号重排 Top-20，并折叠正文完全
+    # 相同的副本。无需外部模型，等价 key 会保留用于 Passage Group 审计。
+    knowledge_local_metadata_rerank_enabled: bool = True
+    knowledge_local_metadata_rerank_window: int = 20
+    knowledge_exact_content_dedupe_enabled: bool = True
     knowledge_rerank_cross_encoder_enabled: bool = False
     knowledge_rerank_cross_encoder_model: str = "BAAI/bge-reranker-v2-m3"
     knowledge_rerank_dashscope_enabled: bool = False
@@ -106,6 +112,11 @@ class Settings(BaseSettings):
         "https://dashscope.aliyuncs.com/api/v1/services/rerank/text-rerank/text-rerank"
     )
     knowledge_rerank_dashscope_api_key: str = ""
+    # SiliconFlow（硅基流动）免费托管 BGE rerank —— 用户 2026-08-25 决定选用
+    knowledge_rerank_siliconflow_enabled: bool = False
+    knowledge_rerank_siliconflow_model: str = "BAAI/bge-reranker-v2-m3"
+    knowledge_rerank_siliconflow_base_url: str = "https://api.siliconflow.cn/v1/rerank"
+    knowledge_rerank_siliconflow_api_key: str = ""
     knowledge_vector_enabled: bool = True
     # SecKB Phase 2：向量 rehydrate 后强制 KnowledgeAccessPolicy 复核；命中缺失/权限不符的
     # 向量候选时丢弃并累加 rag_vector_acl_mismatch_total 指标（索引 ACL 漂移检测）。
@@ -119,6 +130,8 @@ class Settings(BaseSettings):
     chroma_snapshot_dir: str = "data/chroma-snapshots"
     chroma_snapshot_keep: int = 5
     embedding_timeout_seconds: float = 30.0
+    embedding_provider_type: str = "remote"  # remote / local / mock(test only)
+    embedding_batch_size: int = 32
     # Phase 10（§10.8）：禁止 Production Hash Embedding。生产启动时若为 True 直接拒绝，
     # 避免把确定性 hash 向量当成真实语义向量发布进 Serving Index。
     # 通过环境变量 ALLOW_DETERMINISTIC_EMBEDDING 控制（默认 False，即生产禁止）。
@@ -137,10 +150,37 @@ class Settings(BaseSettings):
     opensearch_index_prefix: str = "seckb-rag"
     opensearch_alias_name: str = "seckb-rag-current"
     opensearch_embedding_dim: int = 1536     # 与 embedding 模型维度对齐
+    retrieval_rrf_k: int = 60                # 跨 query/来源 RRF 平滑常数
+    retrieval_rrf_top_k: int = 20            # 融合后进入上层 rerank/critic 的候选数
+    query_rewrite_max_chars: int = 256
     # Phase 5：统一知识入库 Pipeline。开启后业务 API（ingest/ingest_file）不再直接写
     # Serving Vector Store，而路由到 V2 submit_document（Outbox → IndexJob → Generation →
     # Validation → Publish）；关闭（默认，dev/test）保留legacy 同步写入路径。
     unified_ingest_pipeline: bool = False
+
+    # RAG 数据预处理与多类型文档优化（技术方案 §12）：文档处理 v2 feature flags。
+    # 默认全关闭，未开启时行为与现有版本完全一致。
+    document_processing_v2_enabled: bool = False
+    document_parser_default: str = "native"            # native / mineru
+    pdf_parser: str = "mineru"                         # mineru / pypdf
+    mineru_base_url: str = "http://mineru:8000"
+    mineru_backend: str = "auto"
+    mineru_timeout_seconds: int = 300
+    mineru_max_concurrency: int = 2
+    mineru_fallback_policy: str = "quality_gated_pypdf"
+    parse_quality_gate_mode: str = "observe"           # observe / enforce；observe 只记录不阻断
+    document_profile_mode: str = "auto"                # auto / explicit
+    chunker_strategy_version: str = "v2"
+    chunk_target_tokens: int = 450
+    chunk_max_tokens: int = 700
+    embedding_input_version: str = "v2"
+    ingestion_shadow_enabled: bool = False
+    # 结构化 embedding 前缀 token 上限，避免标题/breadcrumb 挤占正文（技术方案 §8.2）。
+    embedding_input_prefix_max_tokens: int = 64
+    # 解析质量门槛（observe/enforce 通用）；低于阈值判定 DEGRADED 或 QUARANTINE。
+    parse_quality_min_non_empty_page_ratio: float = 0.4
+    parse_quality_max_replacement_char_ratio: float = 0.02
+    parse_quality_max_repeated_margin_ratio: float = 0.4
     # v2 压测优化：向量索引健康检查的节流间隔（秒）。检索热路径原先每请求都做
     # 全库 rows count + has_exact_chunk_ids + hnsw 探针 query，会随并发放大固定开销
     # 并反复访问共享 chroma 目录；改为间隔节流，损坏检测交由检索层 VectorIndexCorrupt 兜底。
@@ -182,6 +222,8 @@ class Settings(BaseSettings):
     rag_eval_answer_api_key: str = ""
     excel_path: str = "data/mindbridge-risk-ledger.xlsx"
     redis_url: str = "redis://127.0.0.1:6379/0"
+    # Phase 6（§6.4）：generation publish 用分布式锁（Redis SET NX PX）跨 pod 互斥
+    enable_distributed_publish_lock: bool = False
     # v2 阶段 3（8.4）：DB 连接池配置（SQLite 忽略；生产 MySQL 生效）
     db_pool_size: int = 10
     db_max_overflow: int = 20

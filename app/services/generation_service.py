@@ -71,8 +71,12 @@ class GenerationReconciler:
     def drift(self) -> tuple[str | None, str | None, bool]:
         db_gen = self.db_current()
         be_gen = self.backend_current()
-        drifted = bool(db_gen != be_gen)
-        return db_gen, be_gen, drifted
+        drifted = bool((db_gen or "").lower() != (be_gen or "").lower())
+        # 对外使用 DB 中的 canonical generation ID；真实物理索引名必须小写。
+        canonical_backend = db_gen if not drifted and db_gen else (
+            be_gen.upper() if isinstance(be_gen, str) else be_gen
+        )
+        return db_gen, canonical_backend, drifted
 
     def readiness(self) -> dict[str, Any]:
         db_gen, be_gen, drifted = self.drift()
@@ -175,10 +179,14 @@ class GenerationService:
                 switch = self.backend.activate_generation(
                     generation_id=generation_id, previous_generation=current
                 )
+                # A migrated DB may name a bootstrap generation that never had
+                # a physical index. Prefer the generation actually detached
+                # from the alias so rollback always targets a real index.
+                actual_previous = switch.get("previous_generation_id") or current
                 try:
                     # §5.11 step 4：DB update serving_generation
                     row.current_generation = generation_id
-                    row.previous_generation = current
+                    row.previous_generation = actual_previous
                     row.status = "PUBLISHED"
                     row.published_at = row.published_at or _aware_now()
                     self.db.commit()
@@ -187,7 +195,7 @@ class GenerationService:
                     logger.exception("DB serving_generation update failed; rolling back alias")
                     try:
                         self.backend.rollback_generation(
-                            generation_id=generation_id, previous_generation=current
+                            generation_id=generation_id, previous_generation=actual_previous
                         )
                     except Exception:  # noqa: BLE001
                         logger.exception("alias rollback also failed")
@@ -234,7 +242,9 @@ class GenerationService:
     def _get_or_create_generation_row(self) -> IndexGeneration:
         row = self.db.query(IndexGeneration).filter_by(id=1).first()
         if row is None:
-            row = IndexGeneration(id=1, current_generation="G001", status="PUBLISHED")
+            # 首次发布前不存在 serving alias；空串表示“尚未发布”，避免尝试从
+            # 不存在的 G001 alias 目标移除，也避免把首个 candidate 误判为已发布。
+            row = IndexGeneration(id=1, current_generation="", status="CANDIDATE")
             self.db.add(row)
             self.db.flush()
         return row

@@ -206,8 +206,8 @@ OPENAI_EMBEDDING_MODEL=text-embedding-3-small
 KNOWLEDGE_VECTOR_ENABLED=true
 KNOWLEDGE_VECTOR_REQUIRED=false
 KNOWLEDGE_CANDIDATE_K=16
-KNOWLEDGE_HYBRID_VECTOR_WEIGHT=0.65
-KNOWLEDGE_HYBRID_BM25_WEIGHT=0.35
+KNOWLEDGE_HYBRID_VECTOR_WEIGHT=0.20
+KNOWLEDGE_HYBRID_BM25_WEIGHT=0.80
 KNOWLEDGE_RERANK_ENABLED=true
 CHROMA_PERSIST_DIR=data/chroma
 CHROMA_COLLECTION_NAME=mindbridge_knowledge_v2
@@ -342,8 +342,8 @@ KNOWLEDGE_VECTOR_ENABLED=true
 KNOWLEDGE_VECTOR_REQUIRED=false
 OPENAI_EMBEDDING_MODEL=text-embedding-3-small
 KNOWLEDGE_CANDIDATE_K=16
-KNOWLEDGE_HYBRID_VECTOR_WEIGHT=0.65
-KNOWLEDGE_HYBRID_BM25_WEIGHT=0.35
+KNOWLEDGE_HYBRID_VECTOR_WEIGHT=0.20
+KNOWLEDGE_HYBRID_BM25_WEIGHT=0.80
 KNOWLEDGE_RERANK_ENABLED=true
 CHROMA_PERSIST_DIR=data/chroma
 CHROMA_COLLECTION_NAME=mindbridge_knowledge_v2
@@ -679,6 +679,34 @@ AI_PROVIDER=mock KNOWLEDGE_VECTOR_ENABLED=false python -m unittest discover -s t
 - 用例位于 `tests/test_phase15_chaos.py`。
 
 ## Agent Runtime Harness
+
+## RAG 全链路主线（评测模块除外）
+
+生产主线已收敛为：原始文件上传 → Outbox/IndexJob → MinerU/原生解析 → 质量门禁 →
+文档 Profile → 差异化切块 → 版本化 embedding 输入 → 增量向量化 → 完整候选代际 →
+OpenSearch Alias 原子发布 → 查询改写/分解 → 多来源混合检索与 RRF → Retrieval Critic
+定向重检 → Groundedness Critic。支持 PDF、图片、Markdown/TXT，以及经 MinerU 解析的
+DOCX/PPTX/XLSX。
+
+部署前先执行数据库迁移，并按 MinerU 官方 Dockerfile 构建本地 `mineru:latest` 镜像；
+随后启动应用、独立索引 Worker 与 MinerU profile：
+
+```bash
+alembic upgrade head
+docker compose --profile mineru up -d
+```
+
+关键配置已写入 `.env.example` 与 `docker-compose.yml`。生产必须配置真实 embedding
+API Key，且保持 `ALLOW_DETERMINISTIC_EMBEDDING=false`。管理端版本维护接口：
+
+- `GET /api/admin/knowledge/documents/{document_id}/versions`
+- `POST /api/admin/knowledge/documents/{document_id}/versions/{version_id}/activate`
+- `POST /api/admin/knowledge/documents/{document_id}/versions/{version_id}/archive`
+- `POST /api/admin/knowledge/generations/rollback`
+
+`/api/admin/knowledge/file` 在统一主线开启后立即返回 `documentId/versionId/jobId`；任务状态
+通过 `/api/admin/knowledge/jobs/{job_id}` 查询。MinerU 不可用时，数字 PDF 可按配置降级
+到 pypdf；扫描 PDF、图片及 Office 文档不会静默降级为乱码，而是重试或进入隔离。
 
 线上对话通过 `MindBridgeAgentHarness`（`app/agents/harness.py`）组织一次 Agent run。Harness 不改变事件驱动 runtime 内部的多 Agent 协作方式，而是在外层统一管理：
 

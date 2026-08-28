@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<title>MindBridge · 二轮盲审（Double-Blind Review）</title>
+<style>
+:root{
+  --bg:#0f1115; --panel:#171a21; --panel2:#1d212b; --line:#2a2f3b;
+  --txt:#e7eaf0; --mut:#9aa3b2; --dim:#6b7382;
+  --acc:#4f8cff; --ok:#2fbf71; --warn:#f5a623; --bad:#f0534b;
+  --radius:12px;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--txt);
+  font:14px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
+a{color:var(--acc)}
+.topbar{display:flex;align-items:center;gap:16px;padding:12px 20px;border-bottom:1px solid var(--line);background:#12141a}
+.brand-mark{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;font-weight:800;
+  background:linear-gradient(135deg,#4f8cff,#7b5bff);color:#fff}
+.eyebrow{font-size:11px;letter-spacing:.12em;color:var(--dim);margin:0}
+h1{font-size:18px;margin:0}
+.reviewer-block{margin-left:auto;display:flex;gap:10px;align-items:center}
+.reviewer-block label{font-size:12px;color:var(--mut)}
+input[type=text],textarea,select{background:var(--panel2);border:1px solid var(--line);color:var(--txt);
+  border-radius:8px;padding:8px 10px;font:inherit}
+input[type=text]:focus,textarea:focus{outline:1px solid var(--acc)}
+.wrap{display:grid;grid-template-columns:280px 1fr;gap:0;height:calc(100vh - 63px)}
+.sidebar{border-right:1px solid var(--line);padding:12px;background:#12141a;overflow:auto}
+.stat{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.stat .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px 12px;flex:1;min-width:72px;text-align:center}
+.stat .card b{display:block;font-size:20px}
+.stat .card span{font-size:11px;color:var(--mut)}
+.case-list{display:flex;flex-direction:column;gap:6px}
+.case-item{border:1px solid var(--line);border-radius:10px;padding:8px 10px;cursor:pointer;background:var(--panel);transition:.15s}
+.case-item:hover{border-color:var(--acc)}
+.case-item.active{border-color:var(--acc);background:var(--panel2)}
+.case-item .qi{font-size:11px;color:var(--dim);word-break:break-all}
+.case-item .q{font-size:12px;color:var(--txt);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.badge{font-size:10px;padding:1px 6px;border-radius:6px;margin-left:6px}
+.badge.done{background:rgba(47,191,113,.15);color:var(--ok)}
+.badge.pending{background:rgba(245,166,35,.15);color:var(--warn)}
+.pane{padding:16px 20px;overflow:auto}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-bottom:14px}
+.card h3{font-size:14px;margin:0 0 6px;color:var(--mut);letter-spacing:.04em}
+.chips{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.chip{font-size:11px;background:var(--panel2);border:1px solid var(--line);border-radius:20px;padding:3px 10px;color:var(--mut)}
+.chip.acc{background:rgba(79,140,255,.12);border-color:rgba(79,140,255,.4);color:#9fc2ff}
+.question{font-size:15px;font-weight:600;color:#fff}
+.answer-points li{margin:4px 0}
+.passage{border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:10px;background:var(--panel2)}
+.passage.reveal .pkey{display:inline}
+.passage .pkey{display:none;color:var(--dim);font-size:11px}
+.passage pre{white-space:pre-wrap;margin:8px 0 0;color:#cfd6e2;background:#14161d;border-radius:8px;padding:10px;max-height:180px;overflow:auto;font:13px/1.6 ui-monospace,Consolas,monospace}
+.p-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.toggle{display:inline-flex;gap:6px;align-items:center;font-size:13px;cursor:pointer;
+  border:1px solid var(--line);border-radius:8px;padding:4px 10px;background:var(--panel)}
+.toggle input{accent-color:var(--acc);width:16px;height:16px}
+.toggle.off{opacity:.55}
+.verdict{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.vbtn{border:1px solid var(--line);border-radius:8px;padding:8px 14px;cursor:pointer;background:var(--panel2);color:var(--txt);font-size:13px}
+.vbtn.selected-yes{border-color:var(--ok);background:rgba(47,191,113,.14);color:var(--ok)}
+.vbtn.selected-no{border-color:var(--bad);background:rgba(240,83,75,.14);color:var(--bad)}
+.vbtn.selected-unk{border-color:var(--warn);background:rgba(245,166,35,.14);color:var(--warn)}
+.controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:8px}
+.btn{border:1px solid var(--line);background:var(--panel2);color:var(--txt);padding:9px 16px;border-radius:9px;cursor:pointer;font:inherit}
+.btn:hover{border-color:var(--acc)}
+.btn.primary{background:var(--acc);border-color:var(--acc);color:#fff}
+.btn.outline{background:transparent}
+.btn.danger{border-color:var(--bad);color:var(--bad)}
+.save-state{font-size:12px;color:var(--mut)}
+.progressbar{height:6px;background:var(--panel2);border-radius:4px;overflow:hidden;margin-bottom:12px}
+.progressbar>div{height:100%;background:linear-gradient(90deg,#4f8cff,#7b5bff);width:0;transition:.3s}
+.nav{margin-top:14px;display:flex;gap:10px;justify-content:space-between}
+.empty{color:var(--dim);text-align:center;padding:80px 0}
+.hidden{display:none}
+label.field{display:block;margin:10px 0 4px;font-size:12px;color:var(--mut)}
+textarea{width:100%;resize:vertical}
+.dialog-mask{position:fixed;inset:0;background:rgba(0,0,0,.5);display:grid;place-items:center;z-index:20}
+.dialog{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;max-width:520px;width:90%}
+.dialog h2{margin-top:0}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#2c3340;color:#fff;padding:10px 18px;border-radius:10px;opacity:0;transition:.3s;pointer-events:none;z-index:30}
+.toast.show{opacity:1}
+.legend{display:flex;gap:14px;font-size:12px;color:var(--mut);margin-bottom:8px}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.meta{font-size:12px;color:var(--mut);margin:4px 0 12px}
+kbd{background:var(--panel2);border:1px solid var(--line);border-radius:4px;padding:0 5px;font-size:11px;color:var(--mut)}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand-mark">MB</div>
+  <div>
+    <p class="eyebrow">SECOND · BLIND REVIEW</p>
+    <h1>二轮盲审（Core 60）</h1>
+  </div>
+  <div class="reviewer-block">
+    <label for="reviewerId">复核者标识</label>
+    <input type="text" id="reviewerId" placeholder="真实姓名或工号" autocomplete="off">
+    <button class="btn outline" id="exportBtn" type="button">导出盲审结果 (CSV)</button>
+  </div>
+</header>
+
+<div class="wrap">
+  <aside class="sidebar">
+    <div class="stat">
+      <div class="card"><b id="doneCount">0</b><span>已完成</span></div>
+      <div class="card"><b id="leftCount">60</b><span>剩余</span></div>
+    </div>
+    <div class="progressbar"><div id="progressBar"></div></div>
+    <p class="meta">按顺序逐条盲审；<span id="progressText">未载入数据</span></p>
+    <div class="case-list" id="caseList"></div>
+  </aside>
+
+  <main class="pane">
+    <div class="empty" id="emptyState">选择一个片段开始盲审<br><br>二盲规则：不显示首审结论，凭题面与原答案要点独立判断每个候选 passage 是否为可信证据来源。</div>
+
+    <article id="card" class="hidden">
+      <div class="card">
+        <div class="chips">
+          <span class="chip acc" id="categoryChip"></span>
+          <span class="chip" id="queryIdChip"></span>
+          <span class="chip" id="positionChip"></span>
+          <button class="btn outline" id="revealBtn" style="margin-left:auto" type="button">显示 stable_key</button>
+        </div>
+        <div class="card"><h3>02. 问题</h3><div class="question" id="question"></div></div>
+        <div class="card"><h3>03. 原答案要点</h3>
+          <ul class="answer-points" id="answerPoints"></ul>
+        </div>
+        <div class="card"><h3>04. 候选证据（先判断来源可信度，再决定是否引用）</h3>
+          <p class="legend">
+            <span><i style="background:var(--ok)"></i>来源可信</span>
+            <span><i style="background:var(--bad)"></i>可疑（越权/注入/跑题/过时）</span>
+            <span><i style="background:var(--warn)"></i>不确定</span>
+            <span style="margin-left:6px">☑ 引用为答案证据 —— 只有勾选“引用”的才计入答案依据</span>
+          </p>
+          <div id="passageList"></div>
+        </div>
+        <div class="card"><h3>05. 答案要点来源判定</h3>
+          <p class="meta">原答案每个要点是否都被你选中的可信证据充分支持？</p>
+          <div class="verdict" id="answerVerdict">
+            <button class="vbtn" data-v="1">全部要点均有证据支持</button>
+            <button class="vbtn" data-v="0">有要点缺乏证据</button>
+            <button class="vbtn" data-v="uncertain">不确定</button>
+          </div>
+        </div>
+        <div class="card">
+          <h3>06. 总体来源判定 & 备注</h3>
+          <p class="meta">所选来源整体是否可信、无越权/注入/泄漏？（与上一步互补：上步看“要点是否被支持”，此步看“来源根基是否成立”）</p>
+          <div class="verdict" id="sourceVerdict">
+            <button class="vbtn" data-v="1">来源整体可信</button>
+            <button class="vbtn" data-v="0">存在可疑来源</button>
+            <button class="vbtn" data-v="uncertain">不确定</button>
+          </div>
+          <label class="field">复核说明（修改原因 / 不确定需谁确认什么）</label>
+          <textarea id="notes" rows="3" placeholder="选“可疑”或“要点缺证据”时应说明是哪一项、为什么。"></textarea>
+        </div>
+        <div class="controls">
+          <span class="save-state" id="saveState">未保存</span>
+          <button class="btn danger" id="resetBtn" type="button">重做本片</button>
+        </div>
+        <div class="nav">
+          <button class="btn outline" id="prevBtn" type="button">← 上一个</button>
+          <span class="meta" style="align-self:center">键盘：<kbd>1/2/3</kbd> 选定结 · <kbd>Ctrl</kbd>+<kbd>Enter</kbd> 保存并下一个</span>
+          <button class="btn primary" id="saveNextBtn" type="button">保存并下一个 →</button>
+        </div>
+      </div>
+    </article>
+  </main>
+</div>
+
+<div class="dialog-mask" id="dialogMask" style="display:none">
+  <div class="dialog">
+    <h2>导出盲审结果</h2>
+    <p>将当前已完成的盲审记录导出为 CSV（含复核者标识），用于与首审 Gold 计算 source_agreement / passage_jaccard。</p>
+    <label class="field">复核者标识（必填，将写入每条记录）</label>
+    <input type="text" id="dialogReviewer" placeholder="真实姓名或工号">
+    <div class="controls" style="margin-top:14px">
+      <button class="btn" id="dialogCancel" type="button">取消</button>
+      <button class="btn primary" id="dialogConfirm" type="button">导出 CSV</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+const $ = (s, r=document) => r.querySelector(s);
+let cases = [];
+let idx = -1;
+let reviewer = "";
+
+const PASSAGE_LABELS = ["A","B","C","D","E","F","G","H"];
+
+// ---------- 数据加载 ----------
+async function load(){
+  try{
+    const res = await fetch("data/double_review_60.json");
+    if(!res.ok) throw new Error("HTTP "+res.status);
+    cases = await res.json();
+    cases.forEach((c,i)=>{
+      c.verdicts = (c.candidate_passages||[]).map(()=> "unk"); // 来源：可信/可疑/不确定
+      c.cite = (c.candidate_passages||[]).map(()=> false);     // 是否引用为答案证据
+      c.answerOk = "";
+      c.sourceOk = "";
+      c.notesQ = "";
+      restore(c);
+      if(c.cite===undefined) c.cite = c.verdicts.map(v=>v==="1"); // 迁移旧数据：旧“可信”视为已引用
+    });
+    renderList();
+    if(cases.length) openCase(0);
+    else $('#emptyState').textContent = "数据为空";
+  }catch(e){
+    $('#emptyState').innerHTML = "数据载入失败：<code>"+e.message+"</code><br>请用 <code>python -m http.server 8766 --directory tools/annotation/e2e_double_review_ui</code> 启动后访问 http://127.0.0.1:8766/";
+  }
+}
+
+function storageKey(c){
+  return "mbIe2eDr2::"+c.query_id;
+}
+function restore(c){
+  let raw = localStorage.getItem(storageKey(c));
+  if(!raw) return;
+  try{
+    const d = JSON.parse(raw);
+    if(d.v) d.v.forEach((x,i)=>{ if(c.verdicts[i]!==undefined) c.verdicts[i]=x; });
+    if(Array.isArray(d.c)) d.c.forEach((x,i)=>{ if(c.cite!==undefined && c.cite[i]!==undefined) c.cite[i]=!!x; });
+    else c.cite = c.verdicts.map(v=>v==="1");
+    c.answerOk = d.o===""? "": d.o;
+    c.sourceOk = d.s===""? "": d.s;
+    c.notesQ = d.n||"";
+  }catch(_){}
+}
+function persist(c){
+  localStorage.setItem(storageKey(c), JSON.stringify({
+    v:c.verdicts, c:c.cite, o:c.answerOk, s:c.sourceOk, n:c.notesQ
+  }));
+}
+
+// ---------- 渲染 ----------
+function isDone(c){ return c.sourceOk!=="" && c.answerOk!=="" && c.verdicts.every(x=>x!=="unk"); }
+function renderList(){
+  $('#caseList').innerHTML = "";
+  cases.forEach((c,i)=>{
+    const done = isDone(c);
+    const el = document.createElement("div");
+    el.className = "case-item"+(i===idx?" active":"");
+    el.innerHTML = '<span class="qi">'+(i+1)+" / "+c.query_id+'<span class="badge '+(done?"done":"pending")+'">'+(done?"已审":"待审")+'</span></span>'+
+      '<div class="q">'+esc(c.question)+'</div>';
+    el.onclick = ()=> openCase(i);
+    $('#caseList').appendChild(el);
+  });
+  const doneN = cases.filter(isDone).length;
+  $('#doneCount').textContent = doneN;
+  $('#leftCount').textContent = cases.length - doneN;
+  $('#progressBar').style.width = (doneN/cases.length*100)+"%";
+  $('#progressText').textContent = "已完成 "+doneN+" / "+cases.length;
+}
+function openCase(i){
+  if(i<0||i>=cases.length) return;
+  idx = i;
+  const c = cases[i];
+  $('#card').classList.remove("hidden");
+  $('#emptyState').classList.add("hidden");
+  $('#categoryChip').textContent = c.category || "未分类";
+  $('#queryIdChip').textContent = c.query_id;
+  $('#positionChip').textContent = (i+1)+" / "+cases.length;
+  $('#question').textContent = c.question;
+  const pts = Array.isArray(c.proposed_answer_points)? c.proposed_answer_points : [];
+  $('#answerPoints').innerHTML = pts.length? pts.map(p=>"<li>"+esc(p)+"</li>").join("") : "<li><i>（无答案要点）</i></li>";
+  renderPassages(c);
+  renderVerdict($('#answerVerdict'), c.answerOk);
+  renderVerdict($('#sourceVerdict'), c.sourceOk);
+  $('#notes').value = c.notesQ||"";
+  $('#saveState').textContent = isDone(c)? "已完成" : "未完成";
+  renderList();
+  window.scrollTo(0,0);
+}
+function renderPassages(c){
+  const box = $('#passageList');
+  box.innerHTML = "";
+  (c.candidate_passages||[]).forEach((p,i)=>{
+    const verdict = c.verdicts[i];
+    const cite = !!c.cite[i];
+    const el = document.createElement("div");
+    el.className = "passage";
+    el.innerHTML =
+      '<div class="p-row">'+
+        '<b class="pkey" style="font-family:monospace">'+esc(ps(p))+' · </b><b>片段 '+PASSAGE_LABELS[i]+'</b>'+
+      '</div>'+
+      '<div class="p-row">'+
+        '<span style="font-size:12px;color:var(--mut)">来源判断：</span>'+
+        '<div class="verdict" data-i="'+i+'">'+
+          '<button class="vbtn '+(verdict==="1"?"selected-yes":"")+'" data-v="1">可信</button>'+
+          '<button class="vbtn '+(verdict==="0"?"selected-no":"")+'" data-v="0">可疑</button>'+
+          '<button class="vbtn '+(verdict==="uncertain"?"selected-unk":"")+'" data-v="uncertain">不确定</button>'+
+        '</div>'+
+        '<label class="toggle '+(cite?"":"off")+'"><input type="checkbox" data-cite="'+i+'" '+(cite?"checked":"")+'> 引用为答案证据</label>'+
+      '</div>'+
+      '<pre>'+esc(p.content || p.candidate_passage_content || "")+'</pre>';
+    box.appendChild(el);
+    el.querySelector(".verdict").addEventListener("click", (e)=>{
+      const btn = e.target.closest(".vbtn"); if(!btn) return;
+      c.verdicts[i] = btn.dataset.v;
+      persist(c);
+      renderPassages(c);
+      $('#saveState').textContent = "已保存";
+    });
+    el.querySelector('[data-cite]').addEventListener("change", (e)=>{
+      c.cite[i] = e.target.checked;
+      persist(c);
+      renderPassages(c);
+      $('#saveState').textContent = "已保存";
+    });
+  });
+}
+function ps(p){ return p.stable_key || p.passage_id || p.id || ""; }
+function renderVerdict(box, cur){
+  box.querySelectorAll(".vbtn").forEach(b=>{
+    b.classList.remove("selected-yes","selected-no","selected-unk");
+    if(cur===b.dataset.v) b.classList.add(cur==="1"?"selected-yes":cur==="0"?"selected-no":"selected-unk");
+  });
+}
+
+// ---------- 事件 ----------
+$('#answerVerdict').addEventListener("click", (e)=>{
+  const b=e.target.closest(".vbtn"); if(!b||idx<0) return;
+  cases[idx].answerOk=b.dataset.v; persist(cases[idx]);
+  $('#saveState').textContent="已保存"; renderVerdict($('#answerVerdict'),cases[idx].answerOk);
+});
+$('#sourceVerdict').addEventListener("click", (e)=>{
+  const b=e.target.closest(".vbtn"); if(!b||idx<0) return;
+  cases[idx].sourceOk=b.dataset.v; persist(cases[idx]);
+  $('#saveState').textContent="已保存"; renderVerdict($('#sourceVerdict'),cases[idx].sourceOk);
+});
+$('#notes').addEventListener("input", ()=>{ if(idx>=0){ cases[idx].notesQ=$('#notes').value; persist(cases[idx]); } });
+$('#resetBtn').addEventListener("click", ()=>{
+  if(idx<0) return;
+  const c=cases[idx];
+  c.verdicts=(c.candidate_passages||[]).map(()=>"unk");
+  c.cite=(c.candidate_passages||[]).map(()=>false);
+  c.answerOk=""; c.sourceOk=""; c.notesQ="";
+  persist(c); openCase(idx);
+});
+$('#prevBtn').addEventListener("click", ()=>{ if(idx>0) openCase(idx-1); });
+$('#saveNextBtn').addEventListener("click", ()=>{ saveNext(); });
+$('#revealBtn').addEventListener("click", ()=>{
+  document.querySelectorAll(".passage").forEach(p=>p.classList.toggle("reveal"));
+});
+document.addEventListener("keydown", (e)=>{
+  if(e.target.tagName==="TEXTAREA"||e.target.tagName==="INPUT") return;
+  if(e.key==="1"||e.key==="2"||e.key==="3"){
+    const val = e.key==="1"?"1":e.key==="2"?"0":"uncertain";
+    // apply to selected passage or (if none active) to verdicts spread
+    applyHotkey(val);
+  } else if(e.ctrlKey && e.key==="Enter"){ e.preventDefault(); saveNext(); }
+});
+function applyHotkey(val){
+  if(idx<0) return;
+  const c=cases[idx];
+  // 应用到所有未判 passage
+  let changed=false;
+  c.verdicts.forEach((v,i)=>{ if(v==="unk"){ c.verdicts[i]=val; changed=true; } });
+  if(changed){ persist(c); renderPassages(c); $('#saveState').textContent="已保存"; }
+}
+function saveNext(){
+  if(idx<0) return;
+  const c=cases[idx];
+  c.notesQ=$('#notes').value; persist(c);
+  const incomplete = c.verdicts.some(v=>v==="unk") || c.sourceOk==="" || c.answerOk==="";
+  if(incomplete){
+    toast("该片尚未完全判定（有段落未选 或 结论未定），仍将保存并进入下一条", "warn");
+  }
+  renderList();
+  if(idx < cases.length-1) openCase(idx+1);
+  else toast("已到最后一条", "ok");
+}
+
+// ---------- 导出 ----------
+  function openDialog(){ const m=$('#dialogMask'); if(m){ m.style.display="grid"; } }
+  function closeDialog(){ const m=$('#dialogMask'); if(m){ m.style.display="none"; } }
+  $('#exportBtn').addEventListener("click", openDialog);
+  $('#dialogMask').addEventListener("click", (e)=>{ if(e.target.id==="dialogMask") closeDialog(); });
+  $('#dialogCancel').addEventListener("click", closeDialog);
+  document.addEventListener("keydown", (e)=>{ if(e.key==="Escape") closeDialog(); });
+   $('#dialogConfirm').addEventListener("click", ()=>{
+    const rid = ($('#dialogReviewer').value||$('#reviewerId').value||"").trim();
+  if(!rid){ toast("请填写复核者标识"); return; }
+  const header = ["query_id","category","question","proposed_answer_points_json","candidate_passages_json","source_ok_1_or_0","selected_passage_ids_json","answer_points_ok_1_or_0","reviewer_notes","reviewer_id","review_complete"];
+  const rows = cases.map(c=>{
+    const selected = (c.candidate_passages||[]).map(ps).filter((_,i)=>!!c.cite[i]);
+    return [
+      c.query_id, c.category, c.question,
+      JSON.stringify(c.proposed_answer_points||[]),
+      JSON.stringify(c.candidate_passages||[]),
+      c.sourceOk, JSON.stringify(selected), c.answerOk, c.notesQ||"", rid,
+      isDone(c)?1:0
+    ];
+  });
+  let csv = header.map(h=>csvCell(h)).join(",")+"\n";
+  rows.forEach(r=>{ csv += r.map(csvCell).join(",")+"\n"; });
+  download("double-review-60-"+rid+"-"+stamp()+".csv", csv);
+  closeDialog();
+  toast("已导出 "+rows.length+" 条");
+});
+function csvCell(v){
+  const s = v==null?"":String(v);
+  if(/[",\n\r]/.test(s)) return '"'+s.replace(/"/g,'""')+'"';
+  return s;
+}
+function stamp(){ const d=new Date(); return d.toISOString().slice(0,19).replace(/[T:]/g,"-"); }
+function download(name, content){
+  const blob = new Blob(["\ufeff"+content], {type:"text/csv;charset=utf-8"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download=name; a.click(); URL.revokeObjectURL(a.href);
+}
+function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g, ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[ch])); }
+let toastT;
+function toast(msg,type){ const t=$('#toast'); t.textContent=msg; t.classList.add("show"); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove("show"),2600); }
+
+load();
+</script>
+</body>
+</html>

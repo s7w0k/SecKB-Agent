@@ -1,0 +1,102 @@
+{
+  "title": "差异化切块真实压力验证",
+  "args": {
+    "root": "app\\knowledge",
+    "docs": 20,
+    "repeat": 1,
+    "baseline": true,
+    "allowed_max_chunk_tokens": 700
+  },
+  "run_sec": 0.022,
+  "totals": {
+    "docs_ok": 20,
+    "docs_failed": 0,
+    "total_chars": 22555,
+    "total_tokens": 25609,
+    "total_chunks": 61,
+    "chunks_per_doc": 3.05,
+    "token_per_doc": 1280.45,
+    "char_per_doc": 1127.75,
+    "sum_embedding_tokens": 25609
+  },
+  "throughput": {
+    "docs_per_sec": 923.284,
+    "chars_per_sec": 1041233.88,
+    "chunks_per_sec": 2816.02
+  },
+  "stage_ms": {
+    "parse": {
+      "count": 20,
+      "mean": 0.23,
+      "p50": 0.16,
+      "p95": 0.19,
+      "max": 1.81
+    },
+    "quality": {
+      "count": 20,
+      "mean": 0.03,
+      "p50": 0.03,
+      "p95": 0.04,
+      "max": 0.04
+    },
+    "profile": {
+      "count": 20,
+      "mean": 0.05,
+      "p50": 0.04,
+      "p95": 0.06,
+      "max": 0.25
+    },
+    "chunk": {
+      "count": 20,
+      "mean": 0.36,
+      "p50": 0.29,
+      "p95": 0.4,
+      "max": 2.27
+    },
+    "embed": {
+      "count": 20,
+      "mean": 0.0,
+      "p50": 0.0,
+      "p95": 0.01,
+      "max": 0.01
+    },
+    "total": {
+      "count": 20,
+      "mean": 364.03,
+      "p50": 298.65,
+      "p95": 407.19,
+      "max": 2275.36
+    }
+  },
+  "boundary": {
+    "chunks_over_max_tokens": 0,
+    "empty_chunks": 0,
+    "empty_docs_boundary_ok": true
+  },
+  "by_profile": [
+    {
+      "profile": "narrative",
+      "docs": 20,
+      "chunks": 61,
+      "tokens": 25609,
+      "chunks_per_doc": 3.05,
+      "token_per_doc": 1280.45,
+      "chunk_tokens": {
+        "count": 61,
+        "mean": 419.82,
+        "p50": 437,
+        "p95": 522,
+        "max": 525
+      }
+    }
+  ],
+  "failures": {},
+  "baseline_char512": {
+    "docs": 20,
+    "chunks": 49,
+    "tokens": 22487,
+    "chunks_per_doc": 2.45,
+    "diff_chunks_reduction_pct": -24.49,
+    "diff_tokens_reduction_pct": -13.88
+  }
+}

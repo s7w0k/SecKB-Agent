@@ -46,11 +46,16 @@ class EventDrivenAgentRuntimeService:
     framework_name = "event_driven_multi_agent"
     max_steps = 8
 
-    def __init__(self, db: Session, settings: Settings):
+    def __init__(self, db: Session, settings: Settings, *, app_services=None):
         self.db = db
         self.settings = settings
+        if app_services is None:
+            from app.core.app_services import get_app_services
+
+            app_services = get_app_services(settings)
+        self.app_services = app_services
         self.ai = AiClient(settings)
-        self.knowledge = KnowledgeService(db, settings)
+        self.knowledge = app_services.build_knowledge_service(db)
         self.memory = RedisShortTermMemoryStore(settings)
         self.model_registry = AgentModelRegistry(settings)
         self.private_memory = AgentPrivateMemory(settings)
@@ -152,26 +157,47 @@ class EventDrivenAgentRuntimeService:
             return result
 
     def _build_agents(self, user: UserAccount, session: ChatSession, scope, retrieval_service, *, run_id=None):
-        from app.services.real_retrievers import build_production_registry
         from app.services.retrieval_orchestrator import RetrievalOrchestrator
         from app.services.retriever_router import RetrieverRouter
+
+        if getattr(self.settings, "vector_backend", "local_chroma") == "opensearch":
+            from app.services.opensearch_retrievers import build_opensearch_registry
+
+            registry = build_opensearch_registry(
+                self.app_services.backend,
+                self.app_services.embedding_provider,
+                db=self.db,
+                # 在线检索始终走 serving alias；物理 generation 由 alias 原子选择。
+                default_generation=None,
+                external_retriever_enabled=bool(
+                    getattr(self.settings, "external_retriever_enabled", False)
+                ),
+            )
+            serving_generation = None
+        else:
+            from app.services.real_retrievers import build_production_registry
+
+            registry = build_production_registry(
+                self.db,
+                default_generation=getattr(self.settings, "index_generation", None),
+            )
+            serving_generation = getattr(self.settings, "index_generation", None)
 
         # 最终 6 项问题 · Phase 3（§3.2 §3.10）：生产检索唯一主链。所有来源均经
         # Router → Registry.get_secure → SecureRetrieverDecorator → Real Retriever。
         orchestrator = (
             RetrievalOrchestrator(
                 self.db,
-                registry=build_production_registry(
-                    self.db,
-                    default_generation=getattr(self.settings, "index_generation", None),
-                ),
+                registry=registry,
                 router=RetrieverRouter(
                     external_retriever_enabled=bool(
                         getattr(self.settings, "external_retriever_enabled", False)
                     )
                 ),
-                generation=getattr(self.settings, "index_generation", None),
+                generation=serving_generation,
                 actor=f"user:{getattr(user, 'id', None)}",
+                rrf_k=getattr(self.settings, "retrieval_rrf_k", 60),
+                rrf_top_k=getattr(self.settings, "retrieval_rrf_top_k", 20),
             )
             if scope is not None
             else None

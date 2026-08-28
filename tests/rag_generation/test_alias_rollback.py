@@ -32,7 +32,7 @@ class AliasRollbackTest(unittest.TestCase):
         b.activate_generation(generation_id="G103")
         b.bulk_index(generation_id="G104", chunks=[_chunk(2, "有问题的版本")], vectors=[[0.0, 1.0]])
         b.activate_generation(generation_id="G104", previous_generation="G103")
-        self.assertEqual(b.current_generation, "G104")  # 已发布到 G104
+        self.assertEqual(b.current_generation, "G104")
 
         # 模拟故障 → 回滚到 G103（一次 alias 操作，未重建任何 embedding）
         ok = b.rollback_generation(generation_id="G104", previous_generation="G103")

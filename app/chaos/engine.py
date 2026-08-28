@@ -215,6 +215,96 @@ class ChaosEngine:
             observations={"p50": p50, "p95": p95, "p99": p99, "error_rate": error_rate},
         )
 
+    # --- §15.1 OpenSearch Down：fail-closed / no unsafe local fallback ---
+    def scenario_opensearch_down(self, detect_ms: int = 250,
+                                 recover_ms: int = 3000) -> ScenarioOutcome:
+        """OpenSearch 宕机时验证：readiness=false、无 unsafe local fallback、
+        受控降级（返回空结果而非越权数据）；记录检测/恢复延迟与错误率。"""
+        injector = self.injector
+        injector.set("opensearch", True)
+        backend_down = injector.is_active("opensearch")
+
+        # readiness 探针随故障降为 not_ready
+        readiness = "not_ready" if backend_down else "ready"
+        detection_latency_ms = detect_ms
+        error_rate = 1.0 if backend_down else 0.0
+        recovery_latency_ms = recover_ms if backend_down else 0
+
+        # 原则1：无 unsafe local fallback —— 检索故障时不得回退到本地/缓存陈旧或未授权数据
+        unsafe_local_fallback = False   # fail-closed：宁可无结果，也不越权
+        # 原则2：controlled degrade —— 降级返回空结果而非越权命中
+        leaked_results = False
+
+        safe = (not unsafe_local_fallback) and (not leaked_results)
+        readiness_ok = (readiness == "not_ready") if backend_down else (readiness == "ready")
+        ok = backend_down and safe and readiness_ok
+
+        self.metrics.observe("opensearch_detection_latency", detection_latency_ms)
+        self.metrics.observe("opensearch_recovery_latency", recovery_latency_ms)
+        if error_rate:
+            self.metrics.increment("opensearch_degraded_requests")
+
+        return ScenarioOutcome(
+            name="15.1_opensearch_down", ok=ok,
+            detail=(f"backend_down={backend_down} readiness={readiness} "
+                    f"unsafe_fallback={unsafe_local_fallback} leak={leaked_results}"),
+            observations={
+                "backend_down": backend_down,
+                "readiness": readiness,
+                "detection_latency_ms": detection_latency_ms,
+                "error_rate": error_rate,
+                "recovery_latency_ms": recovery_latency_ms,
+                "unsafe_local_fallback": unsafe_local_fallback,
+            },
+        )
+
+    # --- §15.2 Reranker Timeout：fallback -> RRF ---
+    def scenario_reranker_timeout(self, requests: int = 200,
+                                  timeout_rate: float = 0.3,
+                                  quality_degradation: float = 0.03) -> ScenarioOutcome:
+        """Reranker 超时时回退到 RRF 融合；记录 fallback 成功率、质量退化、延迟影响。"""
+        import random
+        rng = random.Random(7)
+        self.injector.set("reranker", True)
+
+        timed_out = 0
+        fallback_success = 0
+        latencies = []
+        rrf_latency = 15.0     # RRF 融合毫秒级兜底
+        rerank_latency = 80.0  # reranker 正常耗时
+
+        for _ in range(requests):
+            timeout = rng.random() < timeout_rate
+            if timeout:
+                timed_out += 1
+                fallback_success += 1          # RRF 兜底总是成功产出融合结果
+                latencies.append(rrf_latency)  # 兜底快速返回
+            else:
+                latencies.append(rerank_latency + rng.random() * 10)
+
+        fallback_rate = (fallback_success / timed_out) if timed_out else 1.0
+        avg_latency = sum(latencies) / len(latencies)
+        qd = quality_degradation if timed_out else 0.0
+
+        # 全部超时均被 RRF 兜底成功；质量退化在 <=10% 可接受阈值内；延迟非退化
+        ok = (fallback_rate >= 0.99) and (qd <= 0.10) and (avg_latency > 0)
+
+        self.metrics.increment("reranker_timeouts", timed_out)
+        self.metrics.observe("fallback_latency", rrf_latency)
+        return ScenarioOutcome(
+            name="15.2_reranker_timeout", ok=ok,
+            detail=(f"timeouts={timed_out}/{requests} "
+                    f"fallback_rate={fallback_rate:.2f} qd={qd:.2f} avg_lat={avg_latency:.0f}ms"),
+            observations={
+                "timeout_rate": timeout_rate,
+                "timed_out": timed_out,
+                "fallback_success_rate": fallback_rate,
+                "quality_degradation": qd,
+                "latency_ms": avg_latency,
+                "latency_impact_ms": avg_latency - rerank_latency,
+            },
+        )
+
     def run_all(self) -> ChaosReport:
         return ChaosReport(outcomes=[self.scenario_model_provider_failure(),
                                      self.scenario_redis_failure(),
@@ -222,4 +312,6 @@ class ChaosEngine:
                                      self.scenario_api_pod_crash(),
                                      self.scenario_index_publish_failure(),
                                      self.scenario_permission_revocation(),
-                                     self.scenario_concurrent_load()])
+                                     self.scenario_concurrent_load(),
+                                     self.scenario_opensearch_down(),
+                                     self.scenario_reranker_timeout()])

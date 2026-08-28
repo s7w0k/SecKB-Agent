@@ -93,7 +93,7 @@ def upgrade() -> None:
         sa.Column("status", sa.String(32), nullable=False),
         sa.Column("owner", sa.String(128), nullable=False, server_default="unassigned"),
         sa.Column("summary", sa.Text(), nullable=False),
-        sa.Column("handoff_summary", sa.Text(), nullable=False, server_default=""),
+        sa.Column("handoff_summary", sa.Text(), nullable=False, server_default=sa.text("('')")),
         sa.Column("acknowledged_by", sa.String(128), nullable=True),
         sa.Column("acknowledged_at", sa.DateTime(), nullable=True),
         sa.Column("created_at", sa.DateTime(), nullable=False),
@@ -150,7 +150,7 @@ def upgrade() -> None:
         sa.Column("max_attempts", sa.Integer(), nullable=False, server_default="3"),
         sa.Column("depends_on_job_id", sa.Integer(), nullable=True),
         sa.Column("run_after", sa.DateTime(), nullable=False),
-        sa.Column("last_error", sa.Text(), nullable=False, server_default=""),
+        sa.Column("last_error", sa.Text(), nullable=False, server_default=sa.text("('')")),
         sa.Column("created_at", sa.DateTime(), nullable=False),
         sa.Column("updated_at", sa.DateTime(), nullable=False),
     )
@@ -167,7 +167,7 @@ def upgrade() -> None:
         sa.Column("report_id", sa.Integer(), nullable=False),
         sa.Column("kind", sa.String(64), nullable=False),
         sa.Column("reason", sa.Text(), nullable=False),
-        sa.Column("payload", sa.Text(), nullable=False, server_default=""),
+        sa.Column("payload", sa.Text(), nullable=False, server_default=sa.text("('')")),
         sa.Column("created_at", sa.DateTime(), nullable=False),
     )
     op.create_index("ix_dead_letter_records_job_id", "dead_letter_records", ["job_id"])
@@ -185,11 +185,11 @@ def upgrade() -> None:
         sa.Column("risk_level", sa.String(32), nullable=False, server_default="LOW"),
         sa.Column("original_input", sa.Text(), nullable=False),
         sa.Column("sanitized_input", sa.Text(), nullable=False),
-        sa.Column("memory_brief", sa.Text(), nullable=False, server_default=""),
-        sa.Column("agent_steps_json", sa.Text(), nullable=False, server_default="[]"),
-        sa.Column("retrieved_knowledge_json", sa.Text(), nullable=False, server_default="[]"),
-        sa.Column("response_messages_json", sa.Text(), nullable=False, server_default="[]"),
-        sa.Column("assessment_json", sa.Text(), nullable=False, server_default="{}"),
+        sa.Column("memory_brief", sa.Text(), nullable=False, server_default=sa.text("('')")),
+        sa.Column("agent_steps_json", sa.Text(), nullable=False, server_default=sa.text("('[]')")),
+        sa.Column("retrieved_knowledge_json", sa.Text(), nullable=False, server_default=sa.text("('[]')")),
+        sa.Column("response_messages_json", sa.Text(), nullable=False, server_default=sa.text("('[]')")),
+        sa.Column("assessment_json", sa.Text(), nullable=False, server_default=sa.text("('{}')")),
         sa.Column("created_at", sa.DateTime(), nullable=False),
     )
     op.create_index("ix_agent_run_traces_user_id", "agent_run_traces", ["user_id"])
@@ -208,8 +208,8 @@ def upgrade() -> None:
         sa.Column("policy", sa.String(128), nullable=False, server_default=""),
         sa.Column("allowed", sa.Boolean(), nullable=False, server_default=sa.text("1")),
         sa.Column("status", sa.String(32), nullable=False),
-        sa.Column("reason", sa.Text(), nullable=False, server_default=""),
-        sa.Column("payload", sa.Text(), nullable=False, server_default="{}"),
+        sa.Column("reason", sa.Text(), nullable=False, server_default=sa.text("('')")),
+        sa.Column("payload", sa.Text(), nullable=False, server_default=sa.text("('{}')")),
         sa.Column("created_at", sa.DateTime(), nullable=False),
         sa.Column("updated_at", sa.DateTime(), nullable=False),
     )

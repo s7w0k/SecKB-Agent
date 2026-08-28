@@ -1,0 +1,10 @@
+{
+  "method": "auto_prelabel",
+  "total_cases": 200,
+  "human_reviewed_cases": 0,
+  "review_ratio": 0.0,
+  "reviewer_count": 0,
+  "source_agreement": null,
+  "passage_jaccard": null,
+  "completed_at": "2026-08-25T06:04:20.853560+00:00"
+}

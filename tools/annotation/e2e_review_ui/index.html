@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MindBridge · E2E RAG 人工复核</title>
+  <link rel="stylesheet" href="/assets/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand-block">
+      <div class="brand-mark">MB</div>
+      <div>
+        <p class="eyebrow">RELEASE GOLD WORKBENCH</p>
+        <h1>E2E RAG 人工复核</h1>
+      </div>
+    </div>
+    <div class="reviewer-block">
+      <label for="reviewerId">复核者标识</label>
+      <input id="reviewerId" placeholder="真实姓名或工号" autocomplete="off">
+      <button id="exportBtn" class="button button-outline">导出首审 Gold</button>
+    </div>
+  </header>
+
+  <section class="progress-strip">
+    <div class="progress-copy">
+      <strong id="progressPercent">0%</strong>
+      <span id="progressText">正在载入数据…</span>
+    </div>
+    <div class="progress-track"><div id="progressBar" class="progress-bar"></div></div>
+    <div class="progress-counts">
+      <span><i class="dot dot-pass"></i>通过 <b id="passCount">0</b></span>
+      <span><i class="dot dot-modify"></i>修改 <b id="modifyCount">0</b></span>
+      <span><i class="dot dot-uncertain"></i>不确定 <b id="uncertainCount">0</b></span>
+    </div>
+  </section>
+
+  <main class="workspace">
+    <aside class="sidebar">
+      <div class="filter-stack">
+        <div class="search-wrap">
+          <span>⌕</span>
+          <input id="searchInput" placeholder="搜索问题或 query_id">
+        </div>
+        <div class="filter-row">
+          <select id="categoryFilter"><option value="">全部场景</option></select>
+          <select id="decisionFilter">
+            <option value="">全部状态</option>
+            <option value="pending">待复核</option>
+            <option value="pass">通过</option>
+            <option value="modify">修改</option>
+            <option value="uncertain">不确定</option>
+          </select>
+        </div>
+      </div>
+      <div id="caseList" class="case-list" aria-label="问题列表"></div>
+    </aside>
+
+    <section class="review-pane">
+      <div id="emptyState" class="empty-state">
+        <div class="empty-icon">✓</div>
+        <h2>选择一条问题开始复核</h2>
+        <p>建议按场景顺序处理；每次保存后会自动进入下一条。</p>
+      </div>
+
+      <article id="reviewCard" class="review-card hidden">
+        <div class="case-heading">
+          <div>
+            <div class="chip-row">
+              <span id="categoryChip" class="chip"></span>
+              <span id="variantChip" class="chip chip-muted hidden"></span>
+              <span id="positionText" class="position"></span>
+            </div>
+            <code id="queryId"></code>
+          </div>
+          <div class="heading-actions">
+            <button id="passAllChecksBtn" class="button button-check-all" type="button">✓ 一键通过 5 项检查</button>
+            <button id="revealBtn" class="button button-ghost">显示原标注</button>
+            <button id="copyIdBtn" class="button button-ghost">复制 ID</button>
+          </div>
+        </div>
+
+        <section class="panel question-panel">
+          <div class="panel-title">
+            <div><span class="step">01</span><h2>问题与场景</h2></div>
+            <label class="check"><input id="questionOk" type="checkbox">题面独立、自然且无答案泄漏</label>
+          </div>
+          <textarea id="questionEditor" class="question-editor" rows="3"></textarea>
+          <div class="field-grid">
+            <label>场景分类<select id="categoryEditor"></select></label>
+            <label>预期检索行为<input id="behaviorEditor"></label>
+            <label class="toggle-field"><input id="shouldAbstain" type="checkbox"><span>应当完全拒答</span></label>
+            <label class="toggle-field"><input id="requiresMultiHop" type="checkbox" disabled><span>需要多跳证据</span></label>
+          </div>
+          <div class="validation-row">
+            <label class="check"><input id="categoryOk" type="checkbox">场景分类正确</label>
+            <label class="check"><input id="behaviorOk" type="checkbox">预期行为正确</label>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-title">
+            <div><span class="step">02</span><h2>候选证据</h2></div>
+            <label class="check"><input id="evidenceOk" type="checkbox">证据组、禁止项与引用边界正确</label>
+          </div>
+          <p class="hint">默认盲审：候选 passage 已打乱。若原标注完全正确，可直接选择“通过”；只有需要修改时才勾选下方角色。</p>
+          <div id="passageList" class="passage-list"></div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-title">
+            <div><span class="step">03</span><h2>答案要点</h2></div>
+            <label class="check"><input id="answerPointsOk" type="checkbox">每个要点均被证据支持</label>
+          </div>
+          <textarea id="answerPointsEditor" rows="7" placeholder="每行一个答案要点"></textarea>
+        </section>
+
+        <section class="panel decision-panel">
+          <div class="panel-title">
+            <div><span class="step">04</span><h2>复核结论</h2></div>
+            <span id="saveState" class="save-state">尚未保存</span>
+          </div>
+          <div class="decision-buttons" role="group" aria-label="复核结论">
+            <button class="decision decision-pass" data-decision="pass"><kbd>1</kbd> 通过</button>
+            <button class="decision decision-modify" data-decision="modify"><kbd>2</kbd> 修改后通过</button>
+            <button class="decision decision-uncertain" data-decision="uncertain"><kbd>3</kbd> 不确定</button>
+          </div>
+          <label class="notes-label">复核说明<textarea id="notes" rows="3" placeholder="“修改后通过”必须说明修改原因；不确定项请写清需要谁确认什么。"></textarea></label>
+        </section>
+
+        <footer class="review-footer">
+          <button id="prevBtn" class="button button-outline">← 上一条</button>
+          <span class="shortcut-hint"><kbd>Ctrl</kbd> + <kbd>Enter</kbd> 保存并下一条</span>
+          <button id="saveNextBtn" class="button button-primary">保存并下一条 →</button>
+        </footer>
+      </article>
+    </section>
+  </main>
+
+  <div id="toast" class="toast hidden" role="status"></div>
+  <dialog id="exportDialog">
+    <form method="dialog" class="dialog-card">
+      <p class="eyebrow">PRIMARY REVIEW EXPORT</p>
+      <h2>导出首轮人工 Gold</h2>
+      <p>仅当你确实逐条完成了真实人工复核时才能确认。导出的证据仍不会通过最终 Release Gate，因为第二位复核者的 60 条盲审尚未完成。</p>
+      <label class="danger-check"><input id="humanConfirm" type="checkbox">我确认这些记录来自真实人工逐条复核，不是批量自动勾选。</label>
+      <div class="dialog-actions">
+        <button value="cancel" class="button button-outline">取消</button>
+        <button id="confirmExportBtn" value="default" class="button button-primary">确认导出</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="/assets/app.js" defer></script>
+</body>
+</html>

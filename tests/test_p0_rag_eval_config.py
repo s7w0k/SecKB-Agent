@@ -36,6 +36,23 @@ class P0FeatureFlagDefaultsTests(unittest.TestCase):
         # P0 门禁只观察不阻断；升为 soft/hard 需显式配置
         self.assertEqual(self.settings.rag_eval_gate_mode, "observe")
 
+    def test_retrieval_defaults_follow_measured_lexical_first_profile(self):
+        self.assertGreater(
+            self.settings.knowledge_hybrid_bm25_weight,
+            self.settings.knowledge_hybrid_vector_weight,
+        )
+        self.assertEqual(self.settings.knowledge_rerank_candidate_k, 5)
+
+
+class EvalScopeTests(unittest.TestCase):
+    def test_case_domain_is_included(self):
+        from app.rag_eval.data_plane_benchmark import _case_scope
+
+        self.assertEqual(
+            _case_scope({"domain": "COMPLIANCE"})["domain"],
+            "COMPLIANCE",
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

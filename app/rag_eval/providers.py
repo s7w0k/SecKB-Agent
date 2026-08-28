@@ -194,6 +194,183 @@ class AnthropicCompatChatProvider(ChatProvider):
         raise TransientProviderError(f"judge 调用失败（重试 {self._max_retries} 次后仍失败）: {last_error}")
 
 
+class DashScopeChatProvider(ChatProvider):
+    """DashScope 原生文本生成 API（``{base_url}/services/aigc/text-generation/generation``）。
+
+    与 OpenAI 兼容模式的主要差异：
+    - 请求路径：``{base_url}/services/aigc/text-generation/generation``（base_url 形如
+      ``https://...maas.aliyuncs.com/api/v1``，已含 ``/api/v1``，不带 services 后缀）
+    - 认证：``Authorization: Bearer``
+    - 请求体结构：``input.messages`` + ``parameters``，非顶层 ``messages``
+    - 响应：``data["output"]["choices"][0]["message"]["content"]``（可能是 str 或 ``[{"text":...}]`` 列表）
+    - 支持深度思考：``parameters.enable_thinking=True`` 时 ``message`` 里会额外返回 ``reasoning_content``（不计入最终 content）
+    """
+
+    def __init__(
+        self,
+        base_url: str,
+        api_key: str,
+        model: str,
+        *,
+        timeout_seconds: float = 300.0,
+        max_retries: int = 2,
+        backoff_base: float = 2.0,
+        enable_thinking: bool = False,
+        default_max_tokens: int = 8192,
+    ):
+        self._base_url = base_url.rstrip("/")
+        self._api_key = api_key
+        self._model = model
+        self._timeout = timeout_seconds
+        self._max_retries = max_retries
+        self._backoff = backoff_base
+        self._enable_thinking = enable_thinking
+        self._default_max_tokens = default_max_tokens
+
+    def complete(
+        self,
+        messages: list[dict[str, str]],
+        *,
+        temperature: float = 0.0,
+        max_tokens: int | None = None,
+    ) -> str:
+        payload: dict[str, Any] = {
+            "model": self._model,
+            "input": {
+                "messages": [
+                    {"role": m.get("role", "user"), "content": m.get("content", "")}
+                    for m in messages
+                ]
+            },
+            "parameters": {
+                "result_format": "message",
+                "temperature": temperature,
+                "max_tokens": max_tokens or self._default_max_tokens,
+                "enable_thinking": self._enable_thinking,
+            },
+        }
+        last_error: Exception | None = None
+        for attempt in range(self._max_retries + 1):
+            try:
+                with httpx.Client(timeout=self._timeout) as client:
+                    resp = client.post(
+                        f"{self._base_url}/services/aigc/text-generation/generation",
+                        headers={"Authorization": f"Bearer {self._api_key}"},
+                        json=payload,
+                    )
+                if resp.status_code in RETRYABLE_STATUS:
+                    raise TransientProviderError(f"HTTP {resp.status_code}: {resp.text[:200]}")
+                resp.raise_for_status()
+                data = resp.json()
+                message = data["output"]["choices"][0]["message"]
+                content = message.get("content", "")
+                if isinstance(content, str):
+                    return content
+                # 部分版本 content 是 [{text:...}] 列表，取所有 text 拼接
+                return "".join(
+                    block.get("text", "") for block in content if block.get("text")
+                )
+            except TransientProviderError as exc:
+                last_error = exc
+                logger.warning("judge transient error (attempt %s): %s", attempt + 1, exc)
+                time.sleep(self._backoff**attempt)
+            except (httpx.TimeoutException, httpx.TransportError) as exc:
+                last_error = exc
+                logger.warning("judge network error (attempt %s): %s", attempt + 1, exc)
+                time.sleep(self._backoff**attempt)
+        raise TransientProviderError(f"judge 调用失败（重试 {self._max_retries} 次后仍失败）: {last_error}")
+
+
+class QwenChatMultimodalProvider(ChatProvider):
+    """DashScope Qwen 多模态对话 API（``{base_url}/services/aigc/multimodal-generation/generation``）。
+
+    与 OpenAI 兼容模式的主要差异：
+    - 请求路径：``{base_url}/services/aigc/multimodal-generation/generation``（base_url 形如
+      ``https://...maas.aliyuncs.com/api/v1``）
+    - 认证：``Authorization: Bearer``
+    - 请求体：``input.messages`` 里 message 的 ``content`` 为图文分块列表 ``[{text:...}]``（纯文本也按此结构）
+    - 响应的 ``message.content`` 可能是分块列表或字符串，需按 text 块拼接
+    - 适合 qwen-* 多模态/原生模型
+    """
+
+    def __init__(
+        self,
+        base_url: str,
+        api_key: str,
+        model: str,
+        *,
+        timeout_seconds: float = 300.0,
+        max_retries: int = 2,
+        backoff_base: float = 2.0,
+        default_max_tokens: int = 8192,
+    ):
+        self._base_url = base_url.rstrip("/")
+        self._api_key = api_key
+        self._model = model
+        self._timeout = timeout_seconds
+        self._max_retries = max_retries
+        self._backoff = backoff_base
+        self._default_max_tokens = default_max_tokens
+
+    def complete(
+        self,
+        messages: list[dict[str, str]],
+        *,
+        temperature: float = 0.0,
+        max_tokens: int | None = None,
+    ) -> str:
+        payload: dict[str, Any] = {
+            "model": self._model,
+            "input": {
+                "messages": [
+                    {
+                        "role": m.get("role", "user"),
+                        "content": [{"text": m.get("content", "")}],
+                    }
+                    for m in messages
+                ]
+            },
+            "parameters": {
+                "result_format": "message",
+                "temperature": temperature,
+                "max_tokens": max_tokens or self._default_max_tokens,
+            },
+        }
+        last_error: Exception | None = None
+        for attempt in range(self._max_retries + 1):
+            try:
+                with httpx.Client(timeout=self._timeout) as client:
+                    resp = client.post(
+                        f"{self._base_url}/services/aigc/multimodal-generation/generation",
+                        headers={"Authorization": f"Bearer {self._api_key}"},
+                        json=payload,
+                    )
+                if resp.status_code in RETRYABLE_STATUS:
+                    raise TransientProviderError(f"HTTP {resp.status_code}: {resp.text[:200]}")
+                resp.raise_for_status()
+                data = resp.json()
+                content = data["output"]["choices"][0]["message"].get("content", "")
+                if isinstance(content, str):
+                    return content
+                # 多模态响应的 content 是 [{type:text, text:...}] 分块列表
+                parts = []
+                for block in content:
+                    if isinstance(block, dict):
+                        text = block.get("text") or block.get("content")
+                        if text:
+                            parts.append(text)
+                return "".join(parts)
+            except TransientProviderError as exc:
+                last_error = exc
+                logger.warning("judge transient error (attempt %s): %s", attempt + 1, exc)
+                time.sleep(self._backoff**attempt)
+            except (httpx.TimeoutException, httpx.TransportError) as exc:
+                last_error = exc
+                logger.warning("judge network error (attempt %s): %s", attempt + 1, exc)
+                time.sleep(self._backoff**attempt)
+        raise TransientProviderError(f"judge 调用失败（重试 {self._max_retries} 次后仍失败）: {last_error}")
+
+
 class MockChatProvider(ChatProvider):
     """离线测试：固定响应；可配置逐条失败序列（用于重试/并发测试）。"""
 
@@ -288,10 +465,12 @@ def build_answer_provider(settings, *, mock: bool = False) -> ChatProvider:
 def build_judge_provider(settings, *, mock: bool = False) -> ChatProvider:
     """构造评测 judge 的 ChatProvider（judge 专用模型，如 qwen3.7-plus）。
 
-    通过 ``settings.rag_eval_judge_protocol`` 切换 OpenAI 兼容 / Anthropic 兼容：
+    通过 ``settings.rag_eval_judge_protocol`` 切换接入协议：
     - "openai"（默认）：调用 ``{base_url}/chat/completions``（OpenAI 风格）
     - "anthropic"：调用 ``{base_url}/v1/messages``（DashScope Anthropic 兼容，base_url 形如
       ``https://dashscope.aliyuncs.com/apps/anthropic``，不带 /v1）
+    - "dashscope"：调用 ``{base_url}/services/aigc/text-generation/generation``（DashScope 原生 API，
+      base_url 形如 ``https://...maas.aliyuncs.com/api/v1``）
     """
     if mock:
         return MockChatProvider()
@@ -299,6 +478,10 @@ def build_judge_provider(settings, *, mock: bool = False) -> ChatProvider:
     protocol = getattr(settings, "rag_eval_judge_protocol", "openai").lower()
     if protocol == "anthropic":
         return AnthropicCompatChatProvider(base_url, api_key, model)
+    if protocol == "dashscope":
+        return DashScopeChatProvider(base_url, api_key, model)
+    if protocol == "qwen":
+        return QwenChatMultimodalProvider(base_url, api_key, model)
     return OpenAICompatChatProvider(base_url, api_key, model)
 
 

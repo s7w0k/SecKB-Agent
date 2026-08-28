@@ -43,6 +43,7 @@ def _reranker_service():
     service.settings.knowledge_rerank_cross_encoder_model = "fake-model"
     # 关键：屏蔽 .env 中开启的真实 DashScope rerank，保证测试分支可控
     service.settings.knowledge_rerank_dashscope_enabled = False
+    service.settings.knowledge_rerank_siliconflow_enabled = False
     return service
 
 
@@ -94,6 +95,22 @@ class DashScopeRerankerTests(unittest.TestCase):
 
 
 class CrossEncoderRerankIntegrationTests(unittest.TestCase):
+    def test_semantic_reranker_only_scores_configured_head_window(self):
+        service = _reranker_service()
+        service.settings.knowledge_rerank_candidate_k = 2
+        candidates = [
+            _result(i, f"doc-{i}.md", f"content-{i}", score=1.0 / i)
+            for i in range(1, 6)
+        ]
+        fake_ce = mock.Mock()
+        fake_ce.is_available.return_value = True
+        fake_ce.score.return_value = [0.1, 0.9]
+        service._cross_encoder = fake_ce
+
+        result = service._rerank("query", candidates, top_k=2)
+        self.assertEqual([r.chunk_id for r in result], [2, 1])
+        fake_ce.score.assert_called_once_with("query", ["content-1", "content-2"])
+
     def test_cross_encoder_reorders_gold_doc_to_top(self):
         service = _reranker_service()
         overview = _result(1, "01-product-overview.md", "产品概述，命中产品名 AegisGate 大模型安全网关", score=0.9)

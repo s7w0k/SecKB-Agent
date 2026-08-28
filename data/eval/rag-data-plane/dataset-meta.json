@@ -1,0 +1,11 @@
+{
+  "dataset_version": "rag-data-plane-v1",
+  "annotation_version": "v1-manual-derived-2026",
+  "source": "knowledge_chunks",
+  "case_counts": {
+    "retrieval-gold.jsonl": 326,
+    "agentic-gold.jsonl": 326,
+    "security-gold.jsonl": 326,
+    "performance-queries.jsonl": 200
+  }
+}

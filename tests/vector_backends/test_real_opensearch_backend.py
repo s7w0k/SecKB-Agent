@@ -121,7 +121,8 @@ def _settings(**kw):
     return SimpleNamespace(**base)
 
 
-from app.services.vector_backends.opensearch_http import RealOpenSearchBackend  # noqa: E402
+from app.services.vector_backends.opensearch_backend import PhysicalHit  # noqa: E402
+from app.services.vector_backends.opensearch_http import RealOpenSearchBackend, _rrf_merge  # noqa: E402
 
 
 class RealOpenSearchBackendTest(unittest.TestCase):
@@ -132,9 +133,9 @@ class RealOpenSearchBackendTest(unittest.TestCase):
     # --- §4.4/4.5 真实传输 + Index Mapping ---
     def test_create_generation_builds_real_index_with_mapping(self):
         report = self.backend.create_generation(generation_id="G104")
-        self.assertEqual(report["physical_index"], "seckb-rag-G104")
+        self.assertEqual(report["physical_index"], "seckb-rag-g104")
         create_call = next(c for c in self.client.indices.calls if c[0] == "create")
-        mapping = self.client.map_bodies["seckb-rag-G104"]["mappings"]["properties"]
+        mapping = self.client.map_bodies["seckb-rag-g104"]["mappings"]["properties"]
         self.assertEqual(mapping["embedding"]["type"], "knn_vector")
         self.assertEqual(mapping["embedding"]["dimension"], 1536)
         self.assertEqual(mapping["content"]["type"], "text")
@@ -185,8 +186,41 @@ class RealOpenSearchBackendTest(unittest.TestCase):
     def test_activate_and_rollback_alias_atomic(self):
         self.client.mark_index("seckb-rag-G103")
         act = self.backend.activate_generation(generation_id="G103", previous_generation=None)
-        self.assertEqual(act["to"], "seckb-rag-G103")
+        self.assertEqual(act["to"], "seckb-rag-g103")
         self.assertTrue(self.backend.rollback_generation(generation_id="G103", previous_generation="G002"))
+
+
+class RRFFusionIdentityTest(unittest.TestCase):
+    def test_preserves_distinct_passages_from_same_document(self):
+        def passage(index):
+            return PhysicalHit(
+                db_id=None,
+                source="internal",
+                source_index=index,
+                content=f"passage-{index}",
+                score=1.0,
+                domain="SERVICE",
+                source_key="same-document.md",
+            )
+
+        first, second = passage(0), passage(1)
+        fused = _rrf_merge([[first, second], [first]], pool_size=5)
+        self.assertEqual(
+            [(h.source_key, h.source_index) for h in fused],
+            [("same-document.md", 0), ("same-document.md", 1)],
+        )
+
+    def test_weighted_rrf_prefers_the_higher_weight_run(self):
+        left = PhysicalHit(
+            db_id=1, source="SERVICE", source_index=0, content="lexical",
+            score=1.0, domain="SERVICE", source_key="left",
+        )
+        right = PhysicalHit(
+            db_id=2, source="SERVICE", source_index=0, content="semantic",
+            score=1.0, domain="SERVICE", source_key="right",
+        )
+        fused = _rrf_merge([[left], [right]], weights=[0.8, 0.2])
+        self.assertEqual([h.db_id for h in fused], [1, 2])
 
 
 class VectorBackendFactoryTest(unittest.TestCase):

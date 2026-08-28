@@ -11,7 +11,8 @@ from typing import Dict, Optional
 class ChaosInjector:
     """声明式故障注入开关表。"""
 
-    DOMAINS = ("provider", "redis", "worker", "api", "index", "perm", "load")
+    DOMAINS = ("provider", "redis", "worker", "api", "index", "perm", "load",
+               "opensearch", "reranker")
 
     def __init__(self, enabled: Optional[Dict[str, bool]] = None):
         self._flags: Dict[str, bool] = {}
