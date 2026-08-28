@@ -1,0 +1,67 @@
+{
+  "args": {
+    "products": 0,
+    "rerank": true,
+    "distractors": true,
+    "paraphrase": true,
+    "passages": 416
+  },
+  "passages": 416,
+  "queries": 40,
+  "routes": {
+    "lexical": {
+      "recall@1": 0.125,
+      "mrr@1": 0.125,
+      "ndcg@1": 0.125,
+      "hit@1": 0.125,
+      "recall@3": 0.25,
+      "mrr@3": 0.175,
+      "ndcg@3": 0.194,
+      "hit@3": 0.25,
+      "recall@5": 0.35,
+      "mrr@5": 0.2,
+      "ndcg@5": 0.2371,
+      "hit@5": 0.35,
+      "recall@10": 0.55,
+      "mrr@10": 0.2262,
+      "ndcg@10": 0.3012,
+      "hit@10": 0.55
+    },
+    "dense": {
+      "recall@1": 0.925,
+      "mrr@1": 0.925,
+      "ndcg@1": 0.925,
+      "hit@1": 0.925,
+      "recall@3": 0.975,
+      "mrr@3": 0.9458,
+      "ndcg@3": 0.9533,
+      "hit@3": 0.975,
+      "recall@5": 1.0,
+      "mrr@5": 0.9521,
+      "ndcg@5": 0.964,
+      "hit@5": 1.0,
+      "recall@10": 1.0,
+      "mrr@10": 0.9521,
+      "ndcg@10": 0.964,
+      "hit@10": 1.0
+    },
+    "dense+rerank": {
+      "recall@1": 0.95,
+      "mrr@1": 0.95,
+      "ndcg@1": 0.95,
+      "hit@1": 0.95,
+      "recall@3": 1.0,
+      "mrr@3": 0.975,
+      "ndcg@3": 0.9815,
+      "hit@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 0.975,
+      "ndcg@5": 0.9815,
+      "hit@5": 1.0,
+      "recall@10": 1.0,
+      "mrr@10": 0.975,
+      "ndcg@10": 0.9815,
+      "hit@10": 1.0
+    }
+  }
+}

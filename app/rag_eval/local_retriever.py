@@ -31,7 +31,11 @@ W_FIELDED = 0.05
 # 多跳：每个 aspect 保留的证据槽位数（Top-5 内为每个子查询兑现 K_ASPECT 个槽位）。
 K_ASPECT = 2
 # 代际 boost：query 显式命中 ``G\\d+`` 且 passage 代际一致时的高权重上浮。
-GEN_BOOST = 3.0
+# 实证：Outdated Evidence 的 gold 是唯一带对应代际标记的文档，但同 index 的
+# release 干扰文档共享标题可达 ~14.9 分，故需判定性上浮（3.0 不足以压过，
+# gold 差 ~3.2 才到前排）。扩散面已核验：全基准 G-token 查询仅限 Outdated 21 例，
+# 对其它类别零影响，故安全加力。
+GEN_BOOST = 8.0
 # 精确标题命中 boost（WS2 压缩）：query 的《标题》与 passage 解析标题精确命中，
 # 对发布集而言 141/142 的 rank>=5 证据都具备该信号 → 决定性上浮可把证据压进 Top-5。
 TITLE_HIT_BOOST = 8.0

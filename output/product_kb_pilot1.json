@@ -1,0 +1,46 @@
+{
+  "args": {
+    "products": 1,
+    "rerank": false
+  },
+  "passages": 21,
+  "queries": 10,
+  "routes": {
+    "lexical": {
+      "recall@1": 0.0,
+      "mrr@1": 0.0,
+      "ndcg@1": 0.0,
+      "hit@1": 0.0,
+      "recall@3": 0.0,
+      "mrr@3": 0.0,
+      "ndcg@3": 0.0,
+      "hit@3": 0.0,
+      "recall@5": 0.0,
+      "mrr@5": 0.0,
+      "ndcg@5": 0.0,
+      "hit@5": 0.0,
+      "recall@10": 0.0,
+      "mrr@10": 0.0,
+      "ndcg@10": 0.0,
+      "hit@10": 0.0
+    },
+    "dense": {
+      "recall@1": 1.0,
+      "mrr@1": 1.0,
+      "ndcg@1": 1.0,
+      "hit@1": 1.0,
+      "recall@3": 1.0,
+      "mrr@3": 1.0,
+      "ndcg@3": 1.0,
+      "hit@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "hit@5": 1.0,
+      "recall@10": 1.0,
+      "mrr@10": 1.0,
+      "ndcg@10": 1.0,
+      "hit@10": 1.0
+    }
+  }
+}
