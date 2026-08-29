@@ -214,9 +214,11 @@ class SiliconFlowReranker(Reranker):
 
     name = "siliconflow"
 
-    def __init__(self, model: str, base_url: str, api_key: str | None = None):
+    def __init__(self, model: str, base_url: str, api_key: str | None = None,
+                 timeout: float = 5.0):
         self.model = model
         self.base_url = base_url
+        self.timeout = timeout
         # 优先显式 key，其次环境变量 SILICONFLOW_API_KEY
         self.api_key = api_key or os.environ.get("SILICONFLOW_API_KEY", "")
         self._last_error = ""
@@ -239,14 +241,36 @@ class SiliconFlowReranker(Reranker):
             "documents": contents,
             "return_documents": False,
         }
-        response = httpx.post(
-            self.base_url,
-            headers={"Authorization": f"Bearer {self.api_key}", "Content-Type": "application/json"},
-            json=payload,
-            # Phase 12：硬超时收紧到预算一致量级
-            timeout=5.0,
-        )
-        response.raise_for_status()
+        # 免费托管 API 偶发 429 限流 / 5xx / 超时：重试 + 退避
+        last_exc: Exception | None = None
+        for attempt in range(1, 5):
+            try:
+                response = httpx.post(
+                    self.base_url,
+                    headers={"Authorization": f"Bearer {self.api_key}",
+                             "Content-Type": "application/json"},
+                    json=payload,
+                    timeout=self.timeout,
+                )
+                if response.status_code in (429,) or response.status_code >= 500:
+                    last_exc = httpx.HTTPStatusError(
+                        f"{response.status_code}", request=response.request, response=response)
+                    time.sleep(2 * attempt)
+                    continue
+                response.raise_for_status()
+            except httpx.HTTPStatusError as exc:
+                if exc.response is not None and \
+                   (exc.response.status_code in (429,) or exc.response.status_code >= 500):
+                    last_exc = exc
+                    time.sleep(2 * attempt)
+                    continue
+                raise
+            except httpx.TimeoutException as exc:
+                last_exc = exc
+                time.sleep(2 * attempt)
+                continue
+        if last_exc is not None:
+            raise last_exc
         data = response.json()
         results = data.get("results") or []
         # results 按相关度降序；按 index 还原到传入顺序

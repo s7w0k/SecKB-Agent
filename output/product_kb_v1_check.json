@@ -1,0 +1,80 @@
+{
+  "args": {
+    "products": 0,
+    "rerank": false,
+    "distractors": true,
+    "retired_distractors": false,
+    "paraphrase": true,
+    "paraphrase_cache": "output/product_kb_paraphrase_cache.json",
+    "paraphrase_overlap_threshold": 0.4,
+    "hard": false,
+    "v2": false,
+    "corpus_stats": {
+      "products": 299,
+      "compliance": 82,
+      "mental": 35,
+      "retired": 0
+    },
+    "paraphrase_overlap": null,
+    "passages": 416
+  },
+  "passages": 416,
+  "queries": 40,
+  "routes": {
+    "bm25": {
+      "recall@1": 0.75,
+      "mrr@1": 0.75,
+      "ndcg@1": 0.75,
+      "hit@1": 0.75,
+      "recall@3": 1.0,
+      "mrr@3": 0.8667,
+      "ndcg@3": 0.9012,
+      "hit@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 0.8667,
+      "ndcg@5": 0.9012,
+      "hit@5": 1.0,
+      "recall@10": 1.0,
+      "mrr@10": 0.8667,
+      "ndcg@10": 0.9012,
+      "hit@10": 1.0
+    },
+    "dense": {
+      "recall@1": 0.9,
+      "mrr@1": 0.9,
+      "ndcg@1": 0.9,
+      "hit@1": 0.9,
+      "recall@3": 0.975,
+      "mrr@3": 0.9333,
+      "ndcg@3": 0.944,
+      "hit@3": 0.975,
+      "recall@5": 1.0,
+      "mrr@5": 0.9396,
+      "ndcg@5": 0.9548,
+      "hit@5": 1.0,
+      "recall@10": 1.0,
+      "mrr@10": 0.9396,
+      "ndcg@10": 0.9548,
+      "hit@10": 1.0
+    },
+    "bm25+dense_rrf": {
+      "recall@1": 0.9,
+      "mrr@1": 0.9,
+      "ndcg@1": 0.9,
+      "hit@1": 0.9,
+      "recall@3": 0.975,
+      "mrr@3": 0.9333,
+      "ndcg@3": 0.944,
+      "hit@3": 0.975,
+      "recall@5": 1.0,
+      "mrr@5": 0.9396,
+      "ndcg@5": 0.9548,
+      "hit@5": 1.0,
+      "recall@10": 1.0,
+      "mrr@10": 0.9396,
+      "ndcg@10": 0.9548,
+      "hit@10": 1.0
+    }
+  },
+  "warnings": []
+}

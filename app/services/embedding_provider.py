@@ -204,6 +204,10 @@ class EmbeddingCache:
 # --------------------------------------------------------------------------- #
 # 实现
 # --------------------------------------------------------------------------- #
+# bge 系列官方查询指令（非对称：query 加指令、文档侧不加），见 BAAI/bge-m3 文档。
+_BGE_QUERY_INSTRUCTION = "为这个句子生成表示以用于检索相关文章："
+
+
 class RemoteEmbeddingProvider(EmbeddingProvider):
     """§3.1 Remote：OpenAI 兼容 /embeddings HTTP 服务（支持批处理）。"""
 
@@ -227,6 +231,12 @@ class RemoteEmbeddingProvider(EmbeddingProvider):
         self.cache = cache
         self._metrics = EmbedBatchMetrics(batch_size=self.batch_size)
         self._lock = threading.Lock()
+
+    def _query_input(self, text: str) -> str:
+        """bge 系列查询侧加官方指令前缀；其余模型返回原 query。"""
+        if "bge" in (self.model or "").lower():
+            return f"{_BGE_QUERY_INSTRUCTION}{text}"
+        return text
 
     def _call(self, texts: list[str]) -> list[list[float]]:
         # Phase 12：数据面熔断。Open 时快速抛错，交由上层 fail-open 回退 BM25，
@@ -265,7 +275,7 @@ class RemoteEmbeddingProvider(EmbeddingProvider):
         return vecs
 
     def embed_query(self, text: str) -> list[float]:
-        return self.embed_documents([text])[0]
+        return self.embed_documents([self._query_input(text)])[0]
 
     def embed_documents(self, texts: list[str]) -> list[list[float]]:
         start = time.perf_counter()
@@ -359,8 +369,13 @@ class LocalEmbeddingProvider(EmbeddingProvider):
                 self._model = SentenceTransformer(self.model)
         return self._model
 
+    def _query_input(self, text: str) -> str:
+        if "bge" in (self.model or "").lower():
+            return f"{_BGE_QUERY_INSTRUCTION}{text}"
+        return text
+
     def embed_query(self, text: str) -> list[float]:
-        return self.embed_documents([text])[0]
+        return self.embed_documents([self._query_input(text)])[0]
 
     def embed_documents(self, texts: list[str]) -> list[list[float]]:
         if not texts:

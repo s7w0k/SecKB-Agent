@@ -1,0 +1,519 @@
+{
+  "args": {
+    "products": 0,
+    "rerank": true,
+    "distractors": true,
+    "retired_distractors": true,
+    "rerank_pool": 200,
+    "rerank_provider": "dashscope",
+    "paraphrase": true,
+    "paraphrase_cache": "output/product_kb_paraphrase_v2_cache.json",
+    "paraphrase_overlap_threshold": 0.4,
+    "hard": true,
+    "v2": true,
+    "multi_gold": false,
+    "multi_gold_threshold": 0.6,
+    "corpus_stats": {
+      "products": 199,
+      "compliance": 82,
+      "mental": 35,
+      "retired": 143
+    },
+    "gold_dup_stats": {
+      "faq_answers": 40,
+      "dup_questions_across_products": 2,
+      "dup_question_examples": [
+        {
+          "支持哪些 Agent 框架？": [
+            "agent-iam",
+            "agent-sandbox"
+          ]
+        },
+        {
+          "是否支持信创与本地化部署？": [
+            "agent-iam",
+            "multi-agent-security"
+          ]
+        }
+      ],
+      "near_dup_answer_pairs": 5,
+      "near_dup_answer_passages": 7
+    },
+    "paraphrase_overlap": {
+      "charset_overlap_mean": 0.3892,
+      "entity_keep_mean": 0.0,
+      "warned": 15,
+      "warned_queries": [
+        "审计数据能留存多久？能否长期存档？",
+        "如何保证审计数据不被篡改？",
+        "能否还原一次事故的完整过程？",
+        "支持哪些 Agent 框架的接入？",
+        "如何保证令牌安全？",
+        "支持哪些身份源？",
+        "权限变更多久生效？",
+        "与隔离沙箱、审计产品如何联动？",
+        "接入是否必须改造现有 Agent 代码？",
+        "支持的隔离方式有哪些？能否资源限制？",
+        "消息如何保证可信？",
+        "什么是消息防污染？",
+        "编排面安全包含什么？",
+        "接入需要改造现有系统吗？",
+        "支持哪些消息协议？"
+      ],
+      "thresholds": {
+        "overlap": 0.4,
+        "entity_keep": 0.5
+      }
+    },
+    "passages": 459
+  },
+  "passages": 459,
+  "queries": 40,
+  "routes": {
+    "bm25": {
+      "recall@1": 0.025,
+      "mrr@1": 0.025,
+      "ndcg@1": 0.025,
+      "hit@1": 0.025,
+      "recall@3": 0.075,
+      "mrr@3": 0.0458,
+      "ndcg@3": 0.0533,
+      "hit@3": 0.075,
+      "recall@5": 0.1,
+      "mrr@5": 0.0508,
+      "ndcg@5": 0.0629,
+      "hit@5": 0.1,
+      "recall@10": 0.125,
+      "mrr@10": 0.054,
+      "ndcg@10": 0.0708,
+      "hit@10": 0.125
+    },
+    "dense": {
+      "recall@1": 0.3,
+      "mrr@1": 0.3,
+      "ndcg@1": 0.3,
+      "hit@1": 0.3,
+      "recall@3": 0.575,
+      "mrr@3": 0.4208,
+      "ndcg@3": 0.4604,
+      "hit@3": 0.575,
+      "recall@5": 0.7,
+      "mrr@5": 0.4483,
+      "ndcg@5": 0.511,
+      "hit@5": 0.7,
+      "recall@10": 0.8,
+      "mrr@10": 0.4623,
+      "ndcg@10": 0.544,
+      "hit@10": 0.8
+    },
+    "bm25+dense_rrf": {
+      "recall@1": 0.125,
+      "mrr@1": 0.125,
+      "ndcg@1": 0.125,
+      "hit@1": 0.125,
+      "recall@3": 0.25,
+      "mrr@3": 0.1833,
+      "ndcg@3": 0.2006,
+      "hit@3": 0.25,
+      "recall@5": 0.3,
+      "mrr@5": 0.1946,
+      "ndcg@5": 0.221,
+      "hit@5": 0.3,
+      "recall@10": 0.425,
+      "mrr@10": 0.2094,
+      "ndcg@10": 0.2596,
+      "hit@10": 0.425
+    },
+    "dense+rerank": {
+      "recall@1": 0.55,
+      "mrr@1": 0.55,
+      "ndcg@1": 0.55,
+      "hit@1": 0.55,
+      "recall@3": 0.775,
+      "mrr@3": 0.6417,
+      "ndcg@3": 0.6756,
+      "hit@3": 0.775,
+      "recall@5": 0.875,
+      "mrr@5": 0.6642,
+      "ndcg@5": 0.7165,
+      "hit@5": 0.875,
+      "recall@10": 0.95,
+      "mrr@10": 0.675,
+      "ndcg@10": 0.7415,
+      "hit@10": 0.95
+    },
+    "bm25+dense_rrf+rerank": {
+      "recall@1": 0.55,
+      "mrr@1": 0.55,
+      "ndcg@1": 0.55,
+      "hit@1": 0.55,
+      "recall@3": 0.775,
+      "mrr@3": 0.6417,
+      "ndcg@3": 0.6756,
+      "hit@3": 0.775,
+      "recall@5": 0.875,
+      "mrr@5": 0.6642,
+      "ndcg@5": 0.7165,
+      "hit@5": 0.875,
+      "recall@10": 0.95,
+      "mrr@10": 0.675,
+      "ndcg@10": 0.7415,
+      "hit@10": 0.95
+    }
+  },
+  "warnings": [
+    "改写未达标: 审计数据能留存多久？能否长期存档？",
+    "改写未达标: 如何保证审计数据不被篡改？",
+    "改写未达标: 能否还原一次事故的完整过程？",
+    "改写未达标: 支持哪些 Agent 框架的接入？",
+    "改写未达标: 如何保证令牌安全？",
+    "改写未达标: 支持哪些身份源？",
+    "改写未达标: 权限变更多久生效？",
+    "改写未达标: 与隔离沙箱、审计产品如何联动？",
+    "改写未达标: 接入是否必须改造现有 Agent 代码？",
+    "改写未达标: 支持的隔离方式有哪些？能否资源限制？",
+    "改写未达标: 消息如何保证可信？",
+    "改写未达标: 什么是消息防污染？",
+    "改写未达标: 编排面安全包含什么？",
+    "改写未达标: 接入需要改造现有系统吗？",
+    "改写未达标: 支持哪些消息协议？"
+  ],
+  "routes_hard": {
+    "bm25": {
+      "recall@1": 0.2083,
+      "mrr@1": 0.3333,
+      "ndcg@1": 0.3333,
+      "hit@1": 0.3333,
+      "recall@3": 0.5833,
+      "mrr@3": 0.5417,
+      "ndcg@3": 0.5962,
+      "hit@3": 0.75,
+      "recall@5": 0.6667,
+      "mrr@5": 0.5583,
+      "ndcg@5": 0.6285,
+      "hit@5": 0.8333,
+      "recall@10": 0.7083,
+      "mrr@10": 0.5583,
+      "ndcg@10": 0.6133,
+      "hit@10": 0.8333
+    },
+    "dense": {
+      "recall@1": 0.25,
+      "mrr@1": 0.3333,
+      "ndcg@1": 0.3333,
+      "hit@1": 0.3333,
+      "recall@3": 0.5,
+      "mrr@3": 0.4028,
+      "ndcg@3": 0.4209,
+      "hit@3": 0.5,
+      "recall@5": 0.5417,
+      "mrr@5": 0.4194,
+      "ndcg@5": 0.4531,
+      "hit@5": 0.5833,
+      "recall@10": 0.625,
+      "mrr@10": 0.4313,
+      "ndcg@10": 0.4863,
+      "hit@10": 0.6667
+    },
+    "bm25+dense_rrf": {
+      "recall@1": 0.4583,
+      "mrr@1": 0.5833,
+      "ndcg@1": 0.5833,
+      "hit@1": 0.5833,
+      "recall@3": 0.5833,
+      "mrr@3": 0.6111,
+      "ndcg@3": 0.625,
+      "hit@3": 0.6667,
+      "recall@5": 0.625,
+      "mrr@5": 0.6278,
+      "ndcg@5": 0.6572,
+      "hit@5": 0.75,
+      "recall@10": 0.7917,
+      "mrr@10": 0.6521,
+      "ndcg@10": 0.7169,
+      "hit@10": 0.9167
+    },
+    "dense+rerank": {
+      "recall@1": 0.625,
+      "mrr@1": 0.8333,
+      "ndcg@1": 0.8333,
+      "hit@1": 0.8333,
+      "recall@3": 0.7917,
+      "mrr@3": 0.8333,
+      "ndcg@3": 0.8266,
+      "hit@3": 0.8333,
+      "recall@5": 0.7917,
+      "mrr@5": 0.8333,
+      "ndcg@5": 0.8266,
+      "hit@5": 0.8333,
+      "recall@10": 0.9583,
+      "mrr@10": 0.8576,
+      "ndcg@10": 0.8658,
+      "hit@10": 1.0
+    },
+    "bm25+dense_rrf+rerank": {
+      "recall@1": 0.625,
+      "mrr@1": 0.8333,
+      "ndcg@1": 0.8333,
+      "hit@1": 0.8333,
+      "recall@3": 0.7917,
+      "mrr@3": 0.8333,
+      "ndcg@3": 0.8266,
+      "hit@3": 0.8333,
+      "recall@5": 0.7917,
+      "mrr@5": 0.8333,
+      "ndcg@5": 0.8266,
+      "hit@5": 0.8333,
+      "recall@10": 0.9583,
+      "mrr@10": 0.8576,
+      "ndcg@10": 0.8658,
+      "hit@10": 1.0
+    }
+  },
+  "hard_queries": [
+    {
+      "query": "agent-iam 与 agent-sandbox 都要求支持信创架构吗？谁的支持面更广？",
+      "gold_ids": [
+        "service/agent-iam/02-spec-and-architecture.md#0",
+        "service/agent-sandbox/02-spec-and-architecture.md#0"
+      ],
+      "type": "cross_product"
+    },
+    {
+      "query": "agent-iam 令牌签发吞吐与 agent-sandbox 单节点并发沙箱分别达到多少？",
+      "gold_ids": [
+        "service/agent-iam/02-spec-and-architecture.md#0",
+        "service/agent-sandbox/02-spec-and-architecture.md#0"
+      ],
+      "type": "cross_product"
+    },
+    {
+      "query": "agent-iam 与 agent-sandbox 的容器化部署方式分别是什么？",
+      "gold_ids": [
+        "service/agent-iam/02-spec-and-architecture.md#0",
+        "service/agent-sandbox/02-spec-and-architecture.md#0"
+      ],
+      "type": "cross_product"
+    },
+    {
+      "query": "agent-iam 的系统架构、部署安装步骤分别在哪里描述？",
+      "gold_ids": [
+        "service/agent-iam/02-spec-and-architecture.md#0",
+        "service/agent-iam/04-deployment-and-integration.md#0"
+      ],
+      "type": "multi_doc"
+    },
+    {
+      "query": "agent-iam 令牌签发变慢和越权误授权分别如何排查？",
+      "gold_ids": [
+        "service/agent-iam/07-troubleshooting.md#0"
+      ],
+      "type": "multi_doc"
+    },
+    {
+      "query": "agent-sandbox 的核心架构组件和被攻破排查点分别在哪？",
+      "gold_ids": [
+        "service/agent-sandbox/02-spec-and-architecture.md#0",
+        "service/agent-sandbox/07-troubleshooting.md#0"
+      ],
+      "type": "multi_doc"
+    },
+    {
+      "query": "agent-iam 升级前需要做哪些准备、高危漏洞多久内出补丁？",
+      "gold_ids": [
+        "service/agent-iam/08-maintenance-and-version.md#0"
+      ],
+      "type": "multi_doc"
+    },
+    {
+      "query": "agent-iam 的令牌采用哪种生命周期管理机制？",
+      "gold_ids": [
+        "service/agent-iam/06-common-faq.md#faq-2"
+      ],
+      "type": "long_doc"
+    },
+    {
+      "query": "agent-iam 哪个版本引入了最小权限自动收敛？",
+      "gold_ids": [
+        "service/agent-iam/08-maintenance-and-version.md#0"
+      ],
+      "type": "long_doc"
+    },
+    {
+      "query": "相比通用 IAM，agent-iam 在身份治理上的差异体现在哪？",
+      "gold_ids": [
+        "service/agent-iam/01-product-overview.md#0",
+        "service/agent-iam/01-product-overview.md#1"
+      ],
+      "type": "long_doc"
+    },
+    {
+      "query": "agent-sandbox 提供哪些语言的 SDK 集成接口？",
+      "gold_ids": [
+        "service/agent-sandbox/04-deployment-and-integration.md#0"
+      ],
+      "type": "long_doc"
+    },
+    {
+      "query": "agent-sandbox 对 Linux 内核与容器运行时的最低要求是什么？",
+      "gold_ids": [
+        "service/agent-sandbox/04-deployment-and-integration.md#0"
+      ],
+      "type": "long_doc"
+    }
+  ],
+  "hard_gold_detail": [
+    {
+      "query": "agent-iam 与 agent-sandbox 都要求支持信创架构吗？谁的支持面更广？",
+      "type": "cross_product",
+      "gold": [
+        {
+          "file": "service/agent-iam/02-spec-and-architecture.md",
+          "id": "service/agent-iam/02-spec-and-architecture.md#0"
+        },
+        {
+          "file": "service/agent-sandbox/02-spec-and-architecture.md",
+          "id": "service/agent-sandbox/02-spec-and-architecture.md#0"
+        }
+      ]
+    },
+    {
+      "query": "agent-iam 令牌签发吞吐与 agent-sandbox 单节点并发沙箱分别达到多少？",
+      "type": "cross_product",
+      "gold": [
+        {
+          "file": "service/agent-iam/02-spec-and-architecture.md",
+          "id": "service/agent-iam/02-spec-and-architecture.md#0"
+        },
+        {
+          "file": "service/agent-sandbox/02-spec-and-architecture.md",
+          "id": "service/agent-sandbox/02-spec-and-architecture.md#0"
+        }
+      ]
+    },
+    {
+      "query": "agent-iam 与 agent-sandbox 的容器化部署方式分别是什么？",
+      "type": "cross_product",
+      "gold": [
+        {
+          "file": "service/agent-iam/02-spec-and-architecture.md",
+          "id": "service/agent-iam/02-spec-and-architecture.md#0"
+        },
+        {
+          "file": "service/agent-sandbox/02-spec-and-architecture.md",
+          "id": "service/agent-sandbox/02-spec-and-architecture.md#0"
+        }
+      ]
+    },
+    {
+      "query": "agent-iam 的系统架构、部署安装步骤分别在哪里描述？",
+      "type": "multi_doc",
+      "gold": [
+        {
+          "file": "service/agent-iam/02-spec-and-architecture.md",
+          "id": "service/agent-iam/02-spec-and-architecture.md#0"
+        },
+        {
+          "file": "service/agent-iam/04-deployment-and-integration.md",
+          "id": "service/agent-iam/04-deployment-and-integration.md#0"
+        }
+      ]
+    },
+    {
+      "query": "agent-iam 令牌签发变慢和越权误授权分别如何排查？",
+      "type": "multi_doc",
+      "gold": [
+        {
+          "file": "service/agent-iam/07-troubleshooting.md",
+          "id": "service/agent-iam/07-troubleshooting.md#0"
+        },
+        {
+          "file": "service/agent-iam/07-troubleshooting.md",
+          "id": "service/agent-iam/07-troubleshooting.md#0"
+        }
+      ]
+    },
+    {
+      "query": "agent-sandbox 的核心架构组件和被攻破排查点分别在哪？",
+      "type": "multi_doc",
+      "gold": [
+        {
+          "file": "service/agent-sandbox/02-spec-and-architecture.md",
+          "id": "service/agent-sandbox/02-spec-and-architecture.md#0"
+        },
+        {
+          "file": "service/agent-sandbox/07-troubleshooting.md",
+          "id": "service/agent-sandbox/07-troubleshooting.md#0"
+        }
+      ]
+    },
+    {
+      "query": "agent-iam 升级前需要做哪些准备、高危漏洞多久内出补丁？",
+      "type": "multi_doc",
+      "gold": [
+        {
+          "file": "service/agent-iam/08-maintenance-and-version.md",
+          "id": "service/agent-iam/08-maintenance-and-version.md#0"
+        },
+        {
+          "file": "service/agent-iam/08-maintenance-and-version.md",
+          "id": "service/agent-iam/08-maintenance-and-version.md#0"
+        }
+      ]
+    },
+    {
+      "query": "agent-iam 的令牌采用哪种生命周期管理机制？",
+      "type": "long_doc",
+      "gold": [
+        {
+          "file": "service/agent-iam/06-common-faq.md",
+          "id": "service/agent-iam/06-common-faq.md#faq-2"
+        }
+      ]
+    },
+    {
+      "query": "agent-iam 哪个版本引入了最小权限自动收敛？",
+      "type": "long_doc",
+      "gold": [
+        {
+          "file": "service/agent-iam/08-maintenance-and-version.md",
+          "id": "service/agent-iam/08-maintenance-and-version.md#0"
+        }
+      ]
+    },
+    {
+      "query": "相比通用 IAM，agent-iam 在身份治理上的差异体现在哪？",
+      "type": "long_doc",
+      "gold": [
+        {
+          "file": "service/agent-iam/01-product-overview.md",
+          "id": "service/agent-iam/01-product-overview.md#0"
+        },
+        {
+          "file": "service/agent-iam/01-product-overview.md",
+          "id": "service/agent-iam/01-product-overview.md#1"
+        }
+      ]
+    },
+    {
+      "query": "agent-sandbox 提供哪些语言的 SDK 集成接口？",
+      "type": "long_doc",
+      "gold": [
+        {
+          "file": "service/agent-sandbox/04-deployment-and-integration.md",
+          "id": "service/agent-sandbox/04-deployment-and-integration.md#0"
+        }
+      ]
+    },
+    {
+      "query": "agent-sandbox 对 Linux 内核与容器运行时的最低要求是什么？",
+      "type": "long_doc",
+      "gold": [
+        {
+          "file": "service/agent-sandbox/04-deployment-and-integration.md",
+          "id": "service/agent-sandbox/04-deployment-and-integration.md#0"
+        }
+      ]
+    }
+  ]
+}
