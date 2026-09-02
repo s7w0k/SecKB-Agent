@@ -1,0 +1,1175 @@
+[
+  {
+    "id": "P001",
+    "cn": "统一模型网关",
+    "en": "Unified Model Gateway",
+    "code": "COGATE",
+    "line": "llm-gateway",
+    "level": "core",
+    "docs": 18,
+    "faq": 72,
+    "versions": [
+      "v3.2",
+      "v3.1",
+      "v3.0"
+    ],
+    "langs": [
+      "zh",
+      "en",
+      "zh-en"
+    ],
+    "region": [
+      "cn",
+      "intl"
+    ],
+    "vm": "v3.2-cn-intl",
+    "capacity": 185000,
+    "latency": 42,
+    "concurrency": 4200,
+    "maxfile": 12,
+    "retention": 90,
+    "qps": 6200,
+    "batch": 256,
+    "tier": "enterprise",
+    "protocols": [
+      "OpenAI-compatible",
+      "Anthropic-compatible"
+    ],
+    "unsupported": "不支持 gRPC 负载均衡到旧 v2.0 网关节点",
+    "neg": [
+      "仅企业版支持多租户路由策略",
+      "不支持 QUIC 传输协议"
+    ],
+    "neighbors": [
+      "P014",
+      "P019"
+    ],
+    "status": "ACTIVE",
+    "terms": [
+      "路由",
+      "限流",
+      "模型网关",
+      "负载均衡",
+      "超时治理",
+      "熔断",
+      "配额",
+      "令牌"
+    ],
+    "product_line": "llm-gateway",
+    "product_line_cn": "LLM 网关与模型调用治理",
+    "lifecycle": "ACTIVE",
+    "version_cn": "v3.2-cn-intl"
+  },
+  {
+    "id": "P002",
+    "cn": "模型溯源",
+    "en": "Model Provenance",
+    "code": "MODSRC",
+    "line": "llm-gateway",
+    "level": "core",
+    "docs": 16,
+    "faq": 70,
+    "versions": [
+      "v2.4",
+      "v2.3"
+    ],
+    "langs": [
+      "zh",
+      "en"
+    ],
+    "region": [
+      "cn",
+      "intl"
+    ],
+    "vm": "v2.4-cn-intl",
+    "capacity": 62000,
+    "latency": 38,
+    "concurrency": 2100,
+    "maxfile": 8,
+    "retention": 365,
+    "qps": 3400,
+    "batch": 128,
+    "tier": "enterprise",
+    "protocols": [
+      "SBOM 扫描",
+      "OCI Registry 钩子"
+    ],
+    "unsupported": "不支持自定义 SBOM 字段校验器",
+    "neg": [
+      "红队评估结果不自动写回溯源链",
+      "社区版无法导出 DER 签名"
+    ],
+    "neighbors": [
+      "P018",
+      "P010"
+    ],
+    "status": "ACTIVE",
+    "terms": [
+      "SBOM",
+      "哈希",
+      "来源链",
+      "模型指纹",
+      "签名",
+      "供应链",
+      "版本追踪"
+    ],
+    "product_line": "llm-gateway",
+    "product_line_cn": "LLM 网关与模型调用治理",
+    "lifecycle": "ACTIVE",
+    "version_cn": "v2.4-cn-intl"
+  },
+  {
+    "id": "P003",
+    "cn": "身份与访问",
+    "en": "Agent Identity Access",
+    "code": "AIDEN",
+    "line": "agent-iam",
+    "level": "core",
+    "docs": 18,
+    "faq": 74,
+    "versions": [
+      "v1.9",
+      "v1.8",
+      "v1.7"
+    ],
+    "langs": [
+      "zh"
+    ],
+    "region": [
+      "cn"
+    ],
+    "vm": "v1.9-cn-finance",
+    "capacity": 260000,
+    "latency": 22,
+    "concurrency": 15000,
+    "maxfile": 16,
+    "retention": 200,
+    "qps": 15000,
+    "batch": 512,
+    "tier": "enterprise",
+    "protocols": [
+      "SAML 2.0",
+      "OIDC",
+      "SCIM"
+    ],
+    "unsupported": "不支持 NTLM 认证提供方",
+    "neg": [
+      "仅企业版支持跨组织联邦",
+      "不支持 LDAP 属主校验之外的 AD 同步"
+    ],
+    "neighbors": [
+      "P004",
+      "P001"
+    ],
+    "status": "ACTIVE",
+    "terms": [
+      "身份",
+      "角色",
+      "权限",
+      "令牌",
+      "多因子",
+      "访问控制",
+      "租户",
+      "组织"
+    ],
+    "product_line": "agent-iam",
+    "product_line_cn": "Agent 身份、凭据和权限",
+    "lifecycle": "ACTIVE",
+    "version_cn": "v1.9-cn-finance"
+  },
+  {
+    "id": "P004",
+    "cn": "凭据保险库",
+    "en": "Credential Vault",
+    "code": "CREDV",
+    "line": "agent-iam",
+    "level": "standard",
+    "docs": 14,
+    "faq": 48,
+    "versions": [
+      "v2.1",
+      "v2.0"
+    ],
+    "langs": [
+      "zh",
+      "zh-en"
+    ],
+    "region": [
+      "cn"
+    ],
+    "vm": "v2.1-cn",
+    "capacity": 450000,
+    "latency": 12,
+    "concurrency": 8000,
+    "maxfile": 32,
+    "retention": 730,
+    "qps": 9800,
+    "batch": 1024,
+    "tier": "enterprise",
+    "protocols": [
+      "KMS-信封",
+      "多并行因子"
+    ],
+    "unsupported": "不支持明文导出长期令牌",
+    "neg": [
+      "到期凭据不自动续签",
+      "不支持双活跨区域复制"
+    ],
+    "neighbors": [
+      "P003",
+      "P005"
+    ],
+    "status": "ACTIVE",
+    "terms": [
+      "密钥",
+      "令牌",
+      "轮换",
+      "加密",
+      "凭据",
+      "保险库",
+      "访问",
+      "审计"
+    ],
+    "product_line": "agent-iam",
+    "product_line_cn": "Agent 身份、凭据和权限",
+    "lifecycle": "ACTIVE",
+    "version_cn": "v2.1-cn"
+  },
+  {
+    "id": "P005",
+    "cn": "智能体沙箱",
+    "en": "Agent Sandbox",
+    "code": "ASBOX",
+    "line": "agent-sandbox",
+    "level": "core",
+    "docs": 17,
+    "faq": 71,
+    "versions": [
+      "v3.0",
+      "v2.9"
+    ],
+    "langs": [
+      "zh",
+      "en"
+    ],
+    "region": [
+      "cn",
+      "intl"
+    ],
+    "vm": "v3.0-cn-intl",
+    "capacity": 88000,
+    "latency": 55,
+    "concurrency": 6000,
+    "maxfile": 256,
+    "retention": 30,
+    "qps": 2100,
+    "batch": 64,
+    "tier": "enterprise",
+    "protocols": [
+      "gVisor",
+      "WASM 边界",
+      "seccomp 策略"
+    ],
+    "unsupported": "不支持 GPU 透传场景",
+    "neg": [
+      "不支持非受管 TLS 出口",
+      "沙箱内禁止写宿主服务文件"
+    ],
+    "neighbors": [
+      "P006",
+      "P020"
+    ],
+    "status": "ACTIVE",
+    "terms": [
+      "沙箱",
+      "隔离",
+      "工具命名空间",
+      "容器",
+      "权限收紧",
+      "出口规则",
+      "exec"
+    ],
+    "product_line": "agent-sandbox",
+    "product_line_cn": "Agent 沙箱、执行隔离与工具安全",
+    "lifecycle": "ACTIVE",
+    "version_cn": "v3.0-cn-intl"
+  },
+  {
+    "id": "P006",
+    "cn": "多智能体安全",
+    "en": "Multi-Agent Security",
+    "code": "MASEC",
+    "line": "agent-sandbox",
+    "level": "standard",
+    "docs": 13,
+    "faq": 46,
+    "versions": [
+      "v1.4",
+      "v1.3"
+    ],
+    "langs": [
+      "zh"
+    ],
+    "region": [
+      "cn"
+    ],
+    "vm": "v1.4-cn",
+    "capacity": 40000,
+    "latency": 18,
+    "concurrency": 2500,
+    "maxfile": 20,
+    "retention": 180,
+    "qps": 1900,
+    "batch": 96,
+    "tier": "standard",
+    "protocols": [
+      "子代理委派",
+      "消息签名"
+    ],
+    "unsupported": "不支持命名空间外委派",
+    "neg": [
+      "不支持跨租户子代理",
+      "无内置提示注入免疫"
+    ],
+    "neighbors": [
+      "P005",
+      "P013"
+    ],
+    "status": "ACTIVE",
+    "terms": [
+      "委派",
+      "子代理",
+      "权限边界",
+      "消息令牌",
+      "编排",
+      "身份传播",
+      "命名空间"
+    ],
+    "product_line": "agent-sandbox",
+    "product_line_cn": "Agent 沙箱、执行隔离与工具安全",
+    "lifecycle": "ACTIVE",
+    "version_cn": "v1.4-cn"
+  },
+  {
+    "id": "P007",
+    "cn": "数据防泄漏",
+    "en": "Data Loss Prevention",
+    "code": "COVDLP",
+    "line": "data-dlp",
+    "level": "core",
+    "docs": 18,
+    "faq": 73,
+    "versions": [
+      "v3.5",
+      "v3.4",
+      "v3.3"
+    ],
+    "langs": [
+      "zh",
+      "en",
+      "zh-en"
+    ],
+    "region": [
+      "cn",
+      "intl"
+    ],
+    "vm": "v3.5-cn-finance",
+    "capacity": 320000,
+    "latency": 30,
+    "concurrency": 9000,
+    "maxfile": 64,
+    "retention": 180,
+    "qps": 7800,
+    "batch": 512,
+    "tier": "enterprise",
+    "protocols": [
+      "DLP 正则库",
+      "敏感数据 OCR",
+      "水印追踪"
+    ],
+    "unsupported": "不支持主库直接内联扫描",
+    "neg": [
+      "仅企业版支持跨边界脱敏",
+      "不支持 S3 未挂载桶扫描"
+    ],
+    "neighbors": [
+      "P008",
+      "P015"
+    ],
+    "status": "ACTIVE",
+    "terms": [
+      "脱敏",
+      "防泄漏",
+      "水印",
+      "敏感识别",
+      "DLP",
+      "外发审计",
+      "数据分类",
+      "边界"
+    ],
+    "product_line": "data-dlp",
+    "product_line_cn": "数据防泄漏、隐私计算和数据治理",
+    "lifecycle": "ACTIVE",
+    "version_cn": "v3.5-cn-finance"
+  },
+  {
+    "id": "P008",
+    "cn": "隐私计算",
+    "en": "Privacy Computing",
+    "code": "PRIVC",
+    "line": "data-dlp",
+    "level": "core",
+    "docs": 15,
+    "faq": 70,
+    "versions": [
+      "v2.2",
+      "v2.1"
+    ],
+    "langs": [
+      "zh",
+      "en"
+    ],
+    "region": [
+      "cn",
+      "intl"
+    ],
+    "vm": "v2.2-cn-intl",
+    "capacity": 120000,
+    "latency": 120,
+    "concurrency": 1200,
+    "maxfile": 8,
+    "retention": 45,
+    "qps": 860,
+    "batch": 32,
+    "tier": "enterprise",
+    "protocols": [
+      "MPC",
+      "联邦学习",
+      "可信执行环境"
+    ],
+    "unsupported": "不支持轻量节点的同态全加密",
+    "neg": [
+      "不支持跨国联邦集群",
+      "TEE 需可信启动证明"
+    ],
+    "neighbors": [
+      "P007",
+      "P015"
+    ],
+    "status": "ACTIVE",
+    "terms": [
+      "联邦",
+      "多方计算",
+      "加密",
+      "隐私求交",
+      "脱敏",
+      "协作计算",
+      "密文",
+      "TEE"
+    ],
+    "product_line": "data-dlp",
+    "product_line_cn": "数据防泄漏、隐私计算和数据治理",
+    "lifecycle": "ACTIVE",
+    "version_cn": "v2.2-cn-intl"
+  },
+  {
+    "id": "P009",
+    "cn": "模型红队",
+    "en": "Model Red Team",
+    "code": "MRED",
+    "line": "model-supply-chain",
+    "level": "standard",
+    "docs": 13,
+    "faq": 47,
+    "versions": [
+      "v1.7",
+      "v1.6"
+    ],
+    "langs": [
+      "zh"
+    ],
+    "region": [
+      "cn"
+    ],
+    "vm": "v1.7-cn",
+    "capacity": 28000,
+    "latency": 90,
+    "concurrency": 900,
+    "maxfile": 4,
+    "retention": 120,
+    "qps": 700,
+    "batch": 16,
+    "tier": "standard",
+    "protocols": [
+      "越狱样本",
+      "对抗探测"
+    ],
+    "unsupported": "不提供自主越狱样本生成的语义保证",
+    "neg": [
+      "评估结果不自动阻断发布",
+      "仅专业版提供逐条溯源"
+    ],
+    "neighbors": [
+      "P002",
+      "P016"
+    ],
+    "status": "ACTIVE",
+    "terms": [
+      "对抗",
+      "越狱",
+      "红队",
+      "提示注入",
+      "评分",
+      "安全评测",
+      "样本集"
+    ],
+    "product_line": "model-supply-chain",
+    "product_line_cn": "模型供应链、来源追踪和红队评估",
+    "lifecycle": "ACTIVE",
+    "version_cn": "v1.7-cn"
+  },
+  {
+    "id": "P010",
+    "cn": "供应链安全",
+    "en": "Model Supply Chain Security",
+    "code": "MSSC",
+    "line": "model-supply-chain",
+    "level": "standard",
+    "docs": 14,
+    "faq": 45,
+    "versions": [
+      "v1.5",
+      "v1.4"
+    ],
+    "langs": [
+      "zh",
+      "zh-en"
+    ],
+    "region": [
+      "cn",
+      "intl"
+    ],
+    "vm": "v1.5-cn-intl",
+    "capacity": 54000,
+    "latency": 26,
+    "concurrency": 2000,
+    "maxfile": 10,
+    "retention": 300,
+    "qps": 1600,
+    "batch": 128,
+    "tier": "standard",
+    "protocols": [
+      "SBOM 校验",
+      "镜像签名"
+    ],
+    "unsupported": "不支持 OCI 之外的私有仓库插件",
+    "neg": [
+      "历史签名不回溯验证",
+      "不扫描运行时依赖图"
+    ],
+    "neighbors": [
+      "P002",
+      "P018"
+    ],
+    "status": "ACTIVE",
+    "terms": [
+      "供应链",
+      "签名",
+      "SBOM",
+      "镜像",
+      "漏洞扫描",
+      "补丁",
+      "依赖"
+    ],
+    "product_line": "model-supply-chain",
+    "product_line_cn": "模型供应链、来源追踪和红队评估",
+    "lifecycle": "ACTIVE",
+    "version_cn": "v1.5-cn-intl"
+  },
+  {
+    "id": "P011",
+    "cn": "内容审核",
+    "en": "Content Moderation",
+    "code": "CMOD",
+    "line": "content-media",
+    "level": "core",
+    "docs": 16,
+    "faq": 71,
+    "versions": [
+      "v4.0",
+      "v3.9",
+      "v3.8"
+    ],
+    "langs": [
+      "zh",
+      "en"
+    ],
+    "region": [
+      "cn",
+      "intl"
+    ],
+    "vm": "v4.0-cn-intl",
+    "capacity": 2800000,
+    "latency": 15,
+    "concurrency": 30000,
+    "maxfile": 24,
+    "retention": 30,
+    "qps": 32000,
+    "batch": 1024,
+    "tier": "enterprise",
+    "protocols": [
+      "多模态审核",
+      "自定义策略引擎"
+    ],
+    "unsupported": "不支持非图片域的私聊全量审核",
+    "neg": [
+      "敏感镜头审核仅企业版",
+      "不支持流式直播逐帧审核"
+    ],
+    "neighbors": [
+      "P012",
+      "P016"
+    ],
+    "status": "ACTIVE",
+    "terms": [
+      "审核",
+      "敏感词",
+      "多模态",
+      "策略",
+      "违规",
+      "举报",
+      "人工复核",
+      "置信度"
+    ],
+    "product_line": "content-media",
+    "product_line_cn": "内容审核、深度伪造和媒体安全",
+    "lifecycle": "ACTIVE",
+    "version_cn": "v4.0-cn-intl"
+  },
+  {
+    "id": "P012",
+    "cn": "深度伪造检测",
+    "en": "Deepfake Detection",
+    "code": "DEEPX",
+    "line": "content-media",
+    "level": "standard",
+    "docs": 11,
+    "faq": 45,
+    "versions": [
+      "v2.0",
+      "v1.9"
+    ],
+    "langs": [
+      "zh",
+      "en"
+    ],
+    "region": [
+      "cn",
+      "intl"
+    ],
+    "vm": "v2.0-cn-intl",
+    "capacity": 90000,
+    "latency": 40,
+    "concurrency": 1800,
+    "maxfile": 18,
+    "retention": 14,
+    "qps": 1200,
+    "batch": 32,
+    "tier": "standard",
+    "protocols": [
+      "伪造识别",
+      "换脸检测",
+      "声纹比对"
+    ],
+    "unsupported": "不支持 4K 超长视频端到端",
+    "neg": [
+      "低分辨率素材仅告警",
+      "不支持离线深度伪造断言"
+    ],
+    "neighbors": [
+      "P011",
+      "P020"
+    ],
+    "status": "ACTIVE",
+    "terms": [
+      "伪造",
+      "换脸",
+      "识别",
+      "置信度",
+      "片段",
+      "声纹",
+      "篡改"
+    ],
+    "product_line": "content-media",
+    "product_line_cn": "内容审核、深度伪造和媒体安全",
+    "lifecycle": "ACTIVE",
+    "version_cn": "v2.0-cn-intl"
+  },
+  {
+    "id": "P013",
+    "cn": "审计与可观测",
+    "en": "Audit & Observability",
+    "code": "AUOB",
+    "line": "audit-observability",
+    "level": "standard",
+    "docs": 14,
+    "faq": 46,
+    "versions": [
+      "v2.3",
+      "v2.2",
+      "v2.1"
+    ],
+    "langs": [
+      "zh",
+      "en"
+    ],
+    "region": [
+      "cn",
+      "intl"
+    ],
+    "vm": "v2.3-cn-intl",
+    "capacity": 1500000,
+    "latency": 8,
+    "concurrency": 20000,
+    "maxfile": 48,
+    "retention": 400,
+    "qps": 18000,
+    "batch": 2048,
+    "tier": "enterprise",
+    "protocols": [
+      "OpenTelemetry",
+      "审计日志导出"
+    ],
+    "unsupported": "不支持旁路抓包式取证",
+    "neg": [
+      "endpoint 级指标仅企业版",
+      "不支持 pbft 共识审计"
+    ],
+    "neighbors": [
+      "P006",
+      "P020"
+    ],
+    "status": "ACTIVE",
+    "terms": [
+      "审计",
+      "日志",
+      "指标",
+      "trace",
+      "导出",
+      "告警",
+      "可观测",
+      "留存"
+    ],
+    "product_line": "audit-observability",
+    "product_line_cn": "审计、可观测性和安全运营",
+    "lifecycle": "ACTIVE",
+    "version_cn": "v2.3-cn-intl"
+  },
+  {
+    "id": "P014",
+    "cn": "LLM 安全网关",
+    "en": "LLM Security Gateway",
+    "code": "LSGW",
+    "line": "audit-observability",
+    "level": "core",
+    "docs": 18,
+    "faq": 74,
+    "versions": [
+      "v5.0",
+      "v4.9",
+      "v4.8"
+    ],
+    "langs": [
+      "zh",
+      "en",
+      "zh-en"
+    ],
+    "region": [
+      "cn",
+      "intl"
+    ],
+    "vm": "v5.0-cn-intl",
+    "capacity": 760000,
+    "latency": 35,
+    "concurrency": 15000,
+    "maxfile": 32,
+    "retention": 90,
+    "qps": 9800,
+    "batch": 256,
+    "tier": "enterprise",
+    "protocols": [
+      "提示注入拦截",
+      "PII 检测",
+      "策略旁路"
+    ],
+    "unsupported": "不支持对模型参数优化的注水拦截",
+    "neg": [
+      "仅企业版支持 ML 注入检测",
+      "不支持原生端到端全模型脱敏"
+    ],
+    "neighbors": [
+      "P001",
+      "P007"
+    ],
+    "status": "ACTIVE",
+    "terms": [
+      "注入",
+      "安全网关",
+      "拦截",
+      "PII",
+      "策略",
+      "输出检测",
+      "旁路",
+      "红队"
+    ],
+    "product_line": "audit-observability",
+    "product_line_cn": "审计、可观测性和安全运营",
+    "lifecycle": "ACTIVE",
+    "version_cn": "v5.0-cn-intl"
+  },
+  {
+    "id": "P015",
+    "cn": "合规引擎",
+    "en": "Compliance Engine",
+    "code": "COME",
+    "line": "compliance-risk",
+    "level": "standard",
+    "docs": 13,
+    "faq": 46,
+    "versions": [
+      "v3.1",
+      "v3.0"
+    ],
+    "langs": [
+      "zh"
+    ],
+    "region": [
+      "cn"
+    ],
+    "vm": "v3.1-cn",
+    "capacity": 300000,
+    "latency": 28,
+    "concurrency": 4000,
+    "maxfile": 16,
+    "retention": 500,
+    "qps": 4200,
+    "batch": 512,
+    "tier": "enterprise",
+    "protocols": [
+      "监管映射",
+      "报告周期"
+    ],
+    "unsupported": "不支持自定义监管模板的自动化审批",
+    "neg": [
+      "仅企业版支持跨境数据合规评估",
+      "不支持历史报送回填审计"
+    ],
+    "neighbors": [
+      "P007",
+      "P016"
+    ],
+    "status": "ACTIVE",
+    "terms": [
+      "合规",
+      "报送",
+      "监管",
+      "条例",
+      "映射",
+      "审计",
+      "留存",
+      "跨境"
+    ],
+    "product_line": "compliance-risk",
+    "product_line_cn": "合规、风险控制和监管报送",
+    "lifecycle": "ACTIVE",
+    "version_cn": "v3.1-cn"
+  },
+  {
+    "id": "P016",
+    "cn": "风控反欺诈",
+    "en": "Risk & Anti-Fraud",
+    "code": "RISKX",
+    "line": "compliance-risk",
+    "level": "standard",
+    "docs": 12,
+    "faq": 45,
+    "versions": [
+      "v2.0",
+      "v1.9"
+    ],
+    "langs": [
+      "zh",
+      "zh-en"
+    ],
+    "region": [
+      "cn"
+    ],
+    "vm": "v2.0-cn",
+    "capacity": 1200000,
+    "latency": 20,
+    "concurrency": 12000,
+    "maxfile": 40,
+    "retention": 210,
+    "qps": 15000,
+    "batch": 1024,
+    "tier": "enterprise",
+    "protocols": [
+      "图形检测",
+      "贝叶斯评分"
+    ],
+    "unsupported": "不支持无样本冷启动的团伙识别",
+    "neg": [
+      "实时评分特征仅企业版",
+      "不支持灰色账户自动冻结"
+    ],
+    "neighbors": [
+      "P015",
+      "P009"
+    ],
+    "status": "ACTIVE",
+    "terms": [
+      "风控",
+      "欺诈",
+      "评分",
+      "特征",
+      "团伙",
+      "规则",
+      "阈值",
+      "黑名单"
+    ],
+    "product_line": "compliance-risk",
+    "product_line_cn": "合规、风险控制和监管报送",
+    "lifecycle": "ACTIVE",
+    "version_cn": "v2.0-cn"
+  },
+  {
+    "id": "P017",
+    "cn": "推理成本治理",
+    "en": "Inference Cost Governance",
+    "code": "ICTG",
+    "line": "ai-infra",
+    "level": "longtail",
+    "docs": 7,
+    "faq": 21,
+    "versions": [
+      "v1.2"
+    ],
+    "langs": [
+      "zh"
+    ],
+    "region": [
+      "cn"
+    ],
+    "vm": "v1.2-cn",
+    "capacity": 40000,
+    "latency": 34,
+    "concurrency": 800,
+    "maxfile": 2,
+    "retention": 60,
+    "qps": 900,
+    "batch": 64,
+    "tier": "standard",
+    "protocols": [
+      "预算聚合",
+      "单位成本口径"
+    ],
+    "unsupported": "不支持按 token 精度的跨账期分摊",
+    "neg": [
+      "预算告警仅覆盖主折线",
+      "不支持 Spot 波动定价的预测"
+    ],
+    "neighbors": [
+      "P001",
+      "P019"
+    ],
+    "status": "ACTIVE",
+    "terms": [
+      "成本",
+      "预算",
+      "单位经济",
+      "用量",
+      "分摊",
+      "告警",
+      "账单"
+    ],
+    "product_line": "ai-infra",
+    "product_line_cn": "AI 基础设施、推理平台和成本治理",
+    "lifecycle": "ACTIVE",
+    "version_cn": "v1.2-cn"
+  },
+  {
+    "id": "P018",
+    "cn": "模型资产",
+    "en": "Model Asset Registry",
+    "code": "MAST",
+    "line": "ai-infra",
+    "level": "longtail",
+    "docs": 6,
+    "faq": 20,
+    "versions": [
+      "v1.1"
+    ],
+    "langs": [
+      "zh"
+    ],
+    "region": [
+      "cn"
+    ],
+    "vm": "v1.1-cn",
+    "capacity": 18000,
+    "latency": 14,
+    "concurrency": 600,
+    "maxfile": 12,
+    "retention": 365,
+    "qps": 500,
+    "batch": 32,
+    "tier": "standard",
+    "protocols": [
+      "目录注册",
+      "镜像锁定"
+    ],
+    "unsupported": "不支持跨区域目录镜像同步",
+    "neg": [
+      "模型门禁仅覆盖准入白名单",
+      "不支持量化版本自动标注"
+    ],
+    "neighbors": [
+      "P002",
+      "P010"
+    ],
+    "status": "ACTIVE",
+    "terms": [
+      "资产",
+      "目录",
+      "版本",
+      "注册",
+      "模型",
+      "白名单",
+      "镜像"
+    ],
+    "product_line": "ai-infra",
+    "product_line_cn": "AI 基础设施、推理平台和成本治理",
+    "lifecycle": "ACTIVE",
+    "version_cn": "v1.1-cn"
+  },
+  {
+    "id": "P019",
+    "cn": "开发者 SDK",
+    "en": "Developer SDK & API",
+    "code": "SKDEV",
+    "line": "dev-platform",
+    "level": "longtail",
+    "docs": 8,
+    "faq": 22,
+    "versions": [
+      "v4.2",
+      "v4.1"
+    ],
+    "langs": [
+      "en",
+      "zh-en"
+    ],
+    "region": [
+      "cn",
+      "intl"
+    ],
+    "vm": "v4.2-intl",
+    "capacity": 60000,
+    "latency": 10,
+    "concurrency": 5000,
+    "maxfile": 64,
+    "retention": 90,
+    "qps": 5200,
+    "batch": 256,
+    "tier": "standard",
+    "protocols": [
+      "REST",
+      "WebSocket",
+      "gRPC"
+    ],
+    "unsupported": "不支持 v1.0 栈的鉴权协议",
+    "neg": [
+      "CLI 尚不支持 macOS 全量子命令",
+      "不支持旧版 Python 3.8 SDK"
+    ],
+    "neighbors": [
+      "P001",
+      "P020"
+    ],
+    "status": "ACTIVE",
+    "terms": [
+      "SDK",
+      "API",
+      "端点",
+      "密钥",
+      "重试",
+      "限速",
+      "客户端",
+      "版本"
+    ],
+    "product_line": "dev-platform",
+    "product_line_cn": "开发平台、SDK、API 和应用编排",
+    "lifecycle": "ACTIVE",
+    "version_cn": "v4.2-intl"
+  },
+  {
+    "id": "P020",
+    "cn": "工作流编排",
+    "en": "Agent Workflow Engine",
+    "code": "WFENG",
+    "line": "dev-platform",
+    "level": "longtail",
+    "docs": 9,
+    "faq": 23,
+    "versions": [
+      "v1.6",
+      "v1.5"
+    ],
+    "langs": [
+      "zh",
+      "en"
+    ],
+    "region": [
+      "cn",
+      "intl"
+    ],
+    "vm": "v1.6-cn-intl",
+    "capacity": 150000,
+    "latency": 45,
+    "concurrency": 3200,
+    "maxfile": 24,
+    "retention": 120,
+    "qps": 2100,
+    "batch": 128,
+    "tier": "standard",
+    "protocols": [
+      "DAG",
+      "状态机",
+      "重试策略"
+    ],
+    "unsupported": "不支持环状依赖拓扑",
+    "neg": [
+      "长流程 checkpoint 仅企业版",
+      "不支持跨工作区共享步骤库"
+    ],
+    "neighbors": [
+      "P005",
+      "P019"
+    ],
+    "status": "ACTIVE",
+    "terms": [
+      "工作流",
+      "编排",
+      "步骤",
+      "DAG",
+      "重试",
+      "状态",
+      "触发器",
+      "批处理"
+    ],
+    "product_line": "dev-platform",
+    "product_line_cn": "开发平台、SDK、API 和应用编排",
+    "lifecycle": "ACTIVE",
+    "version_cn": "v1.6-cn-intl"
+  }
+]

@@ -1,0 +1,72 @@
+{
+  "phase": "P5",
+  "run_id": "run-s1-20260828-v2",
+  "scale": "S1",
+  "seed": 20260828,
+  "generated_at": "2026-08-28T13:14:12Z",
+  "traceability": "query_id -> fact_id -> rendered_document -> expected_chunk",
+  "domain_convention": "{product_id}:{source_key}:1:{source_index}",
+  "source_index_assigner": "registry.chunk(parsed, profile=faq) 确定性 Q/A 顺序，与 P6 入库对齐",
+  "files": {
+    "retrieval-gold.jsonl": {
+      "count": 1188,
+      "sha256": "8cefa102171e13a2a5fb10b44e4e706f62c902d65ea9e40dd9d94bc24028adea"
+    },
+    "agentic-gold.jsonl": {
+      "count": 20,
+      "sha256": "7dddbbb5aca3c39d8b35d7b607ebb8280f214148a3cc0d3ad171afa57e984fc4"
+    },
+    "security-gold.jsonl": {
+      "count": 20,
+      "sha256": "5deb501117688b59426d82c30d6286c4f4f1a555d41606019ee0239f2197240f"
+    },
+    "performance-queries.jsonl": {
+      "count": 396,
+      "sha256": "0dd9492d49529a0f0b435aa849ea28d4bafd72ca446607cd43aa5693297f000e"
+    }
+  },
+  "annotation_status": "candidate",
+  "reviewed_subset": {
+    "note": "既有 data/eval/rag-data-plane/*.jsonl 为历史人工审核样本，指向旧语料，与隔离压力语料无相同 chunk_key，故仅作冻结 provenance，不映射到压力索引；自动生成的 case 一律置 candidate。",
+    "total_reviewed_lines": 1978,
+    "files": [
+      {
+        "path": "data\\eval\\rag-data-plane\\retrieval-gold.jsonl",
+        "exists": true,
+        "lines": 326,
+        "sha256": "735bd508b2b24331d2e62f6ae4f71c3430f374c58b4d8246c4f543261b4572e5"
+      },
+      {
+        "path": "data\\eval\\rag-data-plane\\retrieval-gold-v2-600.jsonl",
+        "exists": true,
+        "lines": 600,
+        "sha256": "89bec9d31186e6ce9ba08d281e7f31e1cba91131889113e20d6826632324ddd9"
+      },
+      {
+        "path": "data\\eval\\rag-data-plane\\agentic-gold.jsonl",
+        "exists": true,
+        "lines": 326,
+        "sha256": "40ee9642aa2704f6b3b79423165aad440acce839f418a33b6af2ea02e24b259b"
+      },
+      {
+        "path": "data\\eval\\rag-data-plane\\security-gold.jsonl",
+        "exists": true,
+        "lines": 326,
+        "sha256": "11dd75978f83ce20e7ac0e95944c988deb6ab8e553a99dcca1df83bc2ce99472"
+      },
+      {
+        "path": "data\\eval\\rag-data-plane\\performance-queries.jsonl",
+        "exists": true,
+        "lines": 200,
+        "sha256": "8e0c9d4421de718f0a1f8c3ded05c4d9797ea901b6102f27a4573e09eca521d4"
+      },
+      {
+        "path": "data\\eval\\rag-data-plane\\e2e-release-v1\\e2e-release-human-core-200-v1.jsonl",
+        "exists": true,
+        "lines": 200,
+        "sha256": "df21f8f0b45879728b435b55308790c161dd439263a5fc0b60e26eae812e4e1b"
+      }
+    ]
+  },
+  "primary_metric_note": "主数字为 automatically derived gold（candidate），reviewed 冻结子集指向旧语料，仅作 provenance。"
+}

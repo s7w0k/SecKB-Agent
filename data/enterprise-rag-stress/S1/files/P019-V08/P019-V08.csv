@@ -1,0 +1,188 @@
+type,content
+table_header,指标,取值,单位,约束,部署单元,区域,版本,fact_id
+row,核心协议,REST、WebSocket、gRPC,,支持 REST、支持 WebSocket、支持 gRPC,主节点,cn,v4.2-intl,P019-F357
+row,核心协议,REST、WebSocket、gRPC,,支持 REST、支持 WebSocket、支持 gRPC,灾备节点,cn,v4.2-intl,P019-F357
+row,核心协议,REST、WebSocket、gRPC,,支持 REST、支持 WebSocket、支持 gRPC,只读副本,cn,v4.2-intl,P019-F357
+row,事件摄取吞吐,60000,events/s,standard-edition、3-node,主节点,intl,v4.2-intl,P019-F358
+row,事件摄取吞吐,60000,events/s,standard-edition、3-node,灾备节点,intl,v4.2-intl,P019-F358
+row,事件摄取吞吐,60000,events/s,standard-edition、3-node,只读副本,intl,v4.2-intl,P019-F358
+row,API 峰值并发,5000,req/s,standard-edition,主节点,cn,v4.2-intl,P019-F359
+row,API 峰值并发,5000,req/s,standard-edition,灾备节点,cn,v4.2-intl,P019-F359
+row,API 峰值并发,5000,req/s,standard-edition,只读副本,cn,v4.2-intl,P019-F359
+row,P95 检索延迟,10,ms,p95、warm,主节点,intl,v4.2-intl,P019-F360
+row,P95 检索延迟,10,ms,p95、warm,灾备节点,intl,v4.2-intl,P019-F360
+row,P95 检索延迟,10,ms,p95、warm,只读副本,intl,v4.2-intl,P019-F360
+row,最大单文档上传,64,MB,默认限制,主节点,cn,v4.2-intl,P019-F361
+row,最大单文档上传,64,MB,默认限制,灾备节点,cn,v4.2-intl,P019-F361
+row,最大单文档上传,64,MB,默认限制,只读副本,cn,v4.2-intl,P019-F361
+row,日志/审计留存期,90,days,默认,主节点,intl,v4.2-intl,P019-F362
+row,日志/审计留存期,90,days,默认,灾备节点,intl,v4.2-intl,P019-F362
+row,日志/审计留存期,90,days,默认,只读副本,intl,v4.2-intl,P019-F362
+row,批量接口吞吐,5200,ops/s,batch=256,主节点,cn,v4.2-intl,P019-F363
+row,批量接口吞吐,5200,ops/s,batch=256,灾备节点,cn,v4.2-intl,P019-F363
+row,批量接口吞吐,5200,ops/s,batch=256,只读副本,cn,v4.2-intl,P019-F363
+row,当前版本线,v4.2,version,GA,主节点,intl,v4.2-intl,P019-F364
+row,当前版本线,v4.2,version,GA,灾备节点,intl,v4.2-intl,P019-F364
+row,当前版本线,v4.2,version,GA,只读副本,intl,v4.2-intl,P019-F364
+row,默认批次大小,256,items,可配置,主节点,cn,v4.2-intl,P019-F365
+row,默认批次大小,256,items,可配置,灾备节点,cn,v4.2-intl,P019-F365
+row,默认批次大小,256,items,可配置,只读副本,cn,v4.2-intl,P019-F365
+row,不支持能力,不支持 v1.0 栈的鉴权协议,,negation,主节点,intl,v4.2-intl,P019-F366
+row,不支持能力,不支持 v1.0 栈的鉴权协议,,negation,灾备节点,intl,v4.2-intl,P019-F366
+row,不支持能力,不支持 v1.0 栈的鉴权协议,,negation,只读副本,intl,v4.2-intl,P019-F366
+row,否定事实,CLI 尚不支持 macOS 全量子命令,,negation、must-not-claim,主节点,cn,v4.2-intl,P019-F367
+row,否定事实,CLI 尚不支持 macOS 全量子命令,,negation、must-not-claim,灾备节点,cn,v4.2-intl,P019-F367
+row,否定事实,CLI 尚不支持 macOS 全量子命令,,negation、must-not-claim,只读副本,cn,v4.2-intl,P019-F367
+row,否定事实,不支持旧版 Python 3.8 SDK,,negation、must-not-claim,主节点,intl,v4.2-intl,P019-F368
+row,否定事实,不支持旧版 Python 3.8 SDK,,negation、must-not-claim,灾备节点,intl,v4.2-intl,P019-F368
+row,否定事实,不支持旧版 Python 3.8 SDK,,negation、must-not-claim,只读副本,intl,v4.2-intl,P019-F368
+row,可用性目标,99.9,percent,standard-SLA,主节点,cn,v4.2-intl,P019-F369
+row,可用性目标,99.9,percent,standard-SLA,灾备节点,cn,v4.2-intl,P019-F369
+row,可用性目标,99.9,percent,standard-SLA,只读副本,cn,v4.2-intl,P019-F369
+row,合规基座,GB-35273/CAC-审查-P019,,zh-cn,主节点,intl,v4.2-intl,P019-F370
+row,合规基座,GB-35273/CAC-审查-P019,,zh-cn,灾备节点,intl,v4.2-intl,P019-F370
+row,合规基座,GB-35273/CAC-审查-P019,,zh-cn,只读副本,intl,v4.2-intl,P019-F370
+row,企业版起价,26030,cny/月,per-org、annual,主节点,cn,v4.2-intl,P019-F371
+row,企业版起价,26030,cny/月,per-org、annual,灾备节点,cn,v4.2-intl,P019-F371
+row,企业版起价,26030,cny/月,per-org、annual,只读副本,cn,v4.2-intl,P019-F371
+row,主邻接产品,P001,product,邻接 P001,主节点,intl,v4.2-intl,P019-F372
+row,主邻接产品,P001,product,邻接 P001,灾备节点,intl,v4.2-intl,P019-F372
+row,主邻接产品,P001,product,邻接 P001,只读副本,intl,v4.2-intl,P019-F372
+row,旧版事件吞吐,37200,events/s,v4.1、legacy,主节点,cn,v4.2-intl,P019-F373
+row,旧版事件吞吐,37200,events/s,v4.1、legacy,灾备节点,cn,v4.2-intl,P019-F373
+row,旧版事件吞吐,37200,events/s,v4.1、legacy,只读副本,cn,v4.2-intl,P019-F373
+row,旧版 P95 延迟,17,ms,v4.1、legacy,主节点,intl,v4.2-intl,P019-F374
+row,旧版 P95 延迟,17,ms,v4.1、legacy,灾备节点,intl,v4.2-intl,P019-F374
+row,旧版 P95 延迟,17,ms,v4.1、legacy,只读副本,intl,v4.2-intl,P019-F374
+row,与 P001 兼容,true,bool,edge P019->P001,主节点,cn,v4.2-intl,P019-F375
+row,与 P001 兼容,true,bool,edge P019->P001,灾备节点,cn,v4.2-intl,P019-F375
+row,与 P001 兼容,true,bool,edge P019->P001,只读副本,cn,v4.2-intl,P019-F375
+row,与 P020 兼容,true,bool,edge P019->P020,主节点,intl,v4.2-intl,P019-F376
+row,与 P020 兼容,true,bool,edge P019->P020,灾备节点,intl,v4.2-intl,P019-F376
+row,与 P020 兼容,true,bool,edge P019->P020,只读副本,intl,v4.2-intl,P019-F376
+table_header,指标,取值,单位,约束,部署单元,区域,版本,fact_id
+row,事件摄取吞吐,60000,events/s,standard-edition、3-node,主节点,cn,v4.2-intl,P019-F358
+row,事件摄取吞吐,60000,events/s,standard-edition、3-node,灾备节点,cn,v4.2-intl,P019-F358
+row,事件摄取吞吐,60000,events/s,standard-edition、3-node,只读副本,cn,v4.2-intl,P019-F358
+row,API 峰值并发,5000,req/s,standard-edition,主节点,intl,v4.2-intl,P019-F359
+row,API 峰值并发,5000,req/s,standard-edition,灾备节点,intl,v4.2-intl,P019-F359
+row,API 峰值并发,5000,req/s,standard-edition,只读副本,intl,v4.2-intl,P019-F359
+row,P95 检索延迟,10,ms,p95、warm,主节点,cn,v4.2-intl,P019-F360
+row,P95 检索延迟,10,ms,p95、warm,灾备节点,cn,v4.2-intl,P019-F360
+row,P95 检索延迟,10,ms,p95、warm,只读副本,cn,v4.2-intl,P019-F360
+row,最大单文档上传,64,MB,默认限制,主节点,intl,v4.2-intl,P019-F361
+row,最大单文档上传,64,MB,默认限制,灾备节点,intl,v4.2-intl,P019-F361
+row,最大单文档上传,64,MB,默认限制,只读副本,intl,v4.2-intl,P019-F361
+row,日志/审计留存期,90,days,默认,主节点,cn,v4.2-intl,P019-F362
+row,日志/审计留存期,90,days,默认,灾备节点,cn,v4.2-intl,P019-F362
+row,日志/审计留存期,90,days,默认,只读副本,cn,v4.2-intl,P019-F362
+row,批量接口吞吐,5200,ops/s,batch=256,主节点,intl,v4.2-intl,P019-F363
+row,批量接口吞吐,5200,ops/s,batch=256,灾备节点,intl,v4.2-intl,P019-F363
+row,批量接口吞吐,5200,ops/s,batch=256,只读副本,intl,v4.2-intl,P019-F363
+row,当前版本线,v4.2,version,GA,主节点,cn,v4.2-intl,P019-F364
+row,当前版本线,v4.2,version,GA,灾备节点,cn,v4.2-intl,P019-F364
+row,当前版本线,v4.2,version,GA,只读副本,cn,v4.2-intl,P019-F364
+row,默认批次大小,256,items,可配置,主节点,intl,v4.2-intl,P019-F365
+row,默认批次大小,256,items,可配置,灾备节点,intl,v4.2-intl,P019-F365
+row,默认批次大小,256,items,可配置,只读副本,intl,v4.2-intl,P019-F365
+row,不支持能力,不支持 v1.0 栈的鉴权协议,,negation,主节点,cn,v4.2-intl,P019-F366
+row,不支持能力,不支持 v1.0 栈的鉴权协议,,negation,灾备节点,cn,v4.2-intl,P019-F366
+row,不支持能力,不支持 v1.0 栈的鉴权协议,,negation,只读副本,cn,v4.2-intl,P019-F366
+row,否定事实,CLI 尚不支持 macOS 全量子命令,,negation、must-not-claim,主节点,intl,v4.2-intl,P019-F367
+row,否定事实,CLI 尚不支持 macOS 全量子命令,,negation、must-not-claim,灾备节点,intl,v4.2-intl,P019-F367
+row,否定事实,CLI 尚不支持 macOS 全量子命令,,negation、must-not-claim,只读副本,intl,v4.2-intl,P019-F367
+row,否定事实,不支持旧版 Python 3.8 SDK,,negation、must-not-claim,主节点,cn,v4.2-intl,P019-F368
+row,否定事实,不支持旧版 Python 3.8 SDK,,negation、must-not-claim,灾备节点,cn,v4.2-intl,P019-F368
+row,否定事实,不支持旧版 Python 3.8 SDK,,negation、must-not-claim,只读副本,cn,v4.2-intl,P019-F368
+row,可用性目标,99.9,percent,standard-SLA,主节点,intl,v4.2-intl,P019-F369
+row,可用性目标,99.9,percent,standard-SLA,灾备节点,intl,v4.2-intl,P019-F369
+row,可用性目标,99.9,percent,standard-SLA,只读副本,intl,v4.2-intl,P019-F369
+row,合规基座,GB-35273/CAC-审查-P019,,zh-cn,主节点,cn,v4.2-intl,P019-F370
+row,合规基座,GB-35273/CAC-审查-P019,,zh-cn,灾备节点,cn,v4.2-intl,P019-F370
+row,合规基座,GB-35273/CAC-审查-P019,,zh-cn,只读副本,cn,v4.2-intl,P019-F370
+row,企业版起价,26030,cny/月,per-org、annual,主节点,intl,v4.2-intl,P019-F371
+row,企业版起价,26030,cny/月,per-org、annual,灾备节点,intl,v4.2-intl,P019-F371
+row,企业版起价,26030,cny/月,per-org、annual,只读副本,intl,v4.2-intl,P019-F371
+row,主邻接产品,P001,product,邻接 P001,主节点,cn,v4.2-intl,P019-F372
+row,主邻接产品,P001,product,邻接 P001,灾备节点,cn,v4.2-intl,P019-F372
+row,主邻接产品,P001,product,邻接 P001,只读副本,cn,v4.2-intl,P019-F372
+row,旧版事件吞吐,37200,events/s,v4.1、legacy,主节点,intl,v4.2-intl,P019-F373
+row,旧版事件吞吐,37200,events/s,v4.1、legacy,灾备节点,intl,v4.2-intl,P019-F373
+row,旧版事件吞吐,37200,events/s,v4.1、legacy,只读副本,intl,v4.2-intl,P019-F373
+row,旧版 P95 延迟,17,ms,v4.1、legacy,主节点,cn,v4.2-intl,P019-F374
+row,旧版 P95 延迟,17,ms,v4.1、legacy,灾备节点,cn,v4.2-intl,P019-F374
+row,旧版 P95 延迟,17,ms,v4.1、legacy,只读副本,cn,v4.2-intl,P019-F374
+row,与 P001 兼容,true,bool,edge P019->P001,主节点,intl,v4.2-intl,P019-F375
+row,与 P001 兼容,true,bool,edge P019->P001,灾备节点,intl,v4.2-intl,P019-F375
+row,与 P001 兼容,true,bool,edge P019->P001,只读副本,intl,v4.2-intl,P019-F375
+row,与 P020 兼容,true,bool,edge P019->P020,主节点,cn,v4.2-intl,P019-F376
+row,与 P020 兼容,true,bool,edge P019->P020,灾备节点,cn,v4.2-intl,P019-F376
+row,与 P020 兼容,true,bool,edge P019->P020,只读副本,cn,v4.2-intl,P019-F376
+row,核心协议,REST、WebSocket、gRPC,,支持 REST、支持 WebSocket、支持 gRPC,主节点,intl,v4.2-intl,P019-F357
+row,核心协议,REST、WebSocket、gRPC,,支持 REST、支持 WebSocket、支持 gRPC,灾备节点,intl,v4.2-intl,P019-F357
+row,核心协议,REST、WebSocket、gRPC,,支持 REST、支持 WebSocket、支持 gRPC,只读副本,intl,v4.2-intl,P019-F357
+table_header,指标,取值,单位,约束,部署单元,区域,版本,fact_id
+row,API 峰值并发,5000,req/s,standard-edition,主节点,cn,v4.2-intl,P019-F359
+row,API 峰值并发,5000,req/s,standard-edition,灾备节点,cn,v4.2-intl,P019-F359
+row,API 峰值并发,5000,req/s,standard-edition,只读副本,cn,v4.2-intl,P019-F359
+row,P95 检索延迟,10,ms,p95、warm,主节点,intl,v4.2-intl,P019-F360
+row,P95 检索延迟,10,ms,p95、warm,灾备节点,intl,v4.2-intl,P019-F360
+row,P95 检索延迟,10,ms,p95、warm,只读副本,intl,v4.2-intl,P019-F360
+row,最大单文档上传,64,MB,默认限制,主节点,cn,v4.2-intl,P019-F361
+row,最大单文档上传,64,MB,默认限制,灾备节点,cn,v4.2-intl,P019-F361
+row,最大单文档上传,64,MB,默认限制,只读副本,cn,v4.2-intl,P019-F361
+row,日志/审计留存期,90,days,默认,主节点,intl,v4.2-intl,P019-F362
+row,日志/审计留存期,90,days,默认,灾备节点,intl,v4.2-intl,P019-F362
+row,日志/审计留存期,90,days,默认,只读副本,intl,v4.2-intl,P019-F362
+row,批量接口吞吐,5200,ops/s,batch=256,主节点,cn,v4.2-intl,P019-F363
+row,批量接口吞吐,5200,ops/s,batch=256,灾备节点,cn,v4.2-intl,P019-F363
+row,批量接口吞吐,5200,ops/s,batch=256,只读副本,cn,v4.2-intl,P019-F363
+row,当前版本线,v4.2,version,GA,主节点,intl,v4.2-intl,P019-F364
+row,当前版本线,v4.2,version,GA,灾备节点,intl,v4.2-intl,P019-F364
+row,当前版本线,v4.2,version,GA,只读副本,intl,v4.2-intl,P019-F364
+row,默认批次大小,256,items,可配置,主节点,cn,v4.2-intl,P019-F365
+row,默认批次大小,256,items,可配置,灾备节点,cn,v4.2-intl,P019-F365
+row,默认批次大小,256,items,可配置,只读副本,cn,v4.2-intl,P019-F365
+row,不支持能力,不支持 v1.0 栈的鉴权协议,,negation,主节点,intl,v4.2-intl,P019-F366
+row,不支持能力,不支持 v1.0 栈的鉴权协议,,negation,灾备节点,intl,v4.2-intl,P019-F366
+row,不支持能力,不支持 v1.0 栈的鉴权协议,,negation,只读副本,intl,v4.2-intl,P019-F366
+row,否定事实,CLI 尚不支持 macOS 全量子命令,,negation、must-not-claim,主节点,cn,v4.2-intl,P019-F367
+row,否定事实,CLI 尚不支持 macOS 全量子命令,,negation、must-not-claim,灾备节点,cn,v4.2-intl,P019-F367
+row,否定事实,CLI 尚不支持 macOS 全量子命令,,negation、must-not-claim,只读副本,cn,v4.2-intl,P019-F367
+row,否定事实,不支持旧版 Python 3.8 SDK,,negation、must-not-claim,主节点,intl,v4.2-intl,P019-F368
+row,否定事实,不支持旧版 Python 3.8 SDK,,negation、must-not-claim,灾备节点,intl,v4.2-intl,P019-F368
+row,否定事实,不支持旧版 Python 3.8 SDK,,negation、must-not-claim,只读副本,intl,v4.2-intl,P019-F368
+row,可用性目标,99.9,percent,standard-SLA,主节点,cn,v4.2-intl,P019-F369
+row,可用性目标,99.9,percent,standard-SLA,灾备节点,cn,v4.2-intl,P019-F369
+row,可用性目标,99.9,percent,standard-SLA,只读副本,cn,v4.2-intl,P019-F369
+row,合规基座,GB-35273/CAC-审查-P019,,zh-cn,主节点,intl,v4.2-intl,P019-F370
+row,合规基座,GB-35273/CAC-审查-P019,,zh-cn,灾备节点,intl,v4.2-intl,P019-F370
+row,合规基座,GB-35273/CAC-审查-P019,,zh-cn,只读副本,intl,v4.2-intl,P019-F370
+row,企业版起价,26030,cny/月,per-org、annual,主节点,cn,v4.2-intl,P019-F371
+row,企业版起价,26030,cny/月,per-org、annual,灾备节点,cn,v4.2-intl,P019-F371
+row,企业版起价,26030,cny/月,per-org、annual,只读副本,cn,v4.2-intl,P019-F371
+row,主邻接产品,P001,product,邻接 P001,主节点,intl,v4.2-intl,P019-F372
+row,主邻接产品,P001,product,邻接 P001,灾备节点,intl,v4.2-intl,P019-F372
+row,主邻接产品,P001,product,邻接 P001,只读副本,intl,v4.2-intl,P019-F372
+row,旧版事件吞吐,37200,events/s,v4.1、legacy,主节点,cn,v4.2-intl,P019-F373
+row,旧版事件吞吐,37200,events/s,v4.1、legacy,灾备节点,cn,v4.2-intl,P019-F373
+row,旧版事件吞吐,37200,events/s,v4.1、legacy,只读副本,cn,v4.2-intl,P019-F373
+row,旧版 P95 延迟,17,ms,v4.1、legacy,主节点,intl,v4.2-intl,P019-F374
+row,旧版 P95 延迟,17,ms,v4.1、legacy,灾备节点,intl,v4.2-intl,P019-F374
+row,旧版 P95 延迟,17,ms,v4.1、legacy,只读副本,intl,v4.2-intl,P019-F374
+row,与 P001 兼容,true,bool,edge P019->P001,主节点,cn,v4.2-intl,P019-F375
+row,与 P001 兼容,true,bool,edge P019->P001,灾备节点,cn,v4.2-intl,P019-F375
+row,与 P001 兼容,true,bool,edge P019->P001,只读副本,cn,v4.2-intl,P019-F375
+row,与 P020 兼容,true,bool,edge P019->P020,主节点,intl,v4.2-intl,P019-F376
+row,与 P020 兼容,true,bool,edge P019->P020,灾备节点,intl,v4.2-intl,P019-F376
+row,与 P020 兼容,true,bool,edge P019->P020,只读副本,intl,v4.2-intl,P019-F376
+row,核心协议,REST、WebSocket、gRPC,,支持 REST、支持 WebSocket、支持 gRPC,主节点,cn,v4.2-intl,P019-F357
+row,核心协议,REST、WebSocket、gRPC,,支持 REST、支持 WebSocket、支持 gRPC,灾备节点,cn,v4.2-intl,P019-F357
+row,核心协议,REST、WebSocket、gRPC,,支持 REST、支持 WebSocket、支持 gRPC,只读副本,cn,v4.2-intl,P019-F357
+row,事件摄取吞吐,60000,events/s,standard-edition、3-node,主节点,intl,v4.2-intl,P019-F358
+row,事件摄取吞吐,60000,events/s,standard-edition、3-node,灾备节点,intl,v4.2-intl,P019-F358
+row,事件摄取吞吐,60000,events/s,standard-edition、3-node,只读副本,intl,v4.2-intl,P019-F358
+table_header,边界项,边界内容
+row,边界1,开发者 SDK 不支持 CLI 尚不支持 macOS 全量子命令
+row,边界2,开发者 SDK 不支持 不支持旧版 Python 3.8 SDK
+row,整体边界,开发者 SDK 不支持 不支持 v1.0 栈的鉴权协议（详见 P019-F 系事实）

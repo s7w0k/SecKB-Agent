@@ -1,0 +1,396 @@
+{"query": "基础概念：统一模型网关 的 核心协议（）如何查看？", "domain": "P001", "expected_hit": "P001:P001-FAQ:1:0", "fact_id": "P001-F001"}
+{"query": "安装：统一模型网关 的 事件摄取吞吐（events/s）如何查看？", "domain": "P001", "expected_hit": "P001:P001-FAQ:1:1", "fact_id": "P001-F002"}
+{"query": "权限：统一模型网关 的 API 峰值并发（req/s）如何查看？", "domain": "P001", "expected_hit": "P001:P001-FAQ:1:2", "fact_id": "P001-F003"}
+{"query": "性能：统一模型网关 的 P95 检索延迟（ms）如何查看？", "domain": "P001", "expected_hit": "P001:P001-FAQ:1:3", "fact_id": "P001-F004"}
+{"query": "限制：统一模型网关 的 最大单文档上传（MB）如何查看？", "domain": "P001", "expected_hit": "P001:P001-FAQ:1:4", "fact_id": "P001-F005"}
+{"query": "兼容：统一模型网关 的 日志/审计留存期（days）如何查看？", "domain": "P001", "expected_hit": "P001:P001-FAQ:1:5", "fact_id": "P001-F006"}
+{"query": "计费：统一模型网关 的 批量接口吞吐（ops/s）如何查看？", "domain": "P001", "expected_hit": "P001:P001-FAQ:1:6", "fact_id": "P001-F007"}
+{"query": "故障：统一模型网关 的 当前版本线（version）如何查看？", "domain": "P001", "expected_hit": "P001:P001-FAQ:1:7", "fact_id": "P001-F008"}
+{"query": "升级：统一模型网关 的 默认批次大小（items）如何查看？", "domain": "P001", "expected_hit": "P001:P001-FAQ:1:8", "fact_id": "P001-F009"}
+{"query": "合规：统一模型网关 是否支持「不支持 gRPC 负载均衡到旧 v2.0 网关节点」？", "domain": "P001", "expected_hit": "P001:P001-FAQ:1:9", "fact_id": "P001-F010"}
+{"query": "跨产品联动：统一模型网关 是否支持「仅企业版支持多租户路由策略」？", "domain": "P001", "expected_hit": "P001:P001-FAQ:1:10", "fact_id": "P001-F011"}
+{"query": "基础概念：统一模型网关 是否支持「不支持 QUIC 传输协议」？", "domain": "P001", "expected_hit": "P001:P001-FAQ:1:11", "fact_id": "P001-F012"}
+{"query": "安装：统一模型网关 的 可用性目标（percent）如何查看？", "domain": "P001", "expected_hit": "P001:P001-FAQ:1:12", "fact_id": "P001-F013"}
+{"query": "权限：统一模型网关 的 合规基座（）如何查看？", "domain": "P001", "expected_hit": "P001:P001-FAQ:1:13", "fact_id": "P001-F014"}
+{"query": "性能：统一模型网关 的 企业版起价（cny/月）如何查看？", "domain": "P001", "expected_hit": "P001:P001-FAQ:1:14", "fact_id": "P001-F015"}
+{"query": "限制：统一模型网关 的 主邻接产品（product）如何查看？", "domain": "P001", "expected_hit": "P001:P001-FAQ:1:15", "fact_id": "P001-F016"}
+{"query": "兼容：统一模型网关 的 旧版事件吞吐（events/s）如何查看？", "domain": "P001", "expected_hit": "P001:P001-FAQ:1:16", "fact_id": "P001-F017"}
+{"query": "计费：统一模型网关 的 旧版 P95 延迟（ms）如何查看？", "domain": "P001", "expected_hit": "P001:P001-FAQ:1:17", "fact_id": "P001-F018"}
+{"query": "故障：统一模型网关 的 与 P014 兼容（bool）如何查看？", "domain": "P001", "expected_hit": "P001:P001-FAQ:1:18", "fact_id": "P001-F019"}
+{"query": "升级：统一模型网关 的 与 P019 兼容（bool）如何查看？", "domain": "P001", "expected_hit": "P001:P001-FAQ:1:19", "fact_id": "P001-F020"}
+{"query": "基础概念：模型溯源 的 核心协议（）如何查看？", "domain": "P002", "expected_hit": "P002:P002-FAQ:1:0", "fact_id": "P002-F021"}
+{"query": "安装：模型溯源 的 事件摄取吞吐（events/s）如何查看？", "domain": "P002", "expected_hit": "P002:P002-FAQ:1:1", "fact_id": "P002-F022"}
+{"query": "权限：模型溯源 的 API 峰值并发（req/s）如何查看？", "domain": "P002", "expected_hit": "P002:P002-FAQ:1:2", "fact_id": "P002-F023"}
+{"query": "性能：模型溯源 的 P95 检索延迟（ms）如何查看？", "domain": "P002", "expected_hit": "P002:P002-FAQ:1:3", "fact_id": "P002-F024"}
+{"query": "限制：模型溯源 的 最大单文档上传（MB）如何查看？", "domain": "P002", "expected_hit": "P002:P002-FAQ:1:4", "fact_id": "P002-F025"}
+{"query": "兼容：模型溯源 的 日志/审计留存期（days）如何查看？", "domain": "P002", "expected_hit": "P002:P002-FAQ:1:5", "fact_id": "P002-F026"}
+{"query": "计费：模型溯源 的 批量接口吞吐（ops/s）如何查看？", "domain": "P002", "expected_hit": "P002:P002-FAQ:1:6", "fact_id": "P002-F027"}
+{"query": "故障：模型溯源 的 当前版本线（version）如何查看？", "domain": "P002", "expected_hit": "P002:P002-FAQ:1:7", "fact_id": "P002-F028"}
+{"query": "升级：模型溯源 的 默认批次大小（items）如何查看？", "domain": "P002", "expected_hit": "P002:P002-FAQ:1:8", "fact_id": "P002-F029"}
+{"query": "合规：模型溯源 是否支持「不支持自定义 SBOM 字段校验器」？", "domain": "P002", "expected_hit": "P002:P002-FAQ:1:9", "fact_id": "P002-F030"}
+{"query": "跨产品联动：模型溯源 是否支持「红队评估结果不自动写回溯源链」？", "domain": "P002", "expected_hit": "P002:P002-FAQ:1:10", "fact_id": "P002-F031"}
+{"query": "基础概念：模型溯源 是否支持「社区版无法导出 DER 签名」？", "domain": "P002", "expected_hit": "P002:P002-FAQ:1:11", "fact_id": "P002-F032"}
+{"query": "安装：模型溯源 的 可用性目标（percent）如何查看？", "domain": "P002", "expected_hit": "P002:P002-FAQ:1:12", "fact_id": "P002-F033"}
+{"query": "权限：模型溯源 的 合规基座（）如何查看？", "domain": "P002", "expected_hit": "P002:P002-FAQ:1:13", "fact_id": "P002-F034"}
+{"query": "性能：模型溯源 的 企业版起价（cny/月）如何查看？", "domain": "P002", "expected_hit": "P002:P002-FAQ:1:14", "fact_id": "P002-F035"}
+{"query": "限制：模型溯源 的 主邻接产品（product）如何查看？", "domain": "P002", "expected_hit": "P002:P002-FAQ:1:15", "fact_id": "P002-F036"}
+{"query": "兼容：模型溯源 的 旧版事件吞吐（events/s）如何查看？", "domain": "P002", "expected_hit": "P002:P002-FAQ:1:16", "fact_id": "P002-F037"}
+{"query": "计费：模型溯源 的 旧版 P95 延迟（ms）如何查看？", "domain": "P002", "expected_hit": "P002:P002-FAQ:1:17", "fact_id": "P002-F038"}
+{"query": "故障：模型溯源 的 与 P018 兼容（bool）如何查看？", "domain": "P002", "expected_hit": "P002:P002-FAQ:1:18", "fact_id": "P002-F039"}
+{"query": "升级：模型溯源 的 与 P010 兼容（bool）如何查看？", "domain": "P002", "expected_hit": "P002:P002-FAQ:1:19", "fact_id": "P002-F040"}
+{"query": "基础概念：身份与访问 的 核心协议（）如何查看？", "domain": "P003", "expected_hit": "P003:P003-FAQ:1:0", "fact_id": "P003-F041"}
+{"query": "安装：身份与访问 的 事件摄取吞吐（events/s）如何查看？", "domain": "P003", "expected_hit": "P003:P003-FAQ:1:1", "fact_id": "P003-F042"}
+{"query": "权限：身份与访问 的 API 峰值并发（req/s）如何查看？", "domain": "P003", "expected_hit": "P003:P003-FAQ:1:2", "fact_id": "P003-F043"}
+{"query": "性能：身份与访问 的 P95 检索延迟（ms）如何查看？", "domain": "P003", "expected_hit": "P003:P003-FAQ:1:3", "fact_id": "P003-F044"}
+{"query": "限制：身份与访问 的 最大单文档上传（MB）如何查看？", "domain": "P003", "expected_hit": "P003:P003-FAQ:1:4", "fact_id": "P003-F045"}
+{"query": "兼容：身份与访问 的 日志/审计留存期（days）如何查看？", "domain": "P003", "expected_hit": "P003:P003-FAQ:1:5", "fact_id": "P003-F046"}
+{"query": "计费：身份与访问 的 批量接口吞吐（ops/s）如何查看？", "domain": "P003", "expected_hit": "P003:P003-FAQ:1:6", "fact_id": "P003-F047"}
+{"query": "故障：身份与访问 的 当前版本线（version）如何查看？", "domain": "P003", "expected_hit": "P003:P003-FAQ:1:7", "fact_id": "P003-F048"}
+{"query": "升级：身份与访问 的 默认批次大小（items）如何查看？", "domain": "P003", "expected_hit": "P003:P003-FAQ:1:8", "fact_id": "P003-F049"}
+{"query": "合规：身份与访问 是否支持「不支持 NTLM 认证提供方」？", "domain": "P003", "expected_hit": "P003:P003-FAQ:1:9", "fact_id": "P003-F050"}
+{"query": "跨产品联动：身份与访问 是否支持「仅企业版支持跨组织联邦」？", "domain": "P003", "expected_hit": "P003:P003-FAQ:1:10", "fact_id": "P003-F051"}
+{"query": "基础概念：身份与访问 是否支持「不支持 LDAP 属主校验之外的 AD 同步」？", "domain": "P003", "expected_hit": "P003:P003-FAQ:1:11", "fact_id": "P003-F052"}
+{"query": "安装：身份与访问 的 可用性目标（percent）如何查看？", "domain": "P003", "expected_hit": "P003:P003-FAQ:1:12", "fact_id": "P003-F053"}
+{"query": "权限：身份与访问 的 合规基座（）如何查看？", "domain": "P003", "expected_hit": "P003:P003-FAQ:1:13", "fact_id": "P003-F054"}
+{"query": "性能：身份与访问 的 企业版起价（cny/月）如何查看？", "domain": "P003", "expected_hit": "P003:P003-FAQ:1:14", "fact_id": "P003-F055"}
+{"query": "限制：身份与访问 的 主邻接产品（product）如何查看？", "domain": "P003", "expected_hit": "P003:P003-FAQ:1:15", "fact_id": "P003-F056"}
+{"query": "兼容：身份与访问 的 旧版事件吞吐（events/s）如何查看？", "domain": "P003", "expected_hit": "P003:P003-FAQ:1:16", "fact_id": "P003-F057"}
+{"query": "计费：身份与访问 的 旧版 P95 延迟（ms）如何查看？", "domain": "P003", "expected_hit": "P003:P003-FAQ:1:17", "fact_id": "P003-F058"}
+{"query": "故障：身份与访问 的 与 P004 兼容（bool）如何查看？", "domain": "P003", "expected_hit": "P003:P003-FAQ:1:18", "fact_id": "P003-F059"}
+{"query": "升级：身份与访问 的 与 P001 兼容（bool）如何查看？", "domain": "P003", "expected_hit": "P003:P003-FAQ:1:19", "fact_id": "P003-F060"}
+{"query": "基础概念：凭据保险库 的 核心协议（）如何查看？", "domain": "P004", "expected_hit": "P004:P004-FAQ:1:0", "fact_id": "P004-F061"}
+{"query": "安装：凭据保险库 的 事件摄取吞吐（events/s）如何查看？", "domain": "P004", "expected_hit": "P004:P004-FAQ:1:1", "fact_id": "P004-F062"}
+{"query": "权限：凭据保险库 的 API 峰值并发（req/s）如何查看？", "domain": "P004", "expected_hit": "P004:P004-FAQ:1:2", "fact_id": "P004-F063"}
+{"query": "性能：凭据保险库 的 P95 检索延迟（ms）如何查看？", "domain": "P004", "expected_hit": "P004:P004-FAQ:1:3", "fact_id": "P004-F064"}
+{"query": "限制：凭据保险库 的 最大单文档上传（MB）如何查看？", "domain": "P004", "expected_hit": "P004:P004-FAQ:1:4", "fact_id": "P004-F065"}
+{"query": "兼容：凭据保险库 的 日志/审计留存期（days）如何查看？", "domain": "P004", "expected_hit": "P004:P004-FAQ:1:5", "fact_id": "P004-F066"}
+{"query": "计费：凭据保险库 的 批量接口吞吐（ops/s）如何查看？", "domain": "P004", "expected_hit": "P004:P004-FAQ:1:6", "fact_id": "P004-F067"}
+{"query": "故障：凭据保险库 的 当前版本线（version）如何查看？", "domain": "P004", "expected_hit": "P004:P004-FAQ:1:7", "fact_id": "P004-F068"}
+{"query": "升级：凭据保险库 的 默认批次大小（items）如何查看？", "domain": "P004", "expected_hit": "P004:P004-FAQ:1:8", "fact_id": "P004-F069"}
+{"query": "合规：凭据保险库 是否支持「不支持明文导出长期令牌」？", "domain": "P004", "expected_hit": "P004:P004-FAQ:1:9", "fact_id": "P004-F070"}
+{"query": "跨产品联动：凭据保险库 是否支持「到期凭据不自动续签」？", "domain": "P004", "expected_hit": "P004:P004-FAQ:1:10", "fact_id": "P004-F071"}
+{"query": "基础概念：凭据保险库 是否支持「不支持双活跨区域复制」？", "domain": "P004", "expected_hit": "P004:P004-FAQ:1:11", "fact_id": "P004-F072"}
+{"query": "安装：凭据保险库 的 可用性目标（percent）如何查看？", "domain": "P004", "expected_hit": "P004:P004-FAQ:1:12", "fact_id": "P004-F073"}
+{"query": "权限：凭据保险库 的 合规基座（）如何查看？", "domain": "P004", "expected_hit": "P004:P004-FAQ:1:13", "fact_id": "P004-F074"}
+{"query": "性能：凭据保险库 的 企业版起价（cny/月）如何查看？", "domain": "P004", "expected_hit": "P004:P004-FAQ:1:14", "fact_id": "P004-F075"}
+{"query": "限制：凭据保险库 的 主邻接产品（product）如何查看？", "domain": "P004", "expected_hit": "P004:P004-FAQ:1:15", "fact_id": "P004-F076"}
+{"query": "兼容：凭据保险库 的 旧版事件吞吐（events/s）如何查看？", "domain": "P004", "expected_hit": "P004:P004-FAQ:1:16", "fact_id": "P004-F077"}
+{"query": "计费：凭据保险库 的 旧版 P95 延迟（ms）如何查看？", "domain": "P004", "expected_hit": "P004:P004-FAQ:1:17", "fact_id": "P004-F078"}
+{"query": "故障：凭据保险库 的 与 P003 兼容（bool）如何查看？", "domain": "P004", "expected_hit": "P004:P004-FAQ:1:18", "fact_id": "P004-F079"}
+{"query": "升级：凭据保险库 的 与 P005 兼容（bool）如何查看？", "domain": "P004", "expected_hit": "P004:P004-FAQ:1:19", "fact_id": "P004-F080"}
+{"query": "基础概念：智能体沙箱 的 核心协议（）如何查看？", "domain": "P005", "expected_hit": "P005:P005-FAQ:1:0", "fact_id": "P005-F081"}
+{"query": "安装：智能体沙箱 的 事件摄取吞吐（events/s）如何查看？", "domain": "P005", "expected_hit": "P005:P005-FAQ:1:1", "fact_id": "P005-F082"}
+{"query": "权限：智能体沙箱 的 API 峰值并发（req/s）如何查看？", "domain": "P005", "expected_hit": "P005:P005-FAQ:1:2", "fact_id": "P005-F083"}
+{"query": "性能：智能体沙箱 的 P95 检索延迟（ms）如何查看？", "domain": "P005", "expected_hit": "P005:P005-FAQ:1:3", "fact_id": "P005-F084"}
+{"query": "限制：智能体沙箱 的 最大单文档上传（MB）如何查看？", "domain": "P005", "expected_hit": "P005:P005-FAQ:1:4", "fact_id": "P005-F085"}
+{"query": "兼容：智能体沙箱 的 日志/审计留存期（days）如何查看？", "domain": "P005", "expected_hit": "P005:P005-FAQ:1:5", "fact_id": "P005-F086"}
+{"query": "计费：智能体沙箱 的 批量接口吞吐（ops/s）如何查看？", "domain": "P005", "expected_hit": "P005:P005-FAQ:1:6", "fact_id": "P005-F087"}
+{"query": "故障：智能体沙箱 的 当前版本线（version）如何查看？", "domain": "P005", "expected_hit": "P005:P005-FAQ:1:7", "fact_id": "P005-F088"}
+{"query": "升级：智能体沙箱 的 默认批次大小（items）如何查看？", "domain": "P005", "expected_hit": "P005:P005-FAQ:1:8", "fact_id": "P005-F089"}
+{"query": "合规：智能体沙箱 是否支持「不支持 GPU 透传场景」？", "domain": "P005", "expected_hit": "P005:P005-FAQ:1:9", "fact_id": "P005-F090"}
+{"query": "跨产品联动：智能体沙箱 是否支持「不支持非受管 TLS 出口」？", "domain": "P005", "expected_hit": "P005:P005-FAQ:1:10", "fact_id": "P005-F091"}
+{"query": "基础概念：智能体沙箱 是否支持「沙箱内禁止写宿主服务文件」？", "domain": "P005", "expected_hit": "P005:P005-FAQ:1:11", "fact_id": "P005-F092"}
+{"query": "安装：智能体沙箱 的 可用性目标（percent）如何查看？", "domain": "P005", "expected_hit": "P005:P005-FAQ:1:12", "fact_id": "P005-F093"}
+{"query": "权限：智能体沙箱 的 合规基座（）如何查看？", "domain": "P005", "expected_hit": "P005:P005-FAQ:1:13", "fact_id": "P005-F094"}
+{"query": "性能：智能体沙箱 的 企业版起价（cny/月）如何查看？", "domain": "P005", "expected_hit": "P005:P005-FAQ:1:14", "fact_id": "P005-F095"}
+{"query": "限制：智能体沙箱 的 主邻接产品（product）如何查看？", "domain": "P005", "expected_hit": "P005:P005-FAQ:1:15", "fact_id": "P005-F096"}
+{"query": "兼容：智能体沙箱 的 旧版事件吞吐（events/s）如何查看？", "domain": "P005", "expected_hit": "P005:P005-FAQ:1:16", "fact_id": "P005-F097"}
+{"query": "计费：智能体沙箱 的 旧版 P95 延迟（ms）如何查看？", "domain": "P005", "expected_hit": "P005:P005-FAQ:1:17", "fact_id": "P005-F098"}
+{"query": "故障：智能体沙箱 的 与 P006 兼容（bool）如何查看？", "domain": "P005", "expected_hit": "P005:P005-FAQ:1:18", "fact_id": "P005-F099"}
+{"query": "升级：智能体沙箱 的 与 P020 兼容（bool）如何查看？", "domain": "P005", "expected_hit": "P005:P005-FAQ:1:19", "fact_id": "P005-F100"}
+{"query": "基础概念：多智能体安全 的 核心协议（）如何查看？", "domain": "P006", "expected_hit": "P006:P006-FAQ:1:0", "fact_id": "P006-F101"}
+{"query": "安装：多智能体安全 的 事件摄取吞吐（events/s）如何查看？", "domain": "P006", "expected_hit": "P006:P006-FAQ:1:1", "fact_id": "P006-F102"}
+{"query": "权限：多智能体安全 的 API 峰值并发（req/s）如何查看？", "domain": "P006", "expected_hit": "P006:P006-FAQ:1:2", "fact_id": "P006-F103"}
+{"query": "性能：多智能体安全 的 P95 检索延迟（ms）如何查看？", "domain": "P006", "expected_hit": "P006:P006-FAQ:1:3", "fact_id": "P006-F104"}
+{"query": "限制：多智能体安全 的 最大单文档上传（MB）如何查看？", "domain": "P006", "expected_hit": "P006:P006-FAQ:1:4", "fact_id": "P006-F105"}
+{"query": "兼容：多智能体安全 的 日志/审计留存期（days）如何查看？", "domain": "P006", "expected_hit": "P006:P006-FAQ:1:5", "fact_id": "P006-F106"}
+{"query": "计费：多智能体安全 的 批量接口吞吐（ops/s）如何查看？", "domain": "P006", "expected_hit": "P006:P006-FAQ:1:6", "fact_id": "P006-F107"}
+{"query": "故障：多智能体安全 的 当前版本线（version）如何查看？", "domain": "P006", "expected_hit": "P006:P006-FAQ:1:7", "fact_id": "P006-F108"}
+{"query": "升级：多智能体安全 的 默认批次大小（items）如何查看？", "domain": "P006", "expected_hit": "P006:P006-FAQ:1:8", "fact_id": "P006-F109"}
+{"query": "合规：多智能体安全 是否支持「不支持命名空间外委派」？", "domain": "P006", "expected_hit": "P006:P006-FAQ:1:9", "fact_id": "P006-F110"}
+{"query": "跨产品联动：多智能体安全 是否支持「不支持跨租户子代理」？", "domain": "P006", "expected_hit": "P006:P006-FAQ:1:10", "fact_id": "P006-F111"}
+{"query": "基础概念：多智能体安全 是否支持「无内置提示注入免疫」？", "domain": "P006", "expected_hit": "P006:P006-FAQ:1:11", "fact_id": "P006-F112"}
+{"query": "安装：多智能体安全 的 可用性目标（percent）如何查看？", "domain": "P006", "expected_hit": "P006:P006-FAQ:1:12", "fact_id": "P006-F113"}
+{"query": "权限：多智能体安全 的 合规基座（）如何查看？", "domain": "P006", "expected_hit": "P006:P006-FAQ:1:13", "fact_id": "P006-F114"}
+{"query": "性能：多智能体安全 的 企业版起价（cny/月）如何查看？", "domain": "P006", "expected_hit": "P006:P006-FAQ:1:14", "fact_id": "P006-F115"}
+{"query": "限制：多智能体安全 的 主邻接产品（product）如何查看？", "domain": "P006", "expected_hit": "P006:P006-FAQ:1:15", "fact_id": "P006-F116"}
+{"query": "兼容：多智能体安全 的 旧版事件吞吐（events/s）如何查看？", "domain": "P006", "expected_hit": "P006:P006-FAQ:1:16", "fact_id": "P006-F117"}
+{"query": "计费：多智能体安全 的 旧版 P95 延迟（ms）如何查看？", "domain": "P006", "expected_hit": "P006:P006-FAQ:1:17", "fact_id": "P006-F118"}
+{"query": "故障：多智能体安全 的 与 P005 兼容（bool）如何查看？", "domain": "P006", "expected_hit": "P006:P006-FAQ:1:18", "fact_id": "P006-F119"}
+{"query": "升级：多智能体安全 的 与 P013 兼容（bool）如何查看？", "domain": "P006", "expected_hit": "P006:P006-FAQ:1:19", "fact_id": "P006-F120"}
+{"query": "基础概念：数据防泄漏 的 核心协议（）如何查看？", "domain": "P007", "expected_hit": "P007:P007-FAQ:1:0", "fact_id": "P007-F121"}
+{"query": "安装：数据防泄漏 的 事件摄取吞吐（events/s）如何查看？", "domain": "P007", "expected_hit": "P007:P007-FAQ:1:1", "fact_id": "P007-F122"}
+{"query": "权限：数据防泄漏 的 API 峰值并发（req/s）如何查看？", "domain": "P007", "expected_hit": "P007:P007-FAQ:1:2", "fact_id": "P007-F123"}
+{"query": "性能：数据防泄漏 的 P95 检索延迟（ms）如何查看？", "domain": "P007", "expected_hit": "P007:P007-FAQ:1:3", "fact_id": "P007-F124"}
+{"query": "限制：数据防泄漏 的 最大单文档上传（MB）如何查看？", "domain": "P007", "expected_hit": "P007:P007-FAQ:1:4", "fact_id": "P007-F125"}
+{"query": "兼容：数据防泄漏 的 日志/审计留存期（days）如何查看？", "domain": "P007", "expected_hit": "P007:P007-FAQ:1:5", "fact_id": "P007-F126"}
+{"query": "计费：数据防泄漏 的 批量接口吞吐（ops/s）如何查看？", "domain": "P007", "expected_hit": "P007:P007-FAQ:1:6", "fact_id": "P007-F127"}
+{"query": "故障：数据防泄漏 的 当前版本线（version）如何查看？", "domain": "P007", "expected_hit": "P007:P007-FAQ:1:7", "fact_id": "P007-F128"}
+{"query": "升级：数据防泄漏 的 默认批次大小（items）如何查看？", "domain": "P007", "expected_hit": "P007:P007-FAQ:1:8", "fact_id": "P007-F129"}
+{"query": "合规：数据防泄漏 是否支持「不支持主库直接内联扫描」？", "domain": "P007", "expected_hit": "P007:P007-FAQ:1:9", "fact_id": "P007-F130"}
+{"query": "跨产品联动：数据防泄漏 是否支持「仅企业版支持跨边界脱敏」？", "domain": "P007", "expected_hit": "P007:P007-FAQ:1:10", "fact_id": "P007-F131"}
+{"query": "基础概念：数据防泄漏 是否支持「不支持 S3 未挂载桶扫描」？", "domain": "P007", "expected_hit": "P007:P007-FAQ:1:11", "fact_id": "P007-F132"}
+{"query": "安装：数据防泄漏 的 可用性目标（percent）如何查看？", "domain": "P007", "expected_hit": "P007:P007-FAQ:1:12", "fact_id": "P007-F133"}
+{"query": "权限：数据防泄漏 的 合规基座（）如何查看？", "domain": "P007", "expected_hit": "P007:P007-FAQ:1:13", "fact_id": "P007-F134"}
+{"query": "性能：数据防泄漏 的 企业版起价（cny/月）如何查看？", "domain": "P007", "expected_hit": "P007:P007-FAQ:1:14", "fact_id": "P007-F135"}
+{"query": "限制：数据防泄漏 的 主邻接产品（product）如何查看？", "domain": "P007", "expected_hit": "P007:P007-FAQ:1:15", "fact_id": "P007-F136"}
+{"query": "兼容：数据防泄漏 的 旧版事件吞吐（events/s）如何查看？", "domain": "P007", "expected_hit": "P007:P007-FAQ:1:16", "fact_id": "P007-F137"}
+{"query": "计费：数据防泄漏 的 旧版 P95 延迟（ms）如何查看？", "domain": "P007", "expected_hit": "P007:P007-FAQ:1:17", "fact_id": "P007-F138"}
+{"query": "故障：数据防泄漏 的 与 P008 兼容（bool）如何查看？", "domain": "P007", "expected_hit": "P007:P007-FAQ:1:18", "fact_id": "P007-F139"}
+{"query": "升级：数据防泄漏 的 与 P015 兼容（bool）如何查看？", "domain": "P007", "expected_hit": "P007:P007-FAQ:1:19", "fact_id": "P007-F140"}
+{"query": "基础概念：隐私计算 的 核心协议（）如何查看？", "domain": "P008", "expected_hit": "P008:P008-FAQ:1:0", "fact_id": "P008-F141"}
+{"query": "安装：隐私计算 的 事件摄取吞吐（events/s）如何查看？", "domain": "P008", "expected_hit": "P008:P008-FAQ:1:1", "fact_id": "P008-F142"}
+{"query": "权限：隐私计算 的 API 峰值并发（req/s）如何查看？", "domain": "P008", "expected_hit": "P008:P008-FAQ:1:2", "fact_id": "P008-F143"}
+{"query": "性能：隐私计算 的 P95 检索延迟（ms）如何查看？", "domain": "P008", "expected_hit": "P008:P008-FAQ:1:3", "fact_id": "P008-F144"}
+{"query": "限制：隐私计算 的 最大单文档上传（MB）如何查看？", "domain": "P008", "expected_hit": "P008:P008-FAQ:1:4", "fact_id": "P008-F145"}
+{"query": "兼容：隐私计算 的 日志/审计留存期（days）如何查看？", "domain": "P008", "expected_hit": "P008:P008-FAQ:1:5", "fact_id": "P008-F146"}
+{"query": "计费：隐私计算 的 批量接口吞吐（ops/s）如何查看？", "domain": "P008", "expected_hit": "P008:P008-FAQ:1:6", "fact_id": "P008-F147"}
+{"query": "故障：隐私计算 的 当前版本线（version）如何查看？", "domain": "P008", "expected_hit": "P008:P008-FAQ:1:7", "fact_id": "P008-F148"}
+{"query": "升级：隐私计算 的 默认批次大小（items）如何查看？", "domain": "P008", "expected_hit": "P008:P008-FAQ:1:8", "fact_id": "P008-F149"}
+{"query": "合规：隐私计算 是否支持「不支持轻量节点的同态全加密」？", "domain": "P008", "expected_hit": "P008:P008-FAQ:1:9", "fact_id": "P008-F150"}
+{"query": "跨产品联动：隐私计算 是否支持「不支持跨国联邦集群」？", "domain": "P008", "expected_hit": "P008:P008-FAQ:1:10", "fact_id": "P008-F151"}
+{"query": "基础概念：隐私计算 是否支持「TEE 需可信启动证明」？", "domain": "P008", "expected_hit": "P008:P008-FAQ:1:11", "fact_id": "P008-F152"}
+{"query": "安装：隐私计算 的 可用性目标（percent）如何查看？", "domain": "P008", "expected_hit": "P008:P008-FAQ:1:12", "fact_id": "P008-F153"}
+{"query": "权限：隐私计算 的 合规基座（）如何查看？", "domain": "P008", "expected_hit": "P008:P008-FAQ:1:13", "fact_id": "P008-F154"}
+{"query": "性能：隐私计算 的 企业版起价（cny/月）如何查看？", "domain": "P008", "expected_hit": "P008:P008-FAQ:1:14", "fact_id": "P008-F155"}
+{"query": "限制：隐私计算 的 主邻接产品（product）如何查看？", "domain": "P008", "expected_hit": "P008:P008-FAQ:1:15", "fact_id": "P008-F156"}
+{"query": "兼容：隐私计算 的 旧版事件吞吐（events/s）如何查看？", "domain": "P008", "expected_hit": "P008:P008-FAQ:1:16", "fact_id": "P008-F157"}
+{"query": "计费：隐私计算 的 旧版 P95 延迟（ms）如何查看？", "domain": "P008", "expected_hit": "P008:P008-FAQ:1:17", "fact_id": "P008-F158"}
+{"query": "故障：隐私计算 的 与 P007 兼容（bool）如何查看？", "domain": "P008", "expected_hit": "P008:P008-FAQ:1:18", "fact_id": "P008-F159"}
+{"query": "升级：隐私计算 的 与 P015 兼容（bool）如何查看？", "domain": "P008", "expected_hit": "P008:P008-FAQ:1:19", "fact_id": "P008-F160"}
+{"query": "基础概念：模型红队 的 核心协议（）如何查看？", "domain": "P009", "expected_hit": "P009:P009-FAQ:1:0", "fact_id": "P009-F161"}
+{"query": "安装：模型红队 的 事件摄取吞吐（events/s）如何查看？", "domain": "P009", "expected_hit": "P009:P009-FAQ:1:1", "fact_id": "P009-F162"}
+{"query": "权限：模型红队 的 API 峰值并发（req/s）如何查看？", "domain": "P009", "expected_hit": "P009:P009-FAQ:1:2", "fact_id": "P009-F163"}
+{"query": "性能：模型红队 的 P95 检索延迟（ms）如何查看？", "domain": "P009", "expected_hit": "P009:P009-FAQ:1:3", "fact_id": "P009-F164"}
+{"query": "限制：模型红队 的 最大单文档上传（MB）如何查看？", "domain": "P009", "expected_hit": "P009:P009-FAQ:1:4", "fact_id": "P009-F165"}
+{"query": "兼容：模型红队 的 日志/审计留存期（days）如何查看？", "domain": "P009", "expected_hit": "P009:P009-FAQ:1:5", "fact_id": "P009-F166"}
+{"query": "计费：模型红队 的 批量接口吞吐（ops/s）如何查看？", "domain": "P009", "expected_hit": "P009:P009-FAQ:1:6", "fact_id": "P009-F167"}
+{"query": "故障：模型红队 的 当前版本线（version）如何查看？", "domain": "P009", "expected_hit": "P009:P009-FAQ:1:7", "fact_id": "P009-F168"}
+{"query": "升级：模型红队 的 默认批次大小（items）如何查看？", "domain": "P009", "expected_hit": "P009:P009-FAQ:1:8", "fact_id": "P009-F169"}
+{"query": "合规：模型红队 是否支持「不提供自主越狱样本生成的语义保证」？", "domain": "P009", "expected_hit": "P009:P009-FAQ:1:9", "fact_id": "P009-F170"}
+{"query": "跨产品联动：模型红队 是否支持「评估结果不自动阻断发布」？", "domain": "P009", "expected_hit": "P009:P009-FAQ:1:10", "fact_id": "P009-F171"}
+{"query": "基础概念：模型红队 是否支持「仅专业版提供逐条溯源」？", "domain": "P009", "expected_hit": "P009:P009-FAQ:1:11", "fact_id": "P009-F172"}
+{"query": "安装：模型红队 的 可用性目标（percent）如何查看？", "domain": "P009", "expected_hit": "P009:P009-FAQ:1:12", "fact_id": "P009-F173"}
+{"query": "权限：模型红队 的 合规基座（）如何查看？", "domain": "P009", "expected_hit": "P009:P009-FAQ:1:13", "fact_id": "P009-F174"}
+{"query": "性能：模型红队 的 企业版起价（cny/月）如何查看？", "domain": "P009", "expected_hit": "P009:P009-FAQ:1:14", "fact_id": "P009-F175"}
+{"query": "限制：模型红队 的 主邻接产品（product）如何查看？", "domain": "P009", "expected_hit": "P009:P009-FAQ:1:15", "fact_id": "P009-F176"}
+{"query": "兼容：模型红队 的 旧版事件吞吐（events/s）如何查看？", "domain": "P009", "expected_hit": "P009:P009-FAQ:1:16", "fact_id": "P009-F177"}
+{"query": "计费：模型红队 的 旧版 P95 延迟（ms）如何查看？", "domain": "P009", "expected_hit": "P009:P009-FAQ:1:17", "fact_id": "P009-F178"}
+{"query": "故障：模型红队 的 与 P002 兼容（bool）如何查看？", "domain": "P009", "expected_hit": "P009:P009-FAQ:1:18", "fact_id": "P009-F179"}
+{"query": "升级：模型红队 的 与 P016 兼容（bool）如何查看？", "domain": "P009", "expected_hit": "P009:P009-FAQ:1:19", "fact_id": "P009-F180"}
+{"query": "基础概念：供应链安全 的 核心协议（）如何查看？", "domain": "P010", "expected_hit": "P010:P010-FAQ:1:0", "fact_id": "P010-F181"}
+{"query": "安装：供应链安全 的 事件摄取吞吐（events/s）如何查看？", "domain": "P010", "expected_hit": "P010:P010-FAQ:1:1", "fact_id": "P010-F182"}
+{"query": "权限：供应链安全 的 API 峰值并发（req/s）如何查看？", "domain": "P010", "expected_hit": "P010:P010-FAQ:1:2", "fact_id": "P010-F183"}
+{"query": "性能：供应链安全 的 P95 检索延迟（ms）如何查看？", "domain": "P010", "expected_hit": "P010:P010-FAQ:1:3", "fact_id": "P010-F184"}
+{"query": "限制：供应链安全 的 最大单文档上传（MB）如何查看？", "domain": "P010", "expected_hit": "P010:P010-FAQ:1:4", "fact_id": "P010-F185"}
+{"query": "兼容：供应链安全 的 日志/审计留存期（days）如何查看？", "domain": "P010", "expected_hit": "P010:P010-FAQ:1:5", "fact_id": "P010-F186"}
+{"query": "计费：供应链安全 的 批量接口吞吐（ops/s）如何查看？", "domain": "P010", "expected_hit": "P010:P010-FAQ:1:6", "fact_id": "P010-F187"}
+{"query": "故障：供应链安全 的 当前版本线（version）如何查看？", "domain": "P010", "expected_hit": "P010:P010-FAQ:1:7", "fact_id": "P010-F188"}
+{"query": "升级：供应链安全 的 默认批次大小（items）如何查看？", "domain": "P010", "expected_hit": "P010:P010-FAQ:1:8", "fact_id": "P010-F189"}
+{"query": "合规：供应链安全 是否支持「不支持 OCI 之外的私有仓库插件」？", "domain": "P010", "expected_hit": "P010:P010-FAQ:1:9", "fact_id": "P010-F190"}
+{"query": "跨产品联动：供应链安全 是否支持「历史签名不回溯验证」？", "domain": "P010", "expected_hit": "P010:P010-FAQ:1:10", "fact_id": "P010-F191"}
+{"query": "基础概念：供应链安全 是否支持「不扫描运行时依赖图」？", "domain": "P010", "expected_hit": "P010:P010-FAQ:1:11", "fact_id": "P010-F192"}
+{"query": "安装：供应链安全 的 可用性目标（percent）如何查看？", "domain": "P010", "expected_hit": "P010:P010-FAQ:1:12", "fact_id": "P010-F193"}
+{"query": "权限：供应链安全 的 合规基座（）如何查看？", "domain": "P010", "expected_hit": "P010:P010-FAQ:1:13", "fact_id": "P010-F194"}
+{"query": "性能：供应链安全 的 企业版起价（cny/月）如何查看？", "domain": "P010", "expected_hit": "P010:P010-FAQ:1:14", "fact_id": "P010-F195"}
+{"query": "限制：供应链安全 的 主邻接产品（product）如何查看？", "domain": "P010", "expected_hit": "P010:P010-FAQ:1:15", "fact_id": "P010-F196"}
+{"query": "兼容：供应链安全 的 旧版事件吞吐（events/s）如何查看？", "domain": "P010", "expected_hit": "P010:P010-FAQ:1:16", "fact_id": "P010-F197"}
+{"query": "计费：供应链安全 的 旧版 P95 延迟（ms）如何查看？", "domain": "P010", "expected_hit": "P010:P010-FAQ:1:17", "fact_id": "P010-F198"}
+{"query": "故障：供应链安全 的 与 P002 兼容（bool）如何查看？", "domain": "P010", "expected_hit": "P010:P010-FAQ:1:18", "fact_id": "P010-F199"}
+{"query": "升级：供应链安全 的 与 P018 兼容（bool）如何查看？", "domain": "P010", "expected_hit": "P010:P010-FAQ:1:19", "fact_id": "P010-F200"}
+{"query": "基础概念：内容审核 的 核心协议（）如何查看？", "domain": "P011", "expected_hit": "P011:P011-FAQ:1:0", "fact_id": "P011-F201"}
+{"query": "安装：内容审核 的 事件摄取吞吐（events/s）如何查看？", "domain": "P011", "expected_hit": "P011:P011-FAQ:1:1", "fact_id": "P011-F202"}
+{"query": "权限：内容审核 的 API 峰值并发（req/s）如何查看？", "domain": "P011", "expected_hit": "P011:P011-FAQ:1:2", "fact_id": "P011-F203"}
+{"query": "性能：内容审核 的 P95 检索延迟（ms）如何查看？", "domain": "P011", "expected_hit": "P011:P011-FAQ:1:3", "fact_id": "P011-F204"}
+{"query": "限制：内容审核 的 最大单文档上传（MB）如何查看？", "domain": "P011", "expected_hit": "P011:P011-FAQ:1:4", "fact_id": "P011-F205"}
+{"query": "兼容：内容审核 的 日志/审计留存期（days）如何查看？", "domain": "P011", "expected_hit": "P011:P011-FAQ:1:5", "fact_id": "P011-F206"}
+{"query": "计费：内容审核 的 批量接口吞吐（ops/s）如何查看？", "domain": "P011", "expected_hit": "P011:P011-FAQ:1:6", "fact_id": "P011-F207"}
+{"query": "故障：内容审核 的 当前版本线（version）如何查看？", "domain": "P011", "expected_hit": "P011:P011-FAQ:1:7", "fact_id": "P011-F208"}
+{"query": "升级：内容审核 的 默认批次大小（items）如何查看？", "domain": "P011", "expected_hit": "P011:P011-FAQ:1:8", "fact_id": "P011-F209"}
+{"query": "合规：内容审核 是否支持「不支持非图片域的私聊全量审核」？", "domain": "P011", "expected_hit": "P011:P011-FAQ:1:9", "fact_id": "P011-F210"}
+{"query": "跨产品联动：内容审核 是否支持「敏感镜头审核仅企业版」？", "domain": "P011", "expected_hit": "P011:P011-FAQ:1:10", "fact_id": "P011-F211"}
+{"query": "基础概念：内容审核 是否支持「不支持流式直播逐帧审核」？", "domain": "P011", "expected_hit": "P011:P011-FAQ:1:11", "fact_id": "P011-F212"}
+{"query": "安装：内容审核 的 可用性目标（percent）如何查看？", "domain": "P011", "expected_hit": "P011:P011-FAQ:1:12", "fact_id": "P011-F213"}
+{"query": "权限：内容审核 的 合规基座（）如何查看？", "domain": "P011", "expected_hit": "P011:P011-FAQ:1:13", "fact_id": "P011-F214"}
+{"query": "性能：内容审核 的 企业版起价（cny/月）如何查看？", "domain": "P011", "expected_hit": "P011:P011-FAQ:1:14", "fact_id": "P011-F215"}
+{"query": "限制：内容审核 的 主邻接产品（product）如何查看？", "domain": "P011", "expected_hit": "P011:P011-FAQ:1:15", "fact_id": "P011-F216"}
+{"query": "兼容：内容审核 的 旧版事件吞吐（events/s）如何查看？", "domain": "P011", "expected_hit": "P011:P011-FAQ:1:16", "fact_id": "P011-F217"}
+{"query": "计费：内容审核 的 旧版 P95 延迟（ms）如何查看？", "domain": "P011", "expected_hit": "P011:P011-FAQ:1:17", "fact_id": "P011-F218"}
+{"query": "故障：内容审核 的 与 P012 兼容（bool）如何查看？", "domain": "P011", "expected_hit": "P011:P011-FAQ:1:18", "fact_id": "P011-F219"}
+{"query": "升级：内容审核 的 与 P016 兼容（bool）如何查看？", "domain": "P011", "expected_hit": "P011:P011-FAQ:1:19", "fact_id": "P011-F220"}
+{"query": "基础概念：深度伪造检测 的 核心协议（）如何查看？", "domain": "P012", "expected_hit": "P012:P012-FAQ:1:0", "fact_id": "P012-F221"}
+{"query": "安装：深度伪造检测 的 事件摄取吞吐（events/s）如何查看？", "domain": "P012", "expected_hit": "P012:P012-FAQ:1:1", "fact_id": "P012-F222"}
+{"query": "权限：深度伪造检测 的 API 峰值并发（req/s）如何查看？", "domain": "P012", "expected_hit": "P012:P012-FAQ:1:2", "fact_id": "P012-F223"}
+{"query": "性能：深度伪造检测 的 P95 检索延迟（ms）如何查看？", "domain": "P012", "expected_hit": "P012:P012-FAQ:1:3", "fact_id": "P012-F224"}
+{"query": "限制：深度伪造检测 的 最大单文档上传（MB）如何查看？", "domain": "P012", "expected_hit": "P012:P012-FAQ:1:4", "fact_id": "P012-F225"}
+{"query": "兼容：深度伪造检测 的 日志/审计留存期（days）如何查看？", "domain": "P012", "expected_hit": "P012:P012-FAQ:1:5", "fact_id": "P012-F226"}
+{"query": "计费：深度伪造检测 的 批量接口吞吐（ops/s）如何查看？", "domain": "P012", "expected_hit": "P012:P012-FAQ:1:6", "fact_id": "P012-F227"}
+{"query": "故障：深度伪造检测 的 当前版本线（version）如何查看？", "domain": "P012", "expected_hit": "P012:P012-FAQ:1:7", "fact_id": "P012-F228"}
+{"query": "升级：深度伪造检测 的 默认批次大小（items）如何查看？", "domain": "P012", "expected_hit": "P012:P012-FAQ:1:8", "fact_id": "P012-F229"}
+{"query": "合规：深度伪造检测 是否支持「不支持 4K 超长视频端到端」？", "domain": "P012", "expected_hit": "P012:P012-FAQ:1:9", "fact_id": "P012-F230"}
+{"query": "跨产品联动：深度伪造检测 是否支持「低分辨率素材仅告警」？", "domain": "P012", "expected_hit": "P012:P012-FAQ:1:10", "fact_id": "P012-F231"}
+{"query": "基础概念：深度伪造检测 是否支持「不支持离线深度伪造断言」？", "domain": "P012", "expected_hit": "P012:P012-FAQ:1:11", "fact_id": "P012-F232"}
+{"query": "安装：深度伪造检测 的 可用性目标（percent）如何查看？", "domain": "P012", "expected_hit": "P012:P012-FAQ:1:12", "fact_id": "P012-F233"}
+{"query": "权限：深度伪造检测 的 合规基座（）如何查看？", "domain": "P012", "expected_hit": "P012:P012-FAQ:1:13", "fact_id": "P012-F234"}
+{"query": "性能：深度伪造检测 的 企业版起价（cny/月）如何查看？", "domain": "P012", "expected_hit": "P012:P012-FAQ:1:14", "fact_id": "P012-F235"}
+{"query": "限制：深度伪造检测 的 主邻接产品（product）如何查看？", "domain": "P012", "expected_hit": "P012:P012-FAQ:1:15", "fact_id": "P012-F236"}
+{"query": "兼容：深度伪造检测 的 旧版事件吞吐（events/s）如何查看？", "domain": "P012", "expected_hit": "P012:P012-FAQ:1:16", "fact_id": "P012-F237"}
+{"query": "计费：深度伪造检测 的 旧版 P95 延迟（ms）如何查看？", "domain": "P012", "expected_hit": "P012:P012-FAQ:1:17", "fact_id": "P012-F238"}
+{"query": "故障：深度伪造检测 的 与 P011 兼容（bool）如何查看？", "domain": "P012", "expected_hit": "P012:P012-FAQ:1:18", "fact_id": "P012-F239"}
+{"query": "升级：深度伪造检测 的 与 P020 兼容（bool）如何查看？", "domain": "P012", "expected_hit": "P012:P012-FAQ:1:19", "fact_id": "P012-F240"}
+{"query": "基础概念：审计与可观测 的 核心协议（）如何查看？", "domain": "P013", "expected_hit": "P013:P013-FAQ:1:0", "fact_id": "P013-F241"}
+{"query": "安装：审计与可观测 的 事件摄取吞吐（events/s）如何查看？", "domain": "P013", "expected_hit": "P013:P013-FAQ:1:1", "fact_id": "P013-F242"}
+{"query": "权限：审计与可观测 的 API 峰值并发（req/s）如何查看？", "domain": "P013", "expected_hit": "P013:P013-FAQ:1:2", "fact_id": "P013-F243"}
+{"query": "性能：审计与可观测 的 P95 检索延迟（ms）如何查看？", "domain": "P013", "expected_hit": "P013:P013-FAQ:1:3", "fact_id": "P013-F244"}
+{"query": "限制：审计与可观测 的 最大单文档上传（MB）如何查看？", "domain": "P013", "expected_hit": "P013:P013-FAQ:1:4", "fact_id": "P013-F245"}
+{"query": "兼容：审计与可观测 的 日志/审计留存期（days）如何查看？", "domain": "P013", "expected_hit": "P013:P013-FAQ:1:5", "fact_id": "P013-F246"}
+{"query": "计费：审计与可观测 的 批量接口吞吐（ops/s）如何查看？", "domain": "P013", "expected_hit": "P013:P013-FAQ:1:6", "fact_id": "P013-F247"}
+{"query": "故障：审计与可观测 的 当前版本线（version）如何查看？", "domain": "P013", "expected_hit": "P013:P013-FAQ:1:7", "fact_id": "P013-F248"}
+{"query": "升级：审计与可观测 的 默认批次大小（items）如何查看？", "domain": "P013", "expected_hit": "P013:P013-FAQ:1:8", "fact_id": "P013-F249"}
+{"query": "合规：审计与可观测 是否支持「不支持旁路抓包式取证」？", "domain": "P013", "expected_hit": "P013:P013-FAQ:1:9", "fact_id": "P013-F250"}
+{"query": "跨产品联动：审计与可观测 是否支持「endpoint 级指标仅企业版」？", "domain": "P013", "expected_hit": "P013:P013-FAQ:1:10", "fact_id": "P013-F251"}
+{"query": "基础概念：审计与可观测 是否支持「不支持 pbft 共识审计」？", "domain": "P013", "expected_hit": "P013:P013-FAQ:1:11", "fact_id": "P013-F252"}
+{"query": "安装：审计与可观测 的 可用性目标（percent）如何查看？", "domain": "P013", "expected_hit": "P013:P013-FAQ:1:12", "fact_id": "P013-F253"}
+{"query": "权限：审计与可观测 的 合规基座（）如何查看？", "domain": "P013", "expected_hit": "P013:P013-FAQ:1:13", "fact_id": "P013-F254"}
+{"query": "性能：审计与可观测 的 企业版起价（cny/月）如何查看？", "domain": "P013", "expected_hit": "P013:P013-FAQ:1:14", "fact_id": "P013-F255"}
+{"query": "限制：审计与可观测 的 主邻接产品（product）如何查看？", "domain": "P013", "expected_hit": "P013:P013-FAQ:1:15", "fact_id": "P013-F256"}
+{"query": "兼容：审计与可观测 的 旧版事件吞吐（events/s）如何查看？", "domain": "P013", "expected_hit": "P013:P013-FAQ:1:16", "fact_id": "P013-F257"}
+{"query": "计费：审计与可观测 的 旧版 P95 延迟（ms）如何查看？", "domain": "P013", "expected_hit": "P013:P013-FAQ:1:17", "fact_id": "P013-F258"}
+{"query": "故障：审计与可观测 的 与 P006 兼容（bool）如何查看？", "domain": "P013", "expected_hit": "P013:P013-FAQ:1:18", "fact_id": "P013-F259"}
+{"query": "升级：审计与可观测 的 与 P020 兼容（bool）如何查看？", "domain": "P013", "expected_hit": "P013:P013-FAQ:1:19", "fact_id": "P013-F260"}
+{"query": "基础概念：LLM 安全网关 的 核心协议（）如何查看？", "domain": "P014", "expected_hit": "P014:P014-FAQ:1:0", "fact_id": "P014-F261"}
+{"query": "安装：LLM 安全网关 的 事件摄取吞吐（events/s）如何查看？", "domain": "P014", "expected_hit": "P014:P014-FAQ:1:1", "fact_id": "P014-F262"}
+{"query": "权限：LLM 安全网关 的 API 峰值并发（req/s）如何查看？", "domain": "P014", "expected_hit": "P014:P014-FAQ:1:2", "fact_id": "P014-F263"}
+{"query": "性能：LLM 安全网关 的 P95 检索延迟（ms）如何查看？", "domain": "P014", "expected_hit": "P014:P014-FAQ:1:3", "fact_id": "P014-F264"}
+{"query": "限制：LLM 安全网关 的 最大单文档上传（MB）如何查看？", "domain": "P014", "expected_hit": "P014:P014-FAQ:1:4", "fact_id": "P014-F265"}
+{"query": "兼容：LLM 安全网关 的 日志/审计留存期（days）如何查看？", "domain": "P014", "expected_hit": "P014:P014-FAQ:1:5", "fact_id": "P014-F266"}
+{"query": "计费：LLM 安全网关 的 批量接口吞吐（ops/s）如何查看？", "domain": "P014", "expected_hit": "P014:P014-FAQ:1:6", "fact_id": "P014-F267"}
+{"query": "故障：LLM 安全网关 的 当前版本线（version）如何查看？", "domain": "P014", "expected_hit": "P014:P014-FAQ:1:7", "fact_id": "P014-F268"}
+{"query": "升级：LLM 安全网关 的 默认批次大小（items）如何查看？", "domain": "P014", "expected_hit": "P014:P014-FAQ:1:8", "fact_id": "P014-F269"}
+{"query": "合规：LLM 安全网关 是否支持「不支持对模型参数优化的注水拦截」？", "domain": "P014", "expected_hit": "P014:P014-FAQ:1:9", "fact_id": "P014-F270"}
+{"query": "跨产品联动：LLM 安全网关 是否支持「仅企业版支持 ML 注入检测」？", "domain": "P014", "expected_hit": "P014:P014-FAQ:1:10", "fact_id": "P014-F271"}
+{"query": "基础概念：LLM 安全网关 是否支持「不支持原生端到端全模型脱敏」？", "domain": "P014", "expected_hit": "P014:P014-FAQ:1:11", "fact_id": "P014-F272"}
+{"query": "安装：LLM 安全网关 的 可用性目标（percent）如何查看？", "domain": "P014", "expected_hit": "P014:P014-FAQ:1:12", "fact_id": "P014-F273"}
+{"query": "权限：LLM 安全网关 的 合规基座（）如何查看？", "domain": "P014", "expected_hit": "P014:P014-FAQ:1:13", "fact_id": "P014-F274"}
+{"query": "性能：LLM 安全网关 的 企业版起价（cny/月）如何查看？", "domain": "P014", "expected_hit": "P014:P014-FAQ:1:14", "fact_id": "P014-F275"}
+{"query": "限制：LLM 安全网关 的 主邻接产品（product）如何查看？", "domain": "P014", "expected_hit": "P014:P014-FAQ:1:15", "fact_id": "P014-F276"}
+{"query": "兼容：LLM 安全网关 的 旧版事件吞吐（events/s）如何查看？", "domain": "P014", "expected_hit": "P014:P014-FAQ:1:16", "fact_id": "P014-F277"}
+{"query": "计费：LLM 安全网关 的 旧版 P95 延迟（ms）如何查看？", "domain": "P014", "expected_hit": "P014:P014-FAQ:1:17", "fact_id": "P014-F278"}
+{"query": "故障：LLM 安全网关 的 与 P001 兼容（bool）如何查看？", "domain": "P014", "expected_hit": "P014:P014-FAQ:1:18", "fact_id": "P014-F279"}
+{"query": "升级：LLM 安全网关 的 与 P007 兼容（bool）如何查看？", "domain": "P014", "expected_hit": "P014:P014-FAQ:1:19", "fact_id": "P014-F280"}
+{"query": "基础概念：合规引擎 的 核心协议（）如何查看？", "domain": "P015", "expected_hit": "P015:P015-FAQ:1:0", "fact_id": "P015-F281"}
+{"query": "安装：合规引擎 的 事件摄取吞吐（events/s）如何查看？", "domain": "P015", "expected_hit": "P015:P015-FAQ:1:1", "fact_id": "P015-F282"}
+{"query": "权限：合规引擎 的 API 峰值并发（req/s）如何查看？", "domain": "P015", "expected_hit": "P015:P015-FAQ:1:2", "fact_id": "P015-F283"}
+{"query": "性能：合规引擎 的 P95 检索延迟（ms）如何查看？", "domain": "P015", "expected_hit": "P015:P015-FAQ:1:3", "fact_id": "P015-F284"}
+{"query": "限制：合规引擎 的 最大单文档上传（MB）如何查看？", "domain": "P015", "expected_hit": "P015:P015-FAQ:1:4", "fact_id": "P015-F285"}
+{"query": "兼容：合规引擎 的 日志/审计留存期（days）如何查看？", "domain": "P015", "expected_hit": "P015:P015-FAQ:1:5", "fact_id": "P015-F286"}
+{"query": "计费：合规引擎 的 批量接口吞吐（ops/s）如何查看？", "domain": "P015", "expected_hit": "P015:P015-FAQ:1:6", "fact_id": "P015-F287"}
+{"query": "故障：合规引擎 的 当前版本线（version）如何查看？", "domain": "P015", "expected_hit": "P015:P015-FAQ:1:7", "fact_id": "P015-F288"}
+{"query": "升级：合规引擎 的 默认批次大小（items）如何查看？", "domain": "P015", "expected_hit": "P015:P015-FAQ:1:8", "fact_id": "P015-F289"}
+{"query": "合规：合规引擎 是否支持「不支持自定义监管模板的自动化审批」？", "domain": "P015", "expected_hit": "P015:P015-FAQ:1:9", "fact_id": "P015-F290"}
+{"query": "跨产品联动：合规引擎 是否支持「仅企业版支持跨境数据合规评估」？", "domain": "P015", "expected_hit": "P015:P015-FAQ:1:10", "fact_id": "P015-F291"}
+{"query": "基础概念：合规引擎 是否支持「不支持历史报送回填审计」？", "domain": "P015", "expected_hit": "P015:P015-FAQ:1:11", "fact_id": "P015-F292"}
+{"query": "安装：合规引擎 的 可用性目标（percent）如何查看？", "domain": "P015", "expected_hit": "P015:P015-FAQ:1:12", "fact_id": "P015-F293"}
+{"query": "权限：合规引擎 的 合规基座（）如何查看？", "domain": "P015", "expected_hit": "P015:P015-FAQ:1:13", "fact_id": "P015-F294"}
+{"query": "性能：合规引擎 的 企业版起价（cny/月）如何查看？", "domain": "P015", "expected_hit": "P015:P015-FAQ:1:14", "fact_id": "P015-F295"}
+{"query": "限制：合规引擎 的 主邻接产品（product）如何查看？", "domain": "P015", "expected_hit": "P015:P015-FAQ:1:15", "fact_id": "P015-F296"}
+{"query": "兼容：合规引擎 的 旧版事件吞吐（events/s）如何查看？", "domain": "P015", "expected_hit": "P015:P015-FAQ:1:16", "fact_id": "P015-F297"}
+{"query": "计费：合规引擎 的 旧版 P95 延迟（ms）如何查看？", "domain": "P015", "expected_hit": "P015:P015-FAQ:1:17", "fact_id": "P015-F298"}
+{"query": "故障：合规引擎 的 与 P007 兼容（bool）如何查看？", "domain": "P015", "expected_hit": "P015:P015-FAQ:1:18", "fact_id": "P015-F299"}
+{"query": "升级：合规引擎 的 与 P016 兼容（bool）如何查看？", "domain": "P015", "expected_hit": "P015:P015-FAQ:1:19", "fact_id": "P015-F300"}
+{"query": "基础概念：风控反欺诈 的 核心协议（）如何查看？", "domain": "P016", "expected_hit": "P016:P016-FAQ:1:0", "fact_id": "P016-F301"}
+{"query": "安装：风控反欺诈 的 事件摄取吞吐（events/s）如何查看？", "domain": "P016", "expected_hit": "P016:P016-FAQ:1:1", "fact_id": "P016-F302"}
+{"query": "权限：风控反欺诈 的 API 峰值并发（req/s）如何查看？", "domain": "P016", "expected_hit": "P016:P016-FAQ:1:2", "fact_id": "P016-F303"}
+{"query": "性能：风控反欺诈 的 P95 检索延迟（ms）如何查看？", "domain": "P016", "expected_hit": "P016:P016-FAQ:1:3", "fact_id": "P016-F304"}
+{"query": "限制：风控反欺诈 的 最大单文档上传（MB）如何查看？", "domain": "P016", "expected_hit": "P016:P016-FAQ:1:4", "fact_id": "P016-F305"}
+{"query": "兼容：风控反欺诈 的 日志/审计留存期（days）如何查看？", "domain": "P016", "expected_hit": "P016:P016-FAQ:1:5", "fact_id": "P016-F306"}
+{"query": "计费：风控反欺诈 的 批量接口吞吐（ops/s）如何查看？", "domain": "P016", "expected_hit": "P016:P016-FAQ:1:6", "fact_id": "P016-F307"}
+{"query": "故障：风控反欺诈 的 当前版本线（version）如何查看？", "domain": "P016", "expected_hit": "P016:P016-FAQ:1:7", "fact_id": "P016-F308"}
+{"query": "升级：风控反欺诈 的 默认批次大小（items）如何查看？", "domain": "P016", "expected_hit": "P016:P016-FAQ:1:8", "fact_id": "P016-F309"}
+{"query": "合规：风控反欺诈 是否支持「不支持无样本冷启动的团伙识别」？", "domain": "P016", "expected_hit": "P016:P016-FAQ:1:9", "fact_id": "P016-F310"}
+{"query": "跨产品联动：风控反欺诈 是否支持「实时评分特征仅企业版」？", "domain": "P016", "expected_hit": "P016:P016-FAQ:1:10", "fact_id": "P016-F311"}
+{"query": "基础概念：风控反欺诈 是否支持「不支持灰色账户自动冻结」？", "domain": "P016", "expected_hit": "P016:P016-FAQ:1:11", "fact_id": "P016-F312"}
+{"query": "安装：风控反欺诈 的 可用性目标（percent）如何查看？", "domain": "P016", "expected_hit": "P016:P016-FAQ:1:12", "fact_id": "P016-F313"}
+{"query": "权限：风控反欺诈 的 合规基座（）如何查看？", "domain": "P016", "expected_hit": "P016:P016-FAQ:1:13", "fact_id": "P016-F314"}
+{"query": "性能：风控反欺诈 的 企业版起价（cny/月）如何查看？", "domain": "P016", "expected_hit": "P016:P016-FAQ:1:14", "fact_id": "P016-F315"}
+{"query": "限制：风控反欺诈 的 主邻接产品（product）如何查看？", "domain": "P016", "expected_hit": "P016:P016-FAQ:1:15", "fact_id": "P016-F316"}
+{"query": "兼容：风控反欺诈 的 旧版事件吞吐（events/s）如何查看？", "domain": "P016", "expected_hit": "P016:P016-FAQ:1:16", "fact_id": "P016-F317"}
+{"query": "计费：风控反欺诈 的 旧版 P95 延迟（ms）如何查看？", "domain": "P016", "expected_hit": "P016:P016-FAQ:1:17", "fact_id": "P016-F318"}
+{"query": "故障：风控反欺诈 的 与 P015 兼容（bool）如何查看？", "domain": "P016", "expected_hit": "P016:P016-FAQ:1:18", "fact_id": "P016-F319"}
+{"query": "升级：风控反欺诈 的 与 P009 兼容（bool）如何查看？", "domain": "P016", "expected_hit": "P016:P016-FAQ:1:19", "fact_id": "P016-F320"}
+{"query": "基础概念：推理成本治理 的 核心协议（）如何查看？", "domain": "P017", "expected_hit": "P017:P017-FAQ:1:0", "fact_id": "P017-F321"}
+{"query": "安装：推理成本治理 的 事件摄取吞吐（events/s）如何查看？", "domain": "P017", "expected_hit": "P017:P017-FAQ:1:1", "fact_id": "P017-F322"}
+{"query": "权限：推理成本治理 的 API 峰值并发（req/s）如何查看？", "domain": "P017", "expected_hit": "P017:P017-FAQ:1:2", "fact_id": "P017-F323"}
+{"query": "性能：推理成本治理 的 P95 检索延迟（ms）如何查看？", "domain": "P017", "expected_hit": "P017:P017-FAQ:1:3", "fact_id": "P017-F324"}
+{"query": "限制：推理成本治理 的 最大单文档上传（MB）如何查看？", "domain": "P017", "expected_hit": "P017:P017-FAQ:1:4", "fact_id": "P017-F325"}
+{"query": "兼容：推理成本治理 的 日志/审计留存期（days）如何查看？", "domain": "P017", "expected_hit": "P017:P017-FAQ:1:5", "fact_id": "P017-F326"}
+{"query": "计费：推理成本治理 的 批量接口吞吐（ops/s）如何查看？", "domain": "P017", "expected_hit": "P017:P017-FAQ:1:6", "fact_id": "P017-F327"}
+{"query": "故障：推理成本治理 的 当前版本线（version）如何查看？", "domain": "P017", "expected_hit": "P017:P017-FAQ:1:7", "fact_id": "P017-F328"}
+{"query": "升级：推理成本治理 的 默认批次大小（items）如何查看？", "domain": "P017", "expected_hit": "P017:P017-FAQ:1:8", "fact_id": "P017-F329"}
+{"query": "合规：推理成本治理 是否支持「不支持按 token 精度的跨账期分摊」？", "domain": "P017", "expected_hit": "P017:P017-FAQ:1:9", "fact_id": "P017-F330"}
+{"query": "跨产品联动：推理成本治理 是否支持「预算告警仅覆盖主折线」？", "domain": "P017", "expected_hit": "P017:P017-FAQ:1:10", "fact_id": "P017-F331"}
+{"query": "基础概念：推理成本治理 是否支持「不支持 Spot 波动定价的预测」？", "domain": "P017", "expected_hit": "P017:P017-FAQ:1:11", "fact_id": "P017-F332"}
+{"query": "安装：推理成本治理 的 可用性目标（percent）如何查看？", "domain": "P017", "expected_hit": "P017:P017-FAQ:1:12", "fact_id": "P017-F333"}
+{"query": "权限：推理成本治理 的 合规基座（）如何查看？", "domain": "P017", "expected_hit": "P017:P017-FAQ:1:13", "fact_id": "P017-F334"}
+{"query": "性能：推理成本治理 的 企业版起价（cny/月）如何查看？", "domain": "P017", "expected_hit": "P017:P017-FAQ:1:14", "fact_id": "P017-F335"}
+{"query": "限制：推理成本治理 的 主邻接产品（product）如何查看？", "domain": "P017", "expected_hit": "P017:P017-FAQ:1:15", "fact_id": "P017-F336"}
+{"query": "兼容：推理成本治理 的 与 P001 兼容（bool）如何查看？", "domain": "P017", "expected_hit": "P017:P017-FAQ:1:16", "fact_id": "P017-F337"}
+{"query": "计费：推理成本治理 的 与 P019 兼容（bool）如何查看？", "domain": "P017", "expected_hit": "P017:P017-FAQ:1:17", "fact_id": "P017-F338"}
+{"query": "基础概念：模型资产 的 核心协议（）如何查看？", "domain": "P018", "expected_hit": "P018:P018-FAQ:1:0", "fact_id": "P018-F339"}
+{"query": "安装：模型资产 的 事件摄取吞吐（events/s）如何查看？", "domain": "P018", "expected_hit": "P018:P018-FAQ:1:1", "fact_id": "P018-F340"}
+{"query": "权限：模型资产 的 API 峰值并发（req/s）如何查看？", "domain": "P018", "expected_hit": "P018:P018-FAQ:1:2", "fact_id": "P018-F341"}
+{"query": "性能：模型资产 的 P95 检索延迟（ms）如何查看？", "domain": "P018", "expected_hit": "P018:P018-FAQ:1:3", "fact_id": "P018-F342"}
+{"query": "限制：模型资产 的 最大单文档上传（MB）如何查看？", "domain": "P018", "expected_hit": "P018:P018-FAQ:1:4", "fact_id": "P018-F343"}
+{"query": "兼容：模型资产 的 日志/审计留存期（days）如何查看？", "domain": "P018", "expected_hit": "P018:P018-FAQ:1:5", "fact_id": "P018-F344"}
+{"query": "计费：模型资产 的 批量接口吞吐（ops/s）如何查看？", "domain": "P018", "expected_hit": "P018:P018-FAQ:1:6", "fact_id": "P018-F345"}
+{"query": "故障：模型资产 的 当前版本线（version）如何查看？", "domain": "P018", "expected_hit": "P018:P018-FAQ:1:7", "fact_id": "P018-F346"}
+{"query": "升级：模型资产 的 默认批次大小（items）如何查看？", "domain": "P018", "expected_hit": "P018:P018-FAQ:1:8", "fact_id": "P018-F347"}
+{"query": "合规：模型资产 是否支持「不支持跨区域目录镜像同步」？", "domain": "P018", "expected_hit": "P018:P018-FAQ:1:9", "fact_id": "P018-F348"}
+{"query": "跨产品联动：模型资产 是否支持「模型门禁仅覆盖准入白名单」？", "domain": "P018", "expected_hit": "P018:P018-FAQ:1:10", "fact_id": "P018-F349"}
+{"query": "基础概念：模型资产 是否支持「不支持量化版本自动标注」？", "domain": "P018", "expected_hit": "P018:P018-FAQ:1:11", "fact_id": "P018-F350"}
+{"query": "安装：模型资产 的 可用性目标（percent）如何查看？", "domain": "P018", "expected_hit": "P018:P018-FAQ:1:12", "fact_id": "P018-F351"}
+{"query": "权限：模型资产 的 合规基座（）如何查看？", "domain": "P018", "expected_hit": "P018:P018-FAQ:1:13", "fact_id": "P018-F352"}
+{"query": "性能：模型资产 的 企业版起价（cny/月）如何查看？", "domain": "P018", "expected_hit": "P018:P018-FAQ:1:14", "fact_id": "P018-F353"}
+{"query": "限制：模型资产 的 主邻接产品（product）如何查看？", "domain": "P018", "expected_hit": "P018:P018-FAQ:1:15", "fact_id": "P018-F354"}
+{"query": "兼容：模型资产 的 与 P002 兼容（bool）如何查看？", "domain": "P018", "expected_hit": "P018:P018-FAQ:1:16", "fact_id": "P018-F355"}
+{"query": "计费：模型资产 的 与 P010 兼容（bool）如何查看？", "domain": "P018", "expected_hit": "P018:P018-FAQ:1:17", "fact_id": "P018-F356"}
+{"query": "基础概念：开发者 SDK 的 核心协议（）如何查看？", "domain": "P019", "expected_hit": "P019:P019-FAQ:1:0", "fact_id": "P019-F357"}
+{"query": "安装：开发者 SDK 的 事件摄取吞吐（events/s）如何查看？", "domain": "P019", "expected_hit": "P019:P019-FAQ:1:1", "fact_id": "P019-F358"}
+{"query": "权限：开发者 SDK 的 API 峰值并发（req/s）如何查看？", "domain": "P019", "expected_hit": "P019:P019-FAQ:1:2", "fact_id": "P019-F359"}
+{"query": "性能：开发者 SDK 的 P95 检索延迟（ms）如何查看？", "domain": "P019", "expected_hit": "P019:P019-FAQ:1:3", "fact_id": "P019-F360"}
+{"query": "限制：开发者 SDK 的 最大单文档上传（MB）如何查看？", "domain": "P019", "expected_hit": "P019:P019-FAQ:1:4", "fact_id": "P019-F361"}
+{"query": "兼容：开发者 SDK 的 日志/审计留存期（days）如何查看？", "domain": "P019", "expected_hit": "P019:P019-FAQ:1:5", "fact_id": "P019-F362"}
+{"query": "计费：开发者 SDK 的 批量接口吞吐（ops/s）如何查看？", "domain": "P019", "expected_hit": "P019:P019-FAQ:1:6", "fact_id": "P019-F363"}
+{"query": "故障：开发者 SDK 的 当前版本线（version）如何查看？", "domain": "P019", "expected_hit": "P019:P019-FAQ:1:7", "fact_id": "P019-F364"}
+{"query": "升级：开发者 SDK 的 默认批次大小（items）如何查看？", "domain": "P019", "expected_hit": "P019:P019-FAQ:1:8", "fact_id": "P019-F365"}
+{"query": "合规：开发者 SDK 是否支持「不支持 v1.0 栈的鉴权协议」？", "domain": "P019", "expected_hit": "P019:P019-FAQ:1:9", "fact_id": "P019-F366"}
+{"query": "跨产品联动：开发者 SDK 是否支持「CLI 尚不支持 macOS 全量子命令」？", "domain": "P019", "expected_hit": "P019:P019-FAQ:1:10", "fact_id": "P019-F367"}
+{"query": "基础概念：开发者 SDK 是否支持「不支持旧版 Python 3.8 SDK」？", "domain": "P019", "expected_hit": "P019:P019-FAQ:1:11", "fact_id": "P019-F368"}
+{"query": "安装：开发者 SDK 的 可用性目标（percent）如何查看？", "domain": "P019", "expected_hit": "P019:P019-FAQ:1:12", "fact_id": "P019-F369"}
+{"query": "权限：开发者 SDK 的 合规基座（）如何查看？", "domain": "P019", "expected_hit": "P019:P019-FAQ:1:13", "fact_id": "P019-F370"}
+{"query": "性能：开发者 SDK 的 企业版起价（cny/月）如何查看？", "domain": "P019", "expected_hit": "P019:P019-FAQ:1:14", "fact_id": "P019-F371"}
+{"query": "限制：开发者 SDK 的 主邻接产品（product）如何查看？", "domain": "P019", "expected_hit": "P019:P019-FAQ:1:15", "fact_id": "P019-F372"}
+{"query": "兼容：开发者 SDK 的 旧版事件吞吐（events/s）如何查看？", "domain": "P019", "expected_hit": "P019:P019-FAQ:1:16", "fact_id": "P019-F373"}
+{"query": "计费：开发者 SDK 的 旧版 P95 延迟（ms）如何查看？", "domain": "P019", "expected_hit": "P019:P019-FAQ:1:17", "fact_id": "P019-F374"}
+{"query": "故障：开发者 SDK 的 与 P001 兼容（bool）如何查看？", "domain": "P019", "expected_hit": "P019:P019-FAQ:1:18", "fact_id": "P019-F375"}
+{"query": "升级：开发者 SDK 的 与 P020 兼容（bool）如何查看？", "domain": "P019", "expected_hit": "P019:P019-FAQ:1:19", "fact_id": "P019-F376"}
+{"query": "基础概念：工作流编排 的 核心协议（）如何查看？", "domain": "P020", "expected_hit": "P020:P020-FAQ:1:0", "fact_id": "P020-F377"}
+{"query": "安装：工作流编排 的 事件摄取吞吐（events/s）如何查看？", "domain": "P020", "expected_hit": "P020:P020-FAQ:1:1", "fact_id": "P020-F378"}
+{"query": "权限：工作流编排 的 API 峰值并发（req/s）如何查看？", "domain": "P020", "expected_hit": "P020:P020-FAQ:1:2", "fact_id": "P020-F379"}
+{"query": "性能：工作流编排 的 P95 检索延迟（ms）如何查看？", "domain": "P020", "expected_hit": "P020:P020-FAQ:1:3", "fact_id": "P020-F380"}
+{"query": "限制：工作流编排 的 最大单文档上传（MB）如何查看？", "domain": "P020", "expected_hit": "P020:P020-FAQ:1:4", "fact_id": "P020-F381"}
+{"query": "兼容：工作流编排 的 日志/审计留存期（days）如何查看？", "domain": "P020", "expected_hit": "P020:P020-FAQ:1:5", "fact_id": "P020-F382"}
+{"query": "计费：工作流编排 的 批量接口吞吐（ops/s）如何查看？", "domain": "P020", "expected_hit": "P020:P020-FAQ:1:6", "fact_id": "P020-F383"}
+{"query": "故障：工作流编排 的 当前版本线（version）如何查看？", "domain": "P020", "expected_hit": "P020:P020-FAQ:1:7", "fact_id": "P020-F384"}
+{"query": "升级：工作流编排 的 默认批次大小（items）如何查看？", "domain": "P020", "expected_hit": "P020:P020-FAQ:1:8", "fact_id": "P020-F385"}
+{"query": "合规：工作流编排 是否支持「不支持环状依赖拓扑」？", "domain": "P020", "expected_hit": "P020:P020-FAQ:1:9", "fact_id": "P020-F386"}
+{"query": "跨产品联动：工作流编排 是否支持「长流程 checkpoint 仅企业版」？", "domain": "P020", "expected_hit": "P020:P020-FAQ:1:10", "fact_id": "P020-F387"}
+{"query": "基础概念：工作流编排 是否支持「不支持跨工作区共享步骤库」？", "domain": "P020", "expected_hit": "P020:P020-FAQ:1:11", "fact_id": "P020-F388"}
+{"query": "安装：工作流编排 的 可用性目标（percent）如何查看？", "domain": "P020", "expected_hit": "P020:P020-FAQ:1:12", "fact_id": "P020-F389"}
+{"query": "权限：工作流编排 的 合规基座（）如何查看？", "domain": "P020", "expected_hit": "P020:P020-FAQ:1:13", "fact_id": "P020-F390"}
+{"query": "性能：工作流编排 的 企业版起价（cny/月）如何查看？", "domain": "P020", "expected_hit": "P020:P020-FAQ:1:14", "fact_id": "P020-F391"}
+{"query": "限制：工作流编排 的 主邻接产品（product）如何查看？", "domain": "P020", "expected_hit": "P020:P020-FAQ:1:15", "fact_id": "P020-F392"}
+{"query": "兼容：工作流编排 的 旧版事件吞吐（events/s）如何查看？", "domain": "P020", "expected_hit": "P020:P020-FAQ:1:16", "fact_id": "P020-F393"}
+{"query": "计费：工作流编排 的 旧版 P95 延迟（ms）如何查看？", "domain": "P020", "expected_hit": "P020:P020-FAQ:1:17", "fact_id": "P020-F394"}
+{"query": "故障：工作流编排 的 与 P005 兼容（bool）如何查看？", "domain": "P020", "expected_hit": "P020:P020-FAQ:1:18", "fact_id": "P020-F395"}
+{"query": "升级：工作流编排 的 与 P019 兼容（bool）如何查看？", "domain": "P020", "expected_hit": "P020:P020-FAQ:1:19", "fact_id": "P020-F396"}

@@ -1,0 +1,25 @@
+{"from_product": "P001", "to_product": "P014", "relation": "adjacent-integration", "compatible": true, "since": "2025-02-01", "line": "llm-gateway", "both_active": true, "note": "统一模型网关 与 LLM 安全网关 提供官方集成"}
+{"from_product": "P001", "to_product": "P019", "relation": "adjacent-integration", "compatible": true, "since": "2025-02-01", "line": "llm-gateway", "both_active": true, "note": "统一模型网关 与 开发者 SDK 提供官方集成"}
+{"from_product": "P002", "to_product": "P018", "relation": "adjacent-integration", "compatible": true, "since": "2025-02-01", "line": "llm-gateway", "both_active": true, "note": "模型溯源 与 模型资产 提供官方集成"}
+{"from_product": "P002", "to_product": "P010", "relation": "adjacent-integration", "compatible": true, "since": "2025-02-01", "line": "llm-gateway", "both_active": true, "note": "模型溯源 与 供应链安全 提供官方集成"}
+{"from_product": "P003", "to_product": "P004", "relation": "adjacent-integration", "compatible": true, "since": "2025-02-01", "line": "agent-iam", "both_active": true, "note": "身份与访问 与 凭据保险库 提供官方集成"}
+{"from_product": "P003", "to_product": "P001", "relation": "adjacent-integration", "compatible": true, "since": "2025-02-01", "line": "agent-iam", "both_active": true, "note": "身份与访问 与 统一模型网关 提供官方集成"}
+{"from_product": "P004", "to_product": "P005", "relation": "adjacent-integration", "compatible": true, "since": "2025-02-01", "line": "agent-iam", "both_active": true, "note": "凭据保险库 与 智能体沙箱 提供官方集成"}
+{"from_product": "P005", "to_product": "P006", "relation": "adjacent-integration", "compatible": true, "since": "2025-02-01", "line": "agent-sandbox", "both_active": true, "note": "智能体沙箱 与 多智能体安全 提供官方集成"}
+{"from_product": "P005", "to_product": "P020", "relation": "adjacent-integration", "compatible": true, "since": "2025-02-01", "line": "agent-sandbox", "both_active": true, "note": "智能体沙箱 与 工作流编排 提供官方集成"}
+{"from_product": "P006", "to_product": "P013", "relation": "adjacent-integration", "compatible": true, "since": "2025-02-01", "line": "agent-sandbox", "both_active": true, "note": "多智能体安全 与 审计与可观测 提供官方集成"}
+{"from_product": "P007", "to_product": "P008", "relation": "adjacent-integration", "compatible": true, "since": "2025-02-01", "line": "data-dlp", "both_active": true, "note": "数据防泄漏 与 隐私计算 提供官方集成"}
+{"from_product": "P007", "to_product": "P015", "relation": "adjacent-integration", "compatible": true, "since": "2025-02-01", "line": "data-dlp", "both_active": true, "note": "数据防泄漏 与 合规引擎 提供官方集成"}
+{"from_product": "P008", "to_product": "P015", "relation": "adjacent-integration", "compatible": true, "since": "2025-02-01", "line": "data-dlp", "both_active": true, "note": "隐私计算 与 合规引擎 提供官方集成"}
+{"from_product": "P009", "to_product": "P002", "relation": "adjacent-integration", "compatible": true, "since": "2025-02-01", "line": "model-supply-chain", "both_active": true, "note": "模型红队 与 模型溯源 提供官方集成"}
+{"from_product": "P009", "to_product": "P016", "relation": "adjacent-integration", "compatible": true, "since": "2025-02-01", "line": "model-supply-chain", "both_active": true, "note": "模型红队 与 风控反欺诈 提供官方集成"}
+{"from_product": "P010", "to_product": "P018", "relation": "adjacent-integration", "compatible": true, "since": "2025-02-01", "line": "model-supply-chain", "both_active": true, "note": "供应链安全 与 模型资产 提供官方集成"}
+{"from_product": "P011", "to_product": "P012", "relation": "adjacent-integration", "compatible": true, "since": "2025-02-01", "line": "content-media", "both_active": true, "note": "内容审核 与 深度伪造检测 提供官方集成"}
+{"from_product": "P011", "to_product": "P016", "relation": "adjacent-integration", "compatible": true, "since": "2025-02-01", "line": "content-media", "both_active": true, "note": "内容审核 与 风控反欺诈 提供官方集成"}
+{"from_product": "P012", "to_product": "P020", "relation": "adjacent-integration", "compatible": true, "since": "2025-02-01", "line": "content-media", "both_active": true, "note": "深度伪造检测 与 工作流编排 提供官方集成"}
+{"from_product": "P013", "to_product": "P020", "relation": "adjacent-integration", "compatible": true, "since": "2025-02-01", "line": "audit-observability", "both_active": true, "note": "审计与可观测 与 工作流编排 提供官方集成"}
+{"from_product": "P014", "to_product": "P007", "relation": "adjacent-integration", "compatible": true, "since": "2025-02-01", "line": "audit-observability", "both_active": true, "note": "LLM 安全网关 与 数据防泄漏 提供官方集成"}
+{"from_product": "P015", "to_product": "P016", "relation": "adjacent-integration", "compatible": true, "since": "2025-02-01", "line": "compliance-risk", "both_active": true, "note": "合规引擎 与 风控反欺诈 提供官方集成"}
+{"from_product": "P017", "to_product": "P001", "relation": "adjacent-integration", "compatible": true, "since": "2025-02-01", "line": "ai-infra", "both_active": true, "note": "推理成本治理 与 统一模型网关 提供官方集成"}
+{"from_product": "P017", "to_product": "P019", "relation": "adjacent-integration", "compatible": true, "since": "2025-02-01", "line": "ai-infra", "both_active": true, "note": "推理成本治理 与 开发者 SDK 提供官方集成"}
+{"from_product": "P019", "to_product": "P020", "relation": "adjacent-integration", "compatible": true, "since": "2025-02-01", "line": "dev-platform", "both_active": true, "note": "开发者 SDK 与 工作流编排 提供官方集成"}

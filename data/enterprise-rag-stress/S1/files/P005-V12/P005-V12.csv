@@ -1,0 +1,249 @@
+type,content
+table_header,指标,取值,单位,约束,部署单元,区域,版本,fact_id
+row,核心协议,gVisor、WASM 边界、seccomp 策略,,支持 gVisor、支持 WASM 边界、支持 seccomp 策略,主节点,cn,v3.0-cn-intl,P005-F081
+row,核心协议,gVisor、WASM 边界、seccomp 策略,,支持 gVisor、支持 WASM 边界、支持 seccomp 策略,灾备节点,cn,v3.0-cn-intl,P005-F081
+row,核心协议,gVisor、WASM 边界、seccomp 策略,,支持 gVisor、支持 WASM 边界、支持 seccomp 策略,只读副本,cn,v3.0-cn-intl,P005-F081
+row,事件摄取吞吐,88000,events/s,enterprise-edition、3-node,主节点,intl,v3.0-cn-intl,P005-F082
+row,事件摄取吞吐,88000,events/s,enterprise-edition、3-node,灾备节点,intl,v3.0-cn-intl,P005-F082
+row,事件摄取吞吐,88000,events/s,enterprise-edition、3-node,只读副本,intl,v3.0-cn-intl,P005-F082
+row,API 峰值并发,6000,req/s,enterprise-edition,主节点,cn,v3.0-cn-intl,P005-F083
+row,API 峰值并发,6000,req/s,enterprise-edition,灾备节点,cn,v3.0-cn-intl,P005-F083
+row,API 峰值并发,6000,req/s,enterprise-edition,只读副本,cn,v3.0-cn-intl,P005-F083
+row,P95 检索延迟,55,ms,p95、warm,主节点,intl,v3.0-cn-intl,P005-F084
+row,P95 检索延迟,55,ms,p95、warm,灾备节点,intl,v3.0-cn-intl,P005-F084
+row,P95 检索延迟,55,ms,p95、warm,只读副本,intl,v3.0-cn-intl,P005-F084
+row,最大单文档上传,256,MB,默认限制,主节点,cn,v3.0-cn-intl,P005-F085
+row,最大单文档上传,256,MB,默认限制,灾备节点,cn,v3.0-cn-intl,P005-F085
+row,最大单文档上传,256,MB,默认限制,只读副本,cn,v3.0-cn-intl,P005-F085
+row,日志/审计留存期,30,days,默认,主节点,intl,v3.0-cn-intl,P005-F086
+row,日志/审计留存期,30,days,默认,灾备节点,intl,v3.0-cn-intl,P005-F086
+row,日志/审计留存期,30,days,默认,只读副本,intl,v3.0-cn-intl,P005-F086
+row,批量接口吞吐,2100,ops/s,batch=64,主节点,cn,v3.0-cn-intl,P005-F087
+row,批量接口吞吐,2100,ops/s,batch=64,灾备节点,cn,v3.0-cn-intl,P005-F087
+row,批量接口吞吐,2100,ops/s,batch=64,只读副本,cn,v3.0-cn-intl,P005-F087
+row,当前版本线,v3.0,version,GA,主节点,intl,v3.0-cn-intl,P005-F088
+row,当前版本线,v3.0,version,GA,灾备节点,intl,v3.0-cn-intl,P005-F088
+row,当前版本线,v3.0,version,GA,只读副本,intl,v3.0-cn-intl,P005-F088
+row,默认批次大小,64,items,可配置,主节点,cn,v3.0-cn-intl,P005-F089
+row,默认批次大小,64,items,可配置,灾备节点,cn,v3.0-cn-intl,P005-F089
+row,默认批次大小,64,items,可配置,只读副本,cn,v3.0-cn-intl,P005-F089
+row,不支持能力,不支持 GPU 透传场景,,negation,主节点,intl,v3.0-cn-intl,P005-F090
+row,不支持能力,不支持 GPU 透传场景,,negation,灾备节点,intl,v3.0-cn-intl,P005-F090
+row,不支持能力,不支持 GPU 透传场景,,negation,只读副本,intl,v3.0-cn-intl,P005-F090
+row,否定事实,不支持非受管 TLS 出口,,negation、must-not-claim,主节点,cn,v3.0-cn-intl,P005-F091
+row,否定事实,不支持非受管 TLS 出口,,negation、must-not-claim,灾备节点,cn,v3.0-cn-intl,P005-F091
+row,否定事实,不支持非受管 TLS 出口,,negation、must-not-claim,只读副本,cn,v3.0-cn-intl,P005-F091
+row,否定事实,沙箱内禁止写宿主服务文件,,negation、must-not-claim,主节点,intl,v3.0-cn-intl,P005-F092
+row,否定事实,沙箱内禁止写宿主服务文件,,negation、must-not-claim,灾备节点,intl,v3.0-cn-intl,P005-F092
+row,否定事实,沙箱内禁止写宿主服务文件,,negation、must-not-claim,只读副本,intl,v3.0-cn-intl,P005-F092
+row,可用性目标,99.9,percent,enterprise-SLA,主节点,cn,v3.0-cn-intl,P005-F093
+row,可用性目标,99.9,percent,enterprise-SLA,灾备节点,cn,v3.0-cn-intl,P005-F093
+row,可用性目标,99.9,percent,enterprise-SLA,只读副本,cn,v3.0-cn-intl,P005-F093
+row,合规基座,GB-35273/CAC-审查-P005,,zh-cn,主节点,intl,v3.0-cn-intl,P005-F094
+row,合规基座,GB-35273/CAC-审查-P005,,zh-cn,灾备节点,intl,v3.0-cn-intl,P005-F094
+row,合规基座,GB-35273/CAC-审查-P005,,zh-cn,只读副本,intl,v3.0-cn-intl,P005-F094
+row,企业版起价,24850,cny/月,per-org、annual,主节点,cn,v3.0-cn-intl,P005-F095
+row,企业版起价,24850,cny/月,per-org、annual,灾备节点,cn,v3.0-cn-intl,P005-F095
+row,企业版起价,24850,cny/月,per-org、annual,只读副本,cn,v3.0-cn-intl,P005-F095
+row,主邻接产品,P006,product,邻接 P006,主节点,intl,v3.0-cn-intl,P005-F096
+row,主邻接产品,P006,product,邻接 P006,灾备节点,intl,v3.0-cn-intl,P005-F096
+row,主邻接产品,P006,product,邻接 P006,只读副本,intl,v3.0-cn-intl,P005-F096
+row,旧版事件吞吐,54560,events/s,v2.9、legacy,主节点,cn,v3.0-cn-intl,P005-F097
+row,旧版事件吞吐,54560,events/s,v2.9、legacy,灾备节点,cn,v3.0-cn-intl,P005-F097
+row,旧版事件吞吐,54560,events/s,v2.9、legacy,只读副本,cn,v3.0-cn-intl,P005-F097
+row,旧版 P95 延迟,93,ms,v2.9、legacy,主节点,intl,v3.0-cn-intl,P005-F098
+row,旧版 P95 延迟,93,ms,v2.9、legacy,灾备节点,intl,v3.0-cn-intl,P005-F098
+row,旧版 P95 延迟,93,ms,v2.9、legacy,只读副本,intl,v3.0-cn-intl,P005-F098
+row,与 P006 兼容,true,bool,edge P005->P006,主节点,cn,v3.0-cn-intl,P005-F099
+row,与 P006 兼容,true,bool,edge P005->P006,灾备节点,cn,v3.0-cn-intl,P005-F099
+row,与 P006 兼容,true,bool,edge P005->P006,只读副本,cn,v3.0-cn-intl,P005-F099
+row,与 P020 兼容,true,bool,edge P005->P020,主节点,intl,v3.0-cn-intl,P005-F100
+row,与 P020 兼容,true,bool,edge P005->P020,灾备节点,intl,v3.0-cn-intl,P005-F100
+row,与 P020 兼容,true,bool,edge P005->P020,只读副本,intl,v3.0-cn-intl,P005-F100
+table_header,指标,取值,单位,约束,部署单元,区域,版本,fact_id
+row,事件摄取吞吐,88000,events/s,enterprise-edition、3-node,主节点,cn,v3.0-cn-intl,P005-F082
+row,事件摄取吞吐,88000,events/s,enterprise-edition、3-node,灾备节点,cn,v3.0-cn-intl,P005-F082
+row,事件摄取吞吐,88000,events/s,enterprise-edition、3-node,只读副本,cn,v3.0-cn-intl,P005-F082
+row,API 峰值并发,6000,req/s,enterprise-edition,主节点,intl,v3.0-cn-intl,P005-F083
+row,API 峰值并发,6000,req/s,enterprise-edition,灾备节点,intl,v3.0-cn-intl,P005-F083
+row,API 峰值并发,6000,req/s,enterprise-edition,只读副本,intl,v3.0-cn-intl,P005-F083
+row,P95 检索延迟,55,ms,p95、warm,主节点,cn,v3.0-cn-intl,P005-F084
+row,P95 检索延迟,55,ms,p95、warm,灾备节点,cn,v3.0-cn-intl,P005-F084
+row,P95 检索延迟,55,ms,p95、warm,只读副本,cn,v3.0-cn-intl,P005-F084
+row,最大单文档上传,256,MB,默认限制,主节点,intl,v3.0-cn-intl,P005-F085
+row,最大单文档上传,256,MB,默认限制,灾备节点,intl,v3.0-cn-intl,P005-F085
+row,最大单文档上传,256,MB,默认限制,只读副本,intl,v3.0-cn-intl,P005-F085
+row,日志/审计留存期,30,days,默认,主节点,cn,v3.0-cn-intl,P005-F086
+row,日志/审计留存期,30,days,默认,灾备节点,cn,v3.0-cn-intl,P005-F086
+row,日志/审计留存期,30,days,默认,只读副本,cn,v3.0-cn-intl,P005-F086
+row,批量接口吞吐,2100,ops/s,batch=64,主节点,intl,v3.0-cn-intl,P005-F087
+row,批量接口吞吐,2100,ops/s,batch=64,灾备节点,intl,v3.0-cn-intl,P005-F087
+row,批量接口吞吐,2100,ops/s,batch=64,只读副本,intl,v3.0-cn-intl,P005-F087
+row,当前版本线,v3.0,version,GA,主节点,cn,v3.0-cn-intl,P005-F088
+row,当前版本线,v3.0,version,GA,灾备节点,cn,v3.0-cn-intl,P005-F088
+row,当前版本线,v3.0,version,GA,只读副本,cn,v3.0-cn-intl,P005-F088
+row,默认批次大小,64,items,可配置,主节点,intl,v3.0-cn-intl,P005-F089
+row,默认批次大小,64,items,可配置,灾备节点,intl,v3.0-cn-intl,P005-F089
+row,默认批次大小,64,items,可配置,只读副本,intl,v3.0-cn-intl,P005-F089
+row,不支持能力,不支持 GPU 透传场景,,negation,主节点,cn,v3.0-cn-intl,P005-F090
+row,不支持能力,不支持 GPU 透传场景,,negation,灾备节点,cn,v3.0-cn-intl,P005-F090
+row,不支持能力,不支持 GPU 透传场景,,negation,只读副本,cn,v3.0-cn-intl,P005-F090
+row,否定事实,不支持非受管 TLS 出口,,negation、must-not-claim,主节点,intl,v3.0-cn-intl,P005-F091
+row,否定事实,不支持非受管 TLS 出口,,negation、must-not-claim,灾备节点,intl,v3.0-cn-intl,P005-F091
+row,否定事实,不支持非受管 TLS 出口,,negation、must-not-claim,只读副本,intl,v3.0-cn-intl,P005-F091
+row,否定事实,沙箱内禁止写宿主服务文件,,negation、must-not-claim,主节点,cn,v3.0-cn-intl,P005-F092
+row,否定事实,沙箱内禁止写宿主服务文件,,negation、must-not-claim,灾备节点,cn,v3.0-cn-intl,P005-F092
+row,否定事实,沙箱内禁止写宿主服务文件,,negation、must-not-claim,只读副本,cn,v3.0-cn-intl,P005-F092
+row,可用性目标,99.9,percent,enterprise-SLA,主节点,intl,v3.0-cn-intl,P005-F093
+row,可用性目标,99.9,percent,enterprise-SLA,灾备节点,intl,v3.0-cn-intl,P005-F093
+row,可用性目标,99.9,percent,enterprise-SLA,只读副本,intl,v3.0-cn-intl,P005-F093
+row,合规基座,GB-35273/CAC-审查-P005,,zh-cn,主节点,cn,v3.0-cn-intl,P005-F094
+row,合规基座,GB-35273/CAC-审查-P005,,zh-cn,灾备节点,cn,v3.0-cn-intl,P005-F094
+row,合规基座,GB-35273/CAC-审查-P005,,zh-cn,只读副本,cn,v3.0-cn-intl,P005-F094
+row,企业版起价,24850,cny/月,per-org、annual,主节点,intl,v3.0-cn-intl,P005-F095
+row,企业版起价,24850,cny/月,per-org、annual,灾备节点,intl,v3.0-cn-intl,P005-F095
+row,企业版起价,24850,cny/月,per-org、annual,只读副本,intl,v3.0-cn-intl,P005-F095
+row,主邻接产品,P006,product,邻接 P006,主节点,cn,v3.0-cn-intl,P005-F096
+row,主邻接产品,P006,product,邻接 P006,灾备节点,cn,v3.0-cn-intl,P005-F096
+row,主邻接产品,P006,product,邻接 P006,只读副本,cn,v3.0-cn-intl,P005-F096
+row,旧版事件吞吐,54560,events/s,v2.9、legacy,主节点,intl,v3.0-cn-intl,P005-F097
+row,旧版事件吞吐,54560,events/s,v2.9、legacy,灾备节点,intl,v3.0-cn-intl,P005-F097
+row,旧版事件吞吐,54560,events/s,v2.9、legacy,只读副本,intl,v3.0-cn-intl,P005-F097
+row,旧版 P95 延迟,93,ms,v2.9、legacy,主节点,cn,v3.0-cn-intl,P005-F098
+row,旧版 P95 延迟,93,ms,v2.9、legacy,灾备节点,cn,v3.0-cn-intl,P005-F098
+row,旧版 P95 延迟,93,ms,v2.9、legacy,只读副本,cn,v3.0-cn-intl,P005-F098
+row,与 P006 兼容,true,bool,edge P005->P006,主节点,intl,v3.0-cn-intl,P005-F099
+row,与 P006 兼容,true,bool,edge P005->P006,灾备节点,intl,v3.0-cn-intl,P005-F099
+row,与 P006 兼容,true,bool,edge P005->P006,只读副本,intl,v3.0-cn-intl,P005-F099
+row,与 P020 兼容,true,bool,edge P005->P020,主节点,cn,v3.0-cn-intl,P005-F100
+row,与 P020 兼容,true,bool,edge P005->P020,灾备节点,cn,v3.0-cn-intl,P005-F100
+row,与 P020 兼容,true,bool,edge P005->P020,只读副本,cn,v3.0-cn-intl,P005-F100
+row,核心协议,gVisor、WASM 边界、seccomp 策略,,支持 gVisor、支持 WASM 边界、支持 seccomp 策略,主节点,intl,v3.0-cn-intl,P005-F081
+row,核心协议,gVisor、WASM 边界、seccomp 策略,,支持 gVisor、支持 WASM 边界、支持 seccomp 策略,灾备节点,intl,v3.0-cn-intl,P005-F081
+row,核心协议,gVisor、WASM 边界、seccomp 策略,,支持 gVisor、支持 WASM 边界、支持 seccomp 策略,只读副本,intl,v3.0-cn-intl,P005-F081
+table_header,指标,取值,单位,约束,部署单元,区域,版本,fact_id
+row,API 峰值并发,6000,req/s,enterprise-edition,主节点,cn,v3.0-cn-intl,P005-F083
+row,API 峰值并发,6000,req/s,enterprise-edition,灾备节点,cn,v3.0-cn-intl,P005-F083
+row,API 峰值并发,6000,req/s,enterprise-edition,只读副本,cn,v3.0-cn-intl,P005-F083
+row,P95 检索延迟,55,ms,p95、warm,主节点,intl,v3.0-cn-intl,P005-F084
+row,P95 检索延迟,55,ms,p95、warm,灾备节点,intl,v3.0-cn-intl,P005-F084
+row,P95 检索延迟,55,ms,p95、warm,只读副本,intl,v3.0-cn-intl,P005-F084
+row,最大单文档上传,256,MB,默认限制,主节点,cn,v3.0-cn-intl,P005-F085
+row,最大单文档上传,256,MB,默认限制,灾备节点,cn,v3.0-cn-intl,P005-F085
+row,最大单文档上传,256,MB,默认限制,只读副本,cn,v3.0-cn-intl,P005-F085
+row,日志/审计留存期,30,days,默认,主节点,intl,v3.0-cn-intl,P005-F086
+row,日志/审计留存期,30,days,默认,灾备节点,intl,v3.0-cn-intl,P005-F086
+row,日志/审计留存期,30,days,默认,只读副本,intl,v3.0-cn-intl,P005-F086
+row,批量接口吞吐,2100,ops/s,batch=64,主节点,cn,v3.0-cn-intl,P005-F087
+row,批量接口吞吐,2100,ops/s,batch=64,灾备节点,cn,v3.0-cn-intl,P005-F087
+row,批量接口吞吐,2100,ops/s,batch=64,只读副本,cn,v3.0-cn-intl,P005-F087
+row,当前版本线,v3.0,version,GA,主节点,intl,v3.0-cn-intl,P005-F088
+row,当前版本线,v3.0,version,GA,灾备节点,intl,v3.0-cn-intl,P005-F088
+row,当前版本线,v3.0,version,GA,只读副本,intl,v3.0-cn-intl,P005-F088
+row,默认批次大小,64,items,可配置,主节点,cn,v3.0-cn-intl,P005-F089
+row,默认批次大小,64,items,可配置,灾备节点,cn,v3.0-cn-intl,P005-F089
+row,默认批次大小,64,items,可配置,只读副本,cn,v3.0-cn-intl,P005-F089
+row,不支持能力,不支持 GPU 透传场景,,negation,主节点,intl,v3.0-cn-intl,P005-F090
+row,不支持能力,不支持 GPU 透传场景,,negation,灾备节点,intl,v3.0-cn-intl,P005-F090
+row,不支持能力,不支持 GPU 透传场景,,negation,只读副本,intl,v3.0-cn-intl,P005-F090
+row,否定事实,不支持非受管 TLS 出口,,negation、must-not-claim,主节点,cn,v3.0-cn-intl,P005-F091
+row,否定事实,不支持非受管 TLS 出口,,negation、must-not-claim,灾备节点,cn,v3.0-cn-intl,P005-F091
+row,否定事实,不支持非受管 TLS 出口,,negation、must-not-claim,只读副本,cn,v3.0-cn-intl,P005-F091
+row,否定事实,沙箱内禁止写宿主服务文件,,negation、must-not-claim,主节点,intl,v3.0-cn-intl,P005-F092
+row,否定事实,沙箱内禁止写宿主服务文件,,negation、must-not-claim,灾备节点,intl,v3.0-cn-intl,P005-F092
+row,否定事实,沙箱内禁止写宿主服务文件,,negation、must-not-claim,只读副本,intl,v3.0-cn-intl,P005-F092
+row,可用性目标,99.9,percent,enterprise-SLA,主节点,cn,v3.0-cn-intl,P005-F093
+row,可用性目标,99.9,percent,enterprise-SLA,灾备节点,cn,v3.0-cn-intl,P005-F093
+row,可用性目标,99.9,percent,enterprise-SLA,只读副本,cn,v3.0-cn-intl,P005-F093
+row,合规基座,GB-35273/CAC-审查-P005,,zh-cn,主节点,intl,v3.0-cn-intl,P005-F094
+row,合规基座,GB-35273/CAC-审查-P005,,zh-cn,灾备节点,intl,v3.0-cn-intl,P005-F094
+row,合规基座,GB-35273/CAC-审查-P005,,zh-cn,只读副本,intl,v3.0-cn-intl,P005-F094
+row,企业版起价,24850,cny/月,per-org、annual,主节点,cn,v3.0-cn-intl,P005-F095
+row,企业版起价,24850,cny/月,per-org、annual,灾备节点,cn,v3.0-cn-intl,P005-F095
+row,企业版起价,24850,cny/月,per-org、annual,只读副本,cn,v3.0-cn-intl,P005-F095
+row,主邻接产品,P006,product,邻接 P006,主节点,intl,v3.0-cn-intl,P005-F096
+row,主邻接产品,P006,product,邻接 P006,灾备节点,intl,v3.0-cn-intl,P005-F096
+row,主邻接产品,P006,product,邻接 P006,只读副本,intl,v3.0-cn-intl,P005-F096
+row,旧版事件吞吐,54560,events/s,v2.9、legacy,主节点,cn,v3.0-cn-intl,P005-F097
+row,旧版事件吞吐,54560,events/s,v2.9、legacy,灾备节点,cn,v3.0-cn-intl,P005-F097
+row,旧版事件吞吐,54560,events/s,v2.9、legacy,只读副本,cn,v3.0-cn-intl,P005-F097
+row,旧版 P95 延迟,93,ms,v2.9、legacy,主节点,intl,v3.0-cn-intl,P005-F098
+row,旧版 P95 延迟,93,ms,v2.9、legacy,灾备节点,intl,v3.0-cn-intl,P005-F098
+row,旧版 P95 延迟,93,ms,v2.9、legacy,只读副本,intl,v3.0-cn-intl,P005-F098
+row,与 P006 兼容,true,bool,edge P005->P006,主节点,cn,v3.0-cn-intl,P005-F099
+row,与 P006 兼容,true,bool,edge P005->P006,灾备节点,cn,v3.0-cn-intl,P005-F099
+row,与 P006 兼容,true,bool,edge P005->P006,只读副本,cn,v3.0-cn-intl,P005-F099
+row,与 P020 兼容,true,bool,edge P005->P020,主节点,intl,v3.0-cn-intl,P005-F100
+row,与 P020 兼容,true,bool,edge P005->P020,灾备节点,intl,v3.0-cn-intl,P005-F100
+row,与 P020 兼容,true,bool,edge P005->P020,只读副本,intl,v3.0-cn-intl,P005-F100
+row,核心协议,gVisor、WASM 边界、seccomp 策略,,支持 gVisor、支持 WASM 边界、支持 seccomp 策略,主节点,cn,v3.0-cn-intl,P005-F081
+row,核心协议,gVisor、WASM 边界、seccomp 策略,,支持 gVisor、支持 WASM 边界、支持 seccomp 策略,灾备节点,cn,v3.0-cn-intl,P005-F081
+row,核心协议,gVisor、WASM 边界、seccomp 策略,,支持 gVisor、支持 WASM 边界、支持 seccomp 策略,只读副本,cn,v3.0-cn-intl,P005-F081
+row,事件摄取吞吐,88000,events/s,enterprise-edition、3-node,主节点,intl,v3.0-cn-intl,P005-F082
+row,事件摄取吞吐,88000,events/s,enterprise-edition、3-node,灾备节点,intl,v3.0-cn-intl,P005-F082
+row,事件摄取吞吐,88000,events/s,enterprise-edition、3-node,只读副本,intl,v3.0-cn-intl,P005-F082
+table_header,指标,取值,单位,约束,部署单元,区域,版本,fact_id
+row,P95 检索延迟,55,ms,p95、warm,主节点,cn,v3.0-cn-intl,P005-F084
+row,P95 检索延迟,55,ms,p95、warm,灾备节点,cn,v3.0-cn-intl,P005-F084
+row,P95 检索延迟,55,ms,p95、warm,只读副本,cn,v3.0-cn-intl,P005-F084
+row,最大单文档上传,256,MB,默认限制,主节点,intl,v3.0-cn-intl,P005-F085
+row,最大单文档上传,256,MB,默认限制,灾备节点,intl,v3.0-cn-intl,P005-F085
+row,最大单文档上传,256,MB,默认限制,只读副本,intl,v3.0-cn-intl,P005-F085
+row,日志/审计留存期,30,days,默认,主节点,cn,v3.0-cn-intl,P005-F086
+row,日志/审计留存期,30,days,默认,灾备节点,cn,v3.0-cn-intl,P005-F086
+row,日志/审计留存期,30,days,默认,只读副本,cn,v3.0-cn-intl,P005-F086
+row,批量接口吞吐,2100,ops/s,batch=64,主节点,intl,v3.0-cn-intl,P005-F087
+row,批量接口吞吐,2100,ops/s,batch=64,灾备节点,intl,v3.0-cn-intl,P005-F087
+row,批量接口吞吐,2100,ops/s,batch=64,只读副本,intl,v3.0-cn-intl,P005-F087
+row,当前版本线,v3.0,version,GA,主节点,cn,v3.0-cn-intl,P005-F088
+row,当前版本线,v3.0,version,GA,灾备节点,cn,v3.0-cn-intl,P005-F088
+row,当前版本线,v3.0,version,GA,只读副本,cn,v3.0-cn-intl,P005-F088
+row,默认批次大小,64,items,可配置,主节点,intl,v3.0-cn-intl,P005-F089
+row,默认批次大小,64,items,可配置,灾备节点,intl,v3.0-cn-intl,P005-F089
+row,默认批次大小,64,items,可配置,只读副本,intl,v3.0-cn-intl,P005-F089
+row,不支持能力,不支持 GPU 透传场景,,negation,主节点,cn,v3.0-cn-intl,P005-F090
+row,不支持能力,不支持 GPU 透传场景,,negation,灾备节点,cn,v3.0-cn-intl,P005-F090
+row,不支持能力,不支持 GPU 透传场景,,negation,只读副本,cn,v3.0-cn-intl,P005-F090
+row,否定事实,不支持非受管 TLS 出口,,negation、must-not-claim,主节点,intl,v3.0-cn-intl,P005-F091
+row,否定事实,不支持非受管 TLS 出口,,negation、must-not-claim,灾备节点,intl,v3.0-cn-intl,P005-F091
+row,否定事实,不支持非受管 TLS 出口,,negation、must-not-claim,只读副本,intl,v3.0-cn-intl,P005-F091
+row,否定事实,沙箱内禁止写宿主服务文件,,negation、must-not-claim,主节点,cn,v3.0-cn-intl,P005-F092
+row,否定事实,沙箱内禁止写宿主服务文件,,negation、must-not-claim,灾备节点,cn,v3.0-cn-intl,P005-F092
+row,否定事实,沙箱内禁止写宿主服务文件,,negation、must-not-claim,只读副本,cn,v3.0-cn-intl,P005-F092
+row,可用性目标,99.9,percent,enterprise-SLA,主节点,intl,v3.0-cn-intl,P005-F093
+row,可用性目标,99.9,percent,enterprise-SLA,灾备节点,intl,v3.0-cn-intl,P005-F093
+row,可用性目标,99.9,percent,enterprise-SLA,只读副本,intl,v3.0-cn-intl,P005-F093
+row,合规基座,GB-35273/CAC-审查-P005,,zh-cn,主节点,cn,v3.0-cn-intl,P005-F094
+row,合规基座,GB-35273/CAC-审查-P005,,zh-cn,灾备节点,cn,v3.0-cn-intl,P005-F094
+row,合规基座,GB-35273/CAC-审查-P005,,zh-cn,只读副本,cn,v3.0-cn-intl,P005-F094
+row,企业版起价,24850,cny/月,per-org、annual,主节点,intl,v3.0-cn-intl,P005-F095
+row,企业版起价,24850,cny/月,per-org、annual,灾备节点,intl,v3.0-cn-intl,P005-F095
+row,企业版起价,24850,cny/月,per-org、annual,只读副本,intl,v3.0-cn-intl,P005-F095
+row,主邻接产品,P006,product,邻接 P006,主节点,cn,v3.0-cn-intl,P005-F096
+row,主邻接产品,P006,product,邻接 P006,灾备节点,cn,v3.0-cn-intl,P005-F096
+row,主邻接产品,P006,product,邻接 P006,只读副本,cn,v3.0-cn-intl,P005-F096
+row,旧版事件吞吐,54560,events/s,v2.9、legacy,主节点,intl,v3.0-cn-intl,P005-F097
+row,旧版事件吞吐,54560,events/s,v2.9、legacy,灾备节点,intl,v3.0-cn-intl,P005-F097
+row,旧版事件吞吐,54560,events/s,v2.9、legacy,只读副本,intl,v3.0-cn-intl,P005-F097
+row,旧版 P95 延迟,93,ms,v2.9、legacy,主节点,cn,v3.0-cn-intl,P005-F098
+row,旧版 P95 延迟,93,ms,v2.9、legacy,灾备节点,cn,v3.0-cn-intl,P005-F098
+row,旧版 P95 延迟,93,ms,v2.9、legacy,只读副本,cn,v3.0-cn-intl,P005-F098
+row,与 P006 兼容,true,bool,edge P005->P006,主节点,intl,v3.0-cn-intl,P005-F099
+row,与 P006 兼容,true,bool,edge P005->P006,灾备节点,intl,v3.0-cn-intl,P005-F099
+row,与 P006 兼容,true,bool,edge P005->P006,只读副本,intl,v3.0-cn-intl,P005-F099
+row,与 P020 兼容,true,bool,edge P005->P020,主节点,cn,v3.0-cn-intl,P005-F100
+row,与 P020 兼容,true,bool,edge P005->P020,灾备节点,cn,v3.0-cn-intl,P005-F100
+row,与 P020 兼容,true,bool,edge P005->P020,只读副本,cn,v3.0-cn-intl,P005-F100
+row,核心协议,gVisor、WASM 边界、seccomp 策略,,支持 gVisor、支持 WASM 边界、支持 seccomp 策略,主节点,intl,v3.0-cn-intl,P005-F081
+row,核心协议,gVisor、WASM 边界、seccomp 策略,,支持 gVisor、支持 WASM 边界、支持 seccomp 策略,灾备节点,intl,v3.0-cn-intl,P005-F081
+row,核心协议,gVisor、WASM 边界、seccomp 策略,,支持 gVisor、支持 WASM 边界、支持 seccomp 策略,只读副本,intl,v3.0-cn-intl,P005-F081
+row,事件摄取吞吐,88000,events/s,enterprise-edition、3-node,主节点,cn,v3.0-cn-intl,P005-F082
+row,事件摄取吞吐,88000,events/s,enterprise-edition、3-node,灾备节点,cn,v3.0-cn-intl,P005-F082
+row,事件摄取吞吐,88000,events/s,enterprise-edition、3-node,只读副本,cn,v3.0-cn-intl,P005-F082
+row,API 峰值并发,6000,req/s,enterprise-edition,主节点,intl,v3.0-cn-intl,P005-F083
+row,API 峰值并发,6000,req/s,enterprise-edition,灾备节点,intl,v3.0-cn-intl,P005-F083
+row,API 峰值并发,6000,req/s,enterprise-edition,只读副本,intl,v3.0-cn-intl,P005-F083
+table_header,边界项,边界内容
+row,边界1,智能体沙箱 不支持 不支持非受管 TLS 出口
+row,边界2,智能体沙箱 不支持 沙箱内禁止写宿主服务文件
+row,整体边界,智能体沙箱 不支持 不支持 GPU 透传场景（详见 P005-F 系事实）

@@ -1,0 +1,249 @@
+type,content
+table_header,指标,取值,单位,约束,部署单元,区域,版本,fact_id
+row,核心协议,提示注入拦截、PII 检测、策略旁路,,支持 提示注入拦截、支持 PII 检测、支持 策略旁路,主节点,cn,v5.0-cn-intl,P014-F261
+row,核心协议,提示注入拦截、PII 检测、策略旁路,,支持 提示注入拦截、支持 PII 检测、支持 策略旁路,灾备节点,cn,v5.0-cn-intl,P014-F261
+row,核心协议,提示注入拦截、PII 检测、策略旁路,,支持 提示注入拦截、支持 PII 检测、支持 策略旁路,只读副本,cn,v5.0-cn-intl,P014-F261
+row,事件摄取吞吐,760000,events/s,enterprise-edition、3-node,主节点,intl,v5.0-cn-intl,P014-F262
+row,事件摄取吞吐,760000,events/s,enterprise-edition、3-node,灾备节点,intl,v5.0-cn-intl,P014-F262
+row,事件摄取吞吐,760000,events/s,enterprise-edition、3-node,只读副本,intl,v5.0-cn-intl,P014-F262
+row,API 峰值并发,15000,req/s,enterprise-edition,主节点,cn,v5.0-cn-intl,P014-F263
+row,API 峰值并发,15000,req/s,enterprise-edition,灾备节点,cn,v5.0-cn-intl,P014-F263
+row,API 峰值并发,15000,req/s,enterprise-edition,只读副本,cn,v5.0-cn-intl,P014-F263
+row,P95 检索延迟,35,ms,p95、warm,主节点,intl,v5.0-cn-intl,P014-F264
+row,P95 检索延迟,35,ms,p95、warm,灾备节点,intl,v5.0-cn-intl,P014-F264
+row,P95 检索延迟,35,ms,p95、warm,只读副本,intl,v5.0-cn-intl,P014-F264
+row,最大单文档上传,32,MB,默认限制,主节点,cn,v5.0-cn-intl,P014-F265
+row,最大单文档上传,32,MB,默认限制,灾备节点,cn,v5.0-cn-intl,P014-F265
+row,最大单文档上传,32,MB,默认限制,只读副本,cn,v5.0-cn-intl,P014-F265
+row,日志/审计留存期,90,days,默认,主节点,intl,v5.0-cn-intl,P014-F266
+row,日志/审计留存期,90,days,默认,灾备节点,intl,v5.0-cn-intl,P014-F266
+row,日志/审计留存期,90,days,默认,只读副本,intl,v5.0-cn-intl,P014-F266
+row,批量接口吞吐,9800,ops/s,batch=256,主节点,cn,v5.0-cn-intl,P014-F267
+row,批量接口吞吐,9800,ops/s,batch=256,灾备节点,cn,v5.0-cn-intl,P014-F267
+row,批量接口吞吐,9800,ops/s,batch=256,只读副本,cn,v5.0-cn-intl,P014-F267
+row,当前版本线,v5.0,version,GA,主节点,intl,v5.0-cn-intl,P014-F268
+row,当前版本线,v5.0,version,GA,灾备节点,intl,v5.0-cn-intl,P014-F268
+row,当前版本线,v5.0,version,GA,只读副本,intl,v5.0-cn-intl,P014-F268
+row,默认批次大小,256,items,可配置,主节点,cn,v5.0-cn-intl,P014-F269
+row,默认批次大小,256,items,可配置,灾备节点,cn,v5.0-cn-intl,P014-F269
+row,默认批次大小,256,items,可配置,只读副本,cn,v5.0-cn-intl,P014-F269
+row,不支持能力,不支持对模型参数优化的注水拦截,,negation,主节点,intl,v5.0-cn-intl,P014-F270
+row,不支持能力,不支持对模型参数优化的注水拦截,,negation,灾备节点,intl,v5.0-cn-intl,P014-F270
+row,不支持能力,不支持对模型参数优化的注水拦截,,negation,只读副本,intl,v5.0-cn-intl,P014-F270
+row,否定事实,仅企业版支持 ML 注入检测,,negation、must-not-claim,主节点,cn,v5.0-cn-intl,P014-F271
+row,否定事实,仅企业版支持 ML 注入检测,,negation、must-not-claim,灾备节点,cn,v5.0-cn-intl,P014-F271
+row,否定事实,仅企业版支持 ML 注入检测,,negation、must-not-claim,只读副本,cn,v5.0-cn-intl,P014-F271
+row,否定事实,不支持原生端到端全模型脱敏,,negation、must-not-claim,主节点,intl,v5.0-cn-intl,P014-F272
+row,否定事实,不支持原生端到端全模型脱敏,,negation、must-not-claim,灾备节点,intl,v5.0-cn-intl,P014-F272
+row,否定事实,不支持原生端到端全模型脱敏,,negation、must-not-claim,只读副本,intl,v5.0-cn-intl,P014-F272
+row,可用性目标,99.9,percent,enterprise-SLA,主节点,cn,v5.0-cn-intl,P014-F273
+row,可用性目标,99.9,percent,enterprise-SLA,灾备节点,cn,v5.0-cn-intl,P014-F273
+row,可用性目标,99.9,percent,enterprise-SLA,只读副本,cn,v5.0-cn-intl,P014-F273
+row,合规基座,GB-35273/CAC-审查-P014,,zh-cn,主节点,intl,v5.0-cn-intl,P014-F274
+row,合规基座,GB-35273/CAC-审查-P014,,zh-cn,灾备节点,intl,v5.0-cn-intl,P014-F274
+row,合规基座,GB-35273/CAC-审查-P014,,zh-cn,只读副本,intl,v5.0-cn-intl,P014-F274
+row,企业版起价,19180,cny/月,per-org、annual,主节点,cn,v5.0-cn-intl,P014-F275
+row,企业版起价,19180,cny/月,per-org、annual,灾备节点,cn,v5.0-cn-intl,P014-F275
+row,企业版起价,19180,cny/月,per-org、annual,只读副本,cn,v5.0-cn-intl,P014-F275
+row,主邻接产品,P001,product,邻接 P001,主节点,intl,v5.0-cn-intl,P014-F276
+row,主邻接产品,P001,product,邻接 P001,灾备节点,intl,v5.0-cn-intl,P014-F276
+row,主邻接产品,P001,product,邻接 P001,只读副本,intl,v5.0-cn-intl,P014-F276
+row,旧版事件吞吐,471200,events/s,v4.9、legacy,主节点,cn,v5.0-cn-intl,P014-F277
+row,旧版事件吞吐,471200,events/s,v4.9、legacy,灾备节点,cn,v5.0-cn-intl,P014-F277
+row,旧版事件吞吐,471200,events/s,v4.9、legacy,只读副本,cn,v5.0-cn-intl,P014-F277
+row,旧版 P95 延迟,59,ms,v4.9、legacy,主节点,intl,v5.0-cn-intl,P014-F278
+row,旧版 P95 延迟,59,ms,v4.9、legacy,灾备节点,intl,v5.0-cn-intl,P014-F278
+row,旧版 P95 延迟,59,ms,v4.9、legacy,只读副本,intl,v5.0-cn-intl,P014-F278
+row,与 P001 兼容,true,bool,edge P014->P001,主节点,cn,v5.0-cn-intl,P014-F279
+row,与 P001 兼容,true,bool,edge P014->P001,灾备节点,cn,v5.0-cn-intl,P014-F279
+row,与 P001 兼容,true,bool,edge P014->P001,只读副本,cn,v5.0-cn-intl,P014-F279
+row,与 P007 兼容,true,bool,edge P014->P007,主节点,intl,v5.0-cn-intl,P014-F280
+row,与 P007 兼容,true,bool,edge P014->P007,灾备节点,intl,v5.0-cn-intl,P014-F280
+row,与 P007 兼容,true,bool,edge P014->P007,只读副本,intl,v5.0-cn-intl,P014-F280
+table_header,指标,取值,单位,约束,部署单元,区域,版本,fact_id
+row,事件摄取吞吐,760000,events/s,enterprise-edition、3-node,主节点,cn,v5.0-cn-intl,P014-F262
+row,事件摄取吞吐,760000,events/s,enterprise-edition、3-node,灾备节点,cn,v5.0-cn-intl,P014-F262
+row,事件摄取吞吐,760000,events/s,enterprise-edition、3-node,只读副本,cn,v5.0-cn-intl,P014-F262
+row,API 峰值并发,15000,req/s,enterprise-edition,主节点,intl,v5.0-cn-intl,P014-F263
+row,API 峰值并发,15000,req/s,enterprise-edition,灾备节点,intl,v5.0-cn-intl,P014-F263
+row,API 峰值并发,15000,req/s,enterprise-edition,只读副本,intl,v5.0-cn-intl,P014-F263
+row,P95 检索延迟,35,ms,p95、warm,主节点,cn,v5.0-cn-intl,P014-F264
+row,P95 检索延迟,35,ms,p95、warm,灾备节点,cn,v5.0-cn-intl,P014-F264
+row,P95 检索延迟,35,ms,p95、warm,只读副本,cn,v5.0-cn-intl,P014-F264
+row,最大单文档上传,32,MB,默认限制,主节点,intl,v5.0-cn-intl,P014-F265
+row,最大单文档上传,32,MB,默认限制,灾备节点,intl,v5.0-cn-intl,P014-F265
+row,最大单文档上传,32,MB,默认限制,只读副本,intl,v5.0-cn-intl,P014-F265
+row,日志/审计留存期,90,days,默认,主节点,cn,v5.0-cn-intl,P014-F266
+row,日志/审计留存期,90,days,默认,灾备节点,cn,v5.0-cn-intl,P014-F266
+row,日志/审计留存期,90,days,默认,只读副本,cn,v5.0-cn-intl,P014-F266
+row,批量接口吞吐,9800,ops/s,batch=256,主节点,intl,v5.0-cn-intl,P014-F267
+row,批量接口吞吐,9800,ops/s,batch=256,灾备节点,intl,v5.0-cn-intl,P014-F267
+row,批量接口吞吐,9800,ops/s,batch=256,只读副本,intl,v5.0-cn-intl,P014-F267
+row,当前版本线,v5.0,version,GA,主节点,cn,v5.0-cn-intl,P014-F268
+row,当前版本线,v5.0,version,GA,灾备节点,cn,v5.0-cn-intl,P014-F268
+row,当前版本线,v5.0,version,GA,只读副本,cn,v5.0-cn-intl,P014-F268
+row,默认批次大小,256,items,可配置,主节点,intl,v5.0-cn-intl,P014-F269
+row,默认批次大小,256,items,可配置,灾备节点,intl,v5.0-cn-intl,P014-F269
+row,默认批次大小,256,items,可配置,只读副本,intl,v5.0-cn-intl,P014-F269
+row,不支持能力,不支持对模型参数优化的注水拦截,,negation,主节点,cn,v5.0-cn-intl,P014-F270
+row,不支持能力,不支持对模型参数优化的注水拦截,,negation,灾备节点,cn,v5.0-cn-intl,P014-F270
+row,不支持能力,不支持对模型参数优化的注水拦截,,negation,只读副本,cn,v5.0-cn-intl,P014-F270
+row,否定事实,仅企业版支持 ML 注入检测,,negation、must-not-claim,主节点,intl,v5.0-cn-intl,P014-F271
+row,否定事实,仅企业版支持 ML 注入检测,,negation、must-not-claim,灾备节点,intl,v5.0-cn-intl,P014-F271
+row,否定事实,仅企业版支持 ML 注入检测,,negation、must-not-claim,只读副本,intl,v5.0-cn-intl,P014-F271
+row,否定事实,不支持原生端到端全模型脱敏,,negation、must-not-claim,主节点,cn,v5.0-cn-intl,P014-F272
+row,否定事实,不支持原生端到端全模型脱敏,,negation、must-not-claim,灾备节点,cn,v5.0-cn-intl,P014-F272
+row,否定事实,不支持原生端到端全模型脱敏,,negation、must-not-claim,只读副本,cn,v5.0-cn-intl,P014-F272
+row,可用性目标,99.9,percent,enterprise-SLA,主节点,intl,v5.0-cn-intl,P014-F273
+row,可用性目标,99.9,percent,enterprise-SLA,灾备节点,intl,v5.0-cn-intl,P014-F273
+row,可用性目标,99.9,percent,enterprise-SLA,只读副本,intl,v5.0-cn-intl,P014-F273
+row,合规基座,GB-35273/CAC-审查-P014,,zh-cn,主节点,cn,v5.0-cn-intl,P014-F274
+row,合规基座,GB-35273/CAC-审查-P014,,zh-cn,灾备节点,cn,v5.0-cn-intl,P014-F274
+row,合规基座,GB-35273/CAC-审查-P014,,zh-cn,只读副本,cn,v5.0-cn-intl,P014-F274
+row,企业版起价,19180,cny/月,per-org、annual,主节点,intl,v5.0-cn-intl,P014-F275
+row,企业版起价,19180,cny/月,per-org、annual,灾备节点,intl,v5.0-cn-intl,P014-F275
+row,企业版起价,19180,cny/月,per-org、annual,只读副本,intl,v5.0-cn-intl,P014-F275
+row,主邻接产品,P001,product,邻接 P001,主节点,cn,v5.0-cn-intl,P014-F276
+row,主邻接产品,P001,product,邻接 P001,灾备节点,cn,v5.0-cn-intl,P014-F276
+row,主邻接产品,P001,product,邻接 P001,只读副本,cn,v5.0-cn-intl,P014-F276
+row,旧版事件吞吐,471200,events/s,v4.9、legacy,主节点,intl,v5.0-cn-intl,P014-F277
+row,旧版事件吞吐,471200,events/s,v4.9、legacy,灾备节点,intl,v5.0-cn-intl,P014-F277
+row,旧版事件吞吐,471200,events/s,v4.9、legacy,只读副本,intl,v5.0-cn-intl,P014-F277
+row,旧版 P95 延迟,59,ms,v4.9、legacy,主节点,cn,v5.0-cn-intl,P014-F278
+row,旧版 P95 延迟,59,ms,v4.9、legacy,灾备节点,cn,v5.0-cn-intl,P014-F278
+row,旧版 P95 延迟,59,ms,v4.9、legacy,只读副本,cn,v5.0-cn-intl,P014-F278
+row,与 P001 兼容,true,bool,edge P014->P001,主节点,intl,v5.0-cn-intl,P014-F279
+row,与 P001 兼容,true,bool,edge P014->P001,灾备节点,intl,v5.0-cn-intl,P014-F279
+row,与 P001 兼容,true,bool,edge P014->P001,只读副本,intl,v5.0-cn-intl,P014-F279
+row,与 P007 兼容,true,bool,edge P014->P007,主节点,cn,v5.0-cn-intl,P014-F280
+row,与 P007 兼容,true,bool,edge P014->P007,灾备节点,cn,v5.0-cn-intl,P014-F280
+row,与 P007 兼容,true,bool,edge P014->P007,只读副本,cn,v5.0-cn-intl,P014-F280
+row,核心协议,提示注入拦截、PII 检测、策略旁路,,支持 提示注入拦截、支持 PII 检测、支持 策略旁路,主节点,intl,v5.0-cn-intl,P014-F261
+row,核心协议,提示注入拦截、PII 检测、策略旁路,,支持 提示注入拦截、支持 PII 检测、支持 策略旁路,灾备节点,intl,v5.0-cn-intl,P014-F261
+row,核心协议,提示注入拦截、PII 检测、策略旁路,,支持 提示注入拦截、支持 PII 检测、支持 策略旁路,只读副本,intl,v5.0-cn-intl,P014-F261
+table_header,指标,取值,单位,约束,部署单元,区域,版本,fact_id
+row,API 峰值并发,15000,req/s,enterprise-edition,主节点,cn,v5.0-cn-intl,P014-F263
+row,API 峰值并发,15000,req/s,enterprise-edition,灾备节点,cn,v5.0-cn-intl,P014-F263
+row,API 峰值并发,15000,req/s,enterprise-edition,只读副本,cn,v5.0-cn-intl,P014-F263
+row,P95 检索延迟,35,ms,p95、warm,主节点,intl,v5.0-cn-intl,P014-F264
+row,P95 检索延迟,35,ms,p95、warm,灾备节点,intl,v5.0-cn-intl,P014-F264
+row,P95 检索延迟,35,ms,p95、warm,只读副本,intl,v5.0-cn-intl,P014-F264
+row,最大单文档上传,32,MB,默认限制,主节点,cn,v5.0-cn-intl,P014-F265
+row,最大单文档上传,32,MB,默认限制,灾备节点,cn,v5.0-cn-intl,P014-F265
+row,最大单文档上传,32,MB,默认限制,只读副本,cn,v5.0-cn-intl,P014-F265
+row,日志/审计留存期,90,days,默认,主节点,intl,v5.0-cn-intl,P014-F266
+row,日志/审计留存期,90,days,默认,灾备节点,intl,v5.0-cn-intl,P014-F266
+row,日志/审计留存期,90,days,默认,只读副本,intl,v5.0-cn-intl,P014-F266
+row,批量接口吞吐,9800,ops/s,batch=256,主节点,cn,v5.0-cn-intl,P014-F267
+row,批量接口吞吐,9800,ops/s,batch=256,灾备节点,cn,v5.0-cn-intl,P014-F267
+row,批量接口吞吐,9800,ops/s,batch=256,只读副本,cn,v5.0-cn-intl,P014-F267
+row,当前版本线,v5.0,version,GA,主节点,intl,v5.0-cn-intl,P014-F268
+row,当前版本线,v5.0,version,GA,灾备节点,intl,v5.0-cn-intl,P014-F268
+row,当前版本线,v5.0,version,GA,只读副本,intl,v5.0-cn-intl,P014-F268
+row,默认批次大小,256,items,可配置,主节点,cn,v5.0-cn-intl,P014-F269
+row,默认批次大小,256,items,可配置,灾备节点,cn,v5.0-cn-intl,P014-F269
+row,默认批次大小,256,items,可配置,只读副本,cn,v5.0-cn-intl,P014-F269
+row,不支持能力,不支持对模型参数优化的注水拦截,,negation,主节点,intl,v5.0-cn-intl,P014-F270
+row,不支持能力,不支持对模型参数优化的注水拦截,,negation,灾备节点,intl,v5.0-cn-intl,P014-F270
+row,不支持能力,不支持对模型参数优化的注水拦截,,negation,只读副本,intl,v5.0-cn-intl,P014-F270
+row,否定事实,仅企业版支持 ML 注入检测,,negation、must-not-claim,主节点,cn,v5.0-cn-intl,P014-F271
+row,否定事实,仅企业版支持 ML 注入检测,,negation、must-not-claim,灾备节点,cn,v5.0-cn-intl,P014-F271
+row,否定事实,仅企业版支持 ML 注入检测,,negation、must-not-claim,只读副本,cn,v5.0-cn-intl,P014-F271
+row,否定事实,不支持原生端到端全模型脱敏,,negation、must-not-claim,主节点,intl,v5.0-cn-intl,P014-F272
+row,否定事实,不支持原生端到端全模型脱敏,,negation、must-not-claim,灾备节点,intl,v5.0-cn-intl,P014-F272
+row,否定事实,不支持原生端到端全模型脱敏,,negation、must-not-claim,只读副本,intl,v5.0-cn-intl,P014-F272
+row,可用性目标,99.9,percent,enterprise-SLA,主节点,cn,v5.0-cn-intl,P014-F273
+row,可用性目标,99.9,percent,enterprise-SLA,灾备节点,cn,v5.0-cn-intl,P014-F273
+row,可用性目标,99.9,percent,enterprise-SLA,只读副本,cn,v5.0-cn-intl,P014-F273
+row,合规基座,GB-35273/CAC-审查-P014,,zh-cn,主节点,intl,v5.0-cn-intl,P014-F274
+row,合规基座,GB-35273/CAC-审查-P014,,zh-cn,灾备节点,intl,v5.0-cn-intl,P014-F274
+row,合规基座,GB-35273/CAC-审查-P014,,zh-cn,只读副本,intl,v5.0-cn-intl,P014-F274
+row,企业版起价,19180,cny/月,per-org、annual,主节点,cn,v5.0-cn-intl,P014-F275
+row,企业版起价,19180,cny/月,per-org、annual,灾备节点,cn,v5.0-cn-intl,P014-F275
+row,企业版起价,19180,cny/月,per-org、annual,只读副本,cn,v5.0-cn-intl,P014-F275
+row,主邻接产品,P001,product,邻接 P001,主节点,intl,v5.0-cn-intl,P014-F276
+row,主邻接产品,P001,product,邻接 P001,灾备节点,intl,v5.0-cn-intl,P014-F276
+row,主邻接产品,P001,product,邻接 P001,只读副本,intl,v5.0-cn-intl,P014-F276
+row,旧版事件吞吐,471200,events/s,v4.9、legacy,主节点,cn,v5.0-cn-intl,P014-F277
+row,旧版事件吞吐,471200,events/s,v4.9、legacy,灾备节点,cn,v5.0-cn-intl,P014-F277
+row,旧版事件吞吐,471200,events/s,v4.9、legacy,只读副本,cn,v5.0-cn-intl,P014-F277
+row,旧版 P95 延迟,59,ms,v4.9、legacy,主节点,intl,v5.0-cn-intl,P014-F278
+row,旧版 P95 延迟,59,ms,v4.9、legacy,灾备节点,intl,v5.0-cn-intl,P014-F278
+row,旧版 P95 延迟,59,ms,v4.9、legacy,只读副本,intl,v5.0-cn-intl,P014-F278
+row,与 P001 兼容,true,bool,edge P014->P001,主节点,cn,v5.0-cn-intl,P014-F279
+row,与 P001 兼容,true,bool,edge P014->P001,灾备节点,cn,v5.0-cn-intl,P014-F279
+row,与 P001 兼容,true,bool,edge P014->P001,只读副本,cn,v5.0-cn-intl,P014-F279
+row,与 P007 兼容,true,bool,edge P014->P007,主节点,intl,v5.0-cn-intl,P014-F280
+row,与 P007 兼容,true,bool,edge P014->P007,灾备节点,intl,v5.0-cn-intl,P014-F280
+row,与 P007 兼容,true,bool,edge P014->P007,只读副本,intl,v5.0-cn-intl,P014-F280
+row,核心协议,提示注入拦截、PII 检测、策略旁路,,支持 提示注入拦截、支持 PII 检测、支持 策略旁路,主节点,cn,v5.0-cn-intl,P014-F261
+row,核心协议,提示注入拦截、PII 检测、策略旁路,,支持 提示注入拦截、支持 PII 检测、支持 策略旁路,灾备节点,cn,v5.0-cn-intl,P014-F261
+row,核心协议,提示注入拦截、PII 检测、策略旁路,,支持 提示注入拦截、支持 PII 检测、支持 策略旁路,只读副本,cn,v5.0-cn-intl,P014-F261
+row,事件摄取吞吐,760000,events/s,enterprise-edition、3-node,主节点,intl,v5.0-cn-intl,P014-F262
+row,事件摄取吞吐,760000,events/s,enterprise-edition、3-node,灾备节点,intl,v5.0-cn-intl,P014-F262
+row,事件摄取吞吐,760000,events/s,enterprise-edition、3-node,只读副本,intl,v5.0-cn-intl,P014-F262
+table_header,指标,取值,单位,约束,部署单元,区域,版本,fact_id
+row,P95 检索延迟,35,ms,p95、warm,主节点,cn,v5.0-cn-intl,P014-F264
+row,P95 检索延迟,35,ms,p95、warm,灾备节点,cn,v5.0-cn-intl,P014-F264
+row,P95 检索延迟,35,ms,p95、warm,只读副本,cn,v5.0-cn-intl,P014-F264
+row,最大单文档上传,32,MB,默认限制,主节点,intl,v5.0-cn-intl,P014-F265
+row,最大单文档上传,32,MB,默认限制,灾备节点,intl,v5.0-cn-intl,P014-F265
+row,最大单文档上传,32,MB,默认限制,只读副本,intl,v5.0-cn-intl,P014-F265
+row,日志/审计留存期,90,days,默认,主节点,cn,v5.0-cn-intl,P014-F266
+row,日志/审计留存期,90,days,默认,灾备节点,cn,v5.0-cn-intl,P014-F266
+row,日志/审计留存期,90,days,默认,只读副本,cn,v5.0-cn-intl,P014-F266
+row,批量接口吞吐,9800,ops/s,batch=256,主节点,intl,v5.0-cn-intl,P014-F267
+row,批量接口吞吐,9800,ops/s,batch=256,灾备节点,intl,v5.0-cn-intl,P014-F267
+row,批量接口吞吐,9800,ops/s,batch=256,只读副本,intl,v5.0-cn-intl,P014-F267
+row,当前版本线,v5.0,version,GA,主节点,cn,v5.0-cn-intl,P014-F268
+row,当前版本线,v5.0,version,GA,灾备节点,cn,v5.0-cn-intl,P014-F268
+row,当前版本线,v5.0,version,GA,只读副本,cn,v5.0-cn-intl,P014-F268
+row,默认批次大小,256,items,可配置,主节点,intl,v5.0-cn-intl,P014-F269
+row,默认批次大小,256,items,可配置,灾备节点,intl,v5.0-cn-intl,P014-F269
+row,默认批次大小,256,items,可配置,只读副本,intl,v5.0-cn-intl,P014-F269
+row,不支持能力,不支持对模型参数优化的注水拦截,,negation,主节点,cn,v5.0-cn-intl,P014-F270
+row,不支持能力,不支持对模型参数优化的注水拦截,,negation,灾备节点,cn,v5.0-cn-intl,P014-F270
+row,不支持能力,不支持对模型参数优化的注水拦截,,negation,只读副本,cn,v5.0-cn-intl,P014-F270
+row,否定事实,仅企业版支持 ML 注入检测,,negation、must-not-claim,主节点,intl,v5.0-cn-intl,P014-F271
+row,否定事实,仅企业版支持 ML 注入检测,,negation、must-not-claim,灾备节点,intl,v5.0-cn-intl,P014-F271
+row,否定事实,仅企业版支持 ML 注入检测,,negation、must-not-claim,只读副本,intl,v5.0-cn-intl,P014-F271
+row,否定事实,不支持原生端到端全模型脱敏,,negation、must-not-claim,主节点,cn,v5.0-cn-intl,P014-F272
+row,否定事实,不支持原生端到端全模型脱敏,,negation、must-not-claim,灾备节点,cn,v5.0-cn-intl,P014-F272
+row,否定事实,不支持原生端到端全模型脱敏,,negation、must-not-claim,只读副本,cn,v5.0-cn-intl,P014-F272
+row,可用性目标,99.9,percent,enterprise-SLA,主节点,intl,v5.0-cn-intl,P014-F273
+row,可用性目标,99.9,percent,enterprise-SLA,灾备节点,intl,v5.0-cn-intl,P014-F273
+row,可用性目标,99.9,percent,enterprise-SLA,只读副本,intl,v5.0-cn-intl,P014-F273
+row,合规基座,GB-35273/CAC-审查-P014,,zh-cn,主节点,cn,v5.0-cn-intl,P014-F274
+row,合规基座,GB-35273/CAC-审查-P014,,zh-cn,灾备节点,cn,v5.0-cn-intl,P014-F274
+row,合规基座,GB-35273/CAC-审查-P014,,zh-cn,只读副本,cn,v5.0-cn-intl,P014-F274
+row,企业版起价,19180,cny/月,per-org、annual,主节点,intl,v5.0-cn-intl,P014-F275
+row,企业版起价,19180,cny/月,per-org、annual,灾备节点,intl,v5.0-cn-intl,P014-F275
+row,企业版起价,19180,cny/月,per-org、annual,只读副本,intl,v5.0-cn-intl,P014-F275
+row,主邻接产品,P001,product,邻接 P001,主节点,cn,v5.0-cn-intl,P014-F276
+row,主邻接产品,P001,product,邻接 P001,灾备节点,cn,v5.0-cn-intl,P014-F276
+row,主邻接产品,P001,product,邻接 P001,只读副本,cn,v5.0-cn-intl,P014-F276
+row,旧版事件吞吐,471200,events/s,v4.9、legacy,主节点,intl,v5.0-cn-intl,P014-F277
+row,旧版事件吞吐,471200,events/s,v4.9、legacy,灾备节点,intl,v5.0-cn-intl,P014-F277
+row,旧版事件吞吐,471200,events/s,v4.9、legacy,只读副本,intl,v5.0-cn-intl,P014-F277
+row,旧版 P95 延迟,59,ms,v4.9、legacy,主节点,cn,v5.0-cn-intl,P014-F278
+row,旧版 P95 延迟,59,ms,v4.9、legacy,灾备节点,cn,v5.0-cn-intl,P014-F278
+row,旧版 P95 延迟,59,ms,v4.9、legacy,只读副本,cn,v5.0-cn-intl,P014-F278
+row,与 P001 兼容,true,bool,edge P014->P001,主节点,intl,v5.0-cn-intl,P014-F279
+row,与 P001 兼容,true,bool,edge P014->P001,灾备节点,intl,v5.0-cn-intl,P014-F279
+row,与 P001 兼容,true,bool,edge P014->P001,只读副本,intl,v5.0-cn-intl,P014-F279
+row,与 P007 兼容,true,bool,edge P014->P007,主节点,cn,v5.0-cn-intl,P014-F280
+row,与 P007 兼容,true,bool,edge P014->P007,灾备节点,cn,v5.0-cn-intl,P014-F280
+row,与 P007 兼容,true,bool,edge P014->P007,只读副本,cn,v5.0-cn-intl,P014-F280
+row,核心协议,提示注入拦截、PII 检测、策略旁路,,支持 提示注入拦截、支持 PII 检测、支持 策略旁路,主节点,intl,v5.0-cn-intl,P014-F261
+row,核心协议,提示注入拦截、PII 检测、策略旁路,,支持 提示注入拦截、支持 PII 检测、支持 策略旁路,灾备节点,intl,v5.0-cn-intl,P014-F261
+row,核心协议,提示注入拦截、PII 检测、策略旁路,,支持 提示注入拦截、支持 PII 检测、支持 策略旁路,只读副本,intl,v5.0-cn-intl,P014-F261
+row,事件摄取吞吐,760000,events/s,enterprise-edition、3-node,主节点,cn,v5.0-cn-intl,P014-F262
+row,事件摄取吞吐,760000,events/s,enterprise-edition、3-node,灾备节点,cn,v5.0-cn-intl,P014-F262
+row,事件摄取吞吐,760000,events/s,enterprise-edition、3-node,只读副本,cn,v5.0-cn-intl,P014-F262
+row,API 峰值并发,15000,req/s,enterprise-edition,主节点,intl,v5.0-cn-intl,P014-F263
+row,API 峰值并发,15000,req/s,enterprise-edition,灾备节点,intl,v5.0-cn-intl,P014-F263
+row,API 峰值并发,15000,req/s,enterprise-edition,只读副本,intl,v5.0-cn-intl,P014-F263
+table_header,边界项,边界内容
+row,边界1,LLM 安全网关 不支持 仅企业版支持 ML 注入检测
+row,边界2,LLM 安全网关 不支持 不支持原生端到端全模型脱敏
+row,整体边界,LLM 安全网关 不支持 不支持对模型参数优化的注水拦截（详见 P014-F 系事实）

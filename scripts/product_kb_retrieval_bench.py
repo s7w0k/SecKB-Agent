@@ -429,6 +429,53 @@ def paraphrase_questions(queries: list[str], *, cache_path: Path, overwrite: boo
     return cache, warned
 
 
+def paraphrase_variants(queries: list[str], *, cache_path: Path,
+                        num_variants: int = 2, overwrite: bool = False,
+                        overlap_threshold: float = 0.4,
+                        entity_threshold: float = 0.5) -> tuple[dict, list[str]]:
+    """为每问句生成 ``num_variants`` 个去实体化同义变体（供评测扩容 query 池）。
+
+    与 ``paraphrase_questions`` 的区别：
+    - 每个问句产出*多条*互不相同、且与原句去字面化校验通过的变体（V2 prompt + 较高温度）。
+    - 缓存值为 ``{query: [variant, ...]}`` 列表（独立缓存文件，与单改写缓存隔离）。
+    变体与 canonical 共享同一答案 gold（评测时由调用方把相同 gold_ids 绑定到变体）。
+    """
+    cache_path.parent.mkdir(parents=True, exist_ok=True)
+    cache: dict[str, list[str]] = {}
+    if cache_path.exists():
+        try:
+            cache = json.loads(cache_path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            cache = {}
+    warned: list[str] = []
+    todo = [q for q in dict.fromkeys(queries)
+            if overwrite or len(cache.get(q) or []) < num_variants]
+    if not todo:
+        return cache, warned
+
+    from app.core.config import get_settings
+    from app.rag_eval.providers import build_chat_provider
+
+    chat = build_chat_provider(get_settings())
+    system = _PARAPHRASE_SYSTEM_V2
+    for i, q in enumerate(todo, 1):
+        existing = [v for v in (cache.get(q) or [])]
+        for _ in range(num_variants):
+            rewrite = chat.complete(
+                [{"role": "system", "content": system}, {"role": "user", "content": q}],
+                temperature=0.7, max_tokens=96,
+            ).strip().strip('"')
+            if not _paraphrase_qualifies(q, rewrite, overlap_threshold, entity_threshold):
+                warned.append(q)
+            if rewrite and rewrite != q and rewrite not in existing:
+                existing.append(rewrite)
+        cache[q] = existing
+        flag = "  [warn!!]" if q in warned else ""
+        print(f"  变体[{i}/{len(todo)}] {q} -> {existing}{flag}")
+    cache_path.write_text(json.dumps(cache, ensure_ascii=False, indent=2), encoding="utf-8")
+    return cache, warned
+
+
 # --------------------------------------------------------------------------- #
 # 改造四：hard 集（跨产品 / 多文档聚合 / 长文档定位）
 # --------------------------------------------------------------------------- #

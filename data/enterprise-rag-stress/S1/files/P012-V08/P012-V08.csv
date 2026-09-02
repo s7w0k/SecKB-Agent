@@ -1,0 +1,188 @@
+type,content
+table_header,指标,取值,单位,约束,部署单元,区域,版本,fact_id
+row,核心协议,伪造识别、换脸检测、声纹比对,,支持 伪造识别、支持 换脸检测、支持 声纹比对,主节点,cn,v2.0-cn-intl,P012-F221
+row,核心协议,伪造识别、换脸检测、声纹比对,,支持 伪造识别、支持 换脸检测、支持 声纹比对,灾备节点,cn,v2.0-cn-intl,P012-F221
+row,核心协议,伪造识别、换脸检测、声纹比对,,支持 伪造识别、支持 换脸检测、支持 声纹比对,只读副本,cn,v2.0-cn-intl,P012-F221
+row,事件摄取吞吐,90000,events/s,standard-edition、3-node,主节点,intl,v2.0-cn-intl,P012-F222
+row,事件摄取吞吐,90000,events/s,standard-edition、3-node,灾备节点,intl,v2.0-cn-intl,P012-F222
+row,事件摄取吞吐,90000,events/s,standard-edition、3-node,只读副本,intl,v2.0-cn-intl,P012-F222
+row,API 峰值并发,1800,req/s,standard-edition,主节点,cn,v2.0-cn-intl,P012-F223
+row,API 峰值并发,1800,req/s,standard-edition,灾备节点,cn,v2.0-cn-intl,P012-F223
+row,API 峰值并发,1800,req/s,standard-edition,只读副本,cn,v2.0-cn-intl,P012-F223
+row,P95 检索延迟,40,ms,p95、warm,主节点,intl,v2.0-cn-intl,P012-F224
+row,P95 检索延迟,40,ms,p95、warm,灾备节点,intl,v2.0-cn-intl,P012-F224
+row,P95 检索延迟,40,ms,p95、warm,只读副本,intl,v2.0-cn-intl,P012-F224
+row,最大单文档上传,18,MB,默认限制,主节点,cn,v2.0-cn-intl,P012-F225
+row,最大单文档上传,18,MB,默认限制,灾备节点,cn,v2.0-cn-intl,P012-F225
+row,最大单文档上传,18,MB,默认限制,只读副本,cn,v2.0-cn-intl,P012-F225
+row,日志/审计留存期,14,days,默认,主节点,intl,v2.0-cn-intl,P012-F226
+row,日志/审计留存期,14,days,默认,灾备节点,intl,v2.0-cn-intl,P012-F226
+row,日志/审计留存期,14,days,默认,只读副本,intl,v2.0-cn-intl,P012-F226
+row,批量接口吞吐,1200,ops/s,batch=32,主节点,cn,v2.0-cn-intl,P012-F227
+row,批量接口吞吐,1200,ops/s,batch=32,灾备节点,cn,v2.0-cn-intl,P012-F227
+row,批量接口吞吐,1200,ops/s,batch=32,只读副本,cn,v2.0-cn-intl,P012-F227
+row,当前版本线,v2.0,version,GA,主节点,intl,v2.0-cn-intl,P012-F228
+row,当前版本线,v2.0,version,GA,灾备节点,intl,v2.0-cn-intl,P012-F228
+row,当前版本线,v2.0,version,GA,只读副本,intl,v2.0-cn-intl,P012-F228
+row,默认批次大小,32,items,可配置,主节点,cn,v2.0-cn-intl,P012-F229
+row,默认批次大小,32,items,可配置,灾备节点,cn,v2.0-cn-intl,P012-F229
+row,默认批次大小,32,items,可配置,只读副本,cn,v2.0-cn-intl,P012-F229
+row,不支持能力,不支持 4K 超长视频端到端,,negation,主节点,intl,v2.0-cn-intl,P012-F230
+row,不支持能力,不支持 4K 超长视频端到端,,negation,灾备节点,intl,v2.0-cn-intl,P012-F230
+row,不支持能力,不支持 4K 超长视频端到端,,negation,只读副本,intl,v2.0-cn-intl,P012-F230
+row,否定事实,低分辨率素材仅告警,,negation、must-not-claim,主节点,cn,v2.0-cn-intl,P012-F231
+row,否定事实,低分辨率素材仅告警,,negation、must-not-claim,灾备节点,cn,v2.0-cn-intl,P012-F231
+row,否定事实,低分辨率素材仅告警,,negation、must-not-claim,只读副本,cn,v2.0-cn-intl,P012-F231
+row,否定事实,不支持离线深度伪造断言,,negation、must-not-claim,主节点,intl,v2.0-cn-intl,P012-F232
+row,否定事实,不支持离线深度伪造断言,,negation、must-not-claim,灾备节点,intl,v2.0-cn-intl,P012-F232
+row,否定事实,不支持离线深度伪造断言,,negation、must-not-claim,只读副本,intl,v2.0-cn-intl,P012-F232
+row,可用性目标,99.9,percent,standard-SLA,主节点,cn,v2.0-cn-intl,P012-F233
+row,可用性目标,99.9,percent,standard-SLA,灾备节点,cn,v2.0-cn-intl,P012-F233
+row,可用性目标,99.9,percent,standard-SLA,只读副本,cn,v2.0-cn-intl,P012-F233
+row,合规基座,GB-35273/CAC-审查-P012,,zh-cn,主节点,intl,v2.0-cn-intl,P012-F234
+row,合规基座,GB-35273/CAC-审查-P012,,zh-cn,灾备节点,intl,v2.0-cn-intl,P012-F234
+row,合规基座,GB-35273/CAC-审查-P012,,zh-cn,只读副本,intl,v2.0-cn-intl,P012-F234
+row,企业版起价,25440,cny/月,per-org、annual,主节点,cn,v2.0-cn-intl,P012-F235
+row,企业版起价,25440,cny/月,per-org、annual,灾备节点,cn,v2.0-cn-intl,P012-F235
+row,企业版起价,25440,cny/月,per-org、annual,只读副本,cn,v2.0-cn-intl,P012-F235
+row,主邻接产品,P011,product,邻接 P011,主节点,intl,v2.0-cn-intl,P012-F236
+row,主邻接产品,P011,product,邻接 P011,灾备节点,intl,v2.0-cn-intl,P012-F236
+row,主邻接产品,P011,product,邻接 P011,只读副本,intl,v2.0-cn-intl,P012-F236
+row,旧版事件吞吐,55800,events/s,v1.9、legacy,主节点,cn,v2.0-cn-intl,P012-F237
+row,旧版事件吞吐,55800,events/s,v1.9、legacy,灾备节点,cn,v2.0-cn-intl,P012-F237
+row,旧版事件吞吐,55800,events/s,v1.9、legacy,只读副本,cn,v2.0-cn-intl,P012-F237
+row,旧版 P95 延迟,68,ms,v1.9、legacy,主节点,intl,v2.0-cn-intl,P012-F238
+row,旧版 P95 延迟,68,ms,v1.9、legacy,灾备节点,intl,v2.0-cn-intl,P012-F238
+row,旧版 P95 延迟,68,ms,v1.9、legacy,只读副本,intl,v2.0-cn-intl,P012-F238
+row,与 P011 兼容,true,bool,edge P012->P011,主节点,cn,v2.0-cn-intl,P012-F239
+row,与 P011 兼容,true,bool,edge P012->P011,灾备节点,cn,v2.0-cn-intl,P012-F239
+row,与 P011 兼容,true,bool,edge P012->P011,只读副本,cn,v2.0-cn-intl,P012-F239
+row,与 P020 兼容,true,bool,edge P012->P020,主节点,intl,v2.0-cn-intl,P012-F240
+row,与 P020 兼容,true,bool,edge P012->P020,灾备节点,intl,v2.0-cn-intl,P012-F240
+row,与 P020 兼容,true,bool,edge P012->P020,只读副本,intl,v2.0-cn-intl,P012-F240
+table_header,指标,取值,单位,约束,部署单元,区域,版本,fact_id
+row,事件摄取吞吐,90000,events/s,standard-edition、3-node,主节点,cn,v2.0-cn-intl,P012-F222
+row,事件摄取吞吐,90000,events/s,standard-edition、3-node,灾备节点,cn,v2.0-cn-intl,P012-F222
+row,事件摄取吞吐,90000,events/s,standard-edition、3-node,只读副本,cn,v2.0-cn-intl,P012-F222
+row,API 峰值并发,1800,req/s,standard-edition,主节点,intl,v2.0-cn-intl,P012-F223
+row,API 峰值并发,1800,req/s,standard-edition,灾备节点,intl,v2.0-cn-intl,P012-F223
+row,API 峰值并发,1800,req/s,standard-edition,只读副本,intl,v2.0-cn-intl,P012-F223
+row,P95 检索延迟,40,ms,p95、warm,主节点,cn,v2.0-cn-intl,P012-F224
+row,P95 检索延迟,40,ms,p95、warm,灾备节点,cn,v2.0-cn-intl,P012-F224
+row,P95 检索延迟,40,ms,p95、warm,只读副本,cn,v2.0-cn-intl,P012-F224
+row,最大单文档上传,18,MB,默认限制,主节点,intl,v2.0-cn-intl,P012-F225
+row,最大单文档上传,18,MB,默认限制,灾备节点,intl,v2.0-cn-intl,P012-F225
+row,最大单文档上传,18,MB,默认限制,只读副本,intl,v2.0-cn-intl,P012-F225
+row,日志/审计留存期,14,days,默认,主节点,cn,v2.0-cn-intl,P012-F226
+row,日志/审计留存期,14,days,默认,灾备节点,cn,v2.0-cn-intl,P012-F226
+row,日志/审计留存期,14,days,默认,只读副本,cn,v2.0-cn-intl,P012-F226
+row,批量接口吞吐,1200,ops/s,batch=32,主节点,intl,v2.0-cn-intl,P012-F227
+row,批量接口吞吐,1200,ops/s,batch=32,灾备节点,intl,v2.0-cn-intl,P012-F227
+row,批量接口吞吐,1200,ops/s,batch=32,只读副本,intl,v2.0-cn-intl,P012-F227
+row,当前版本线,v2.0,version,GA,主节点,cn,v2.0-cn-intl,P012-F228
+row,当前版本线,v2.0,version,GA,灾备节点,cn,v2.0-cn-intl,P012-F228
+row,当前版本线,v2.0,version,GA,只读副本,cn,v2.0-cn-intl,P012-F228
+row,默认批次大小,32,items,可配置,主节点,intl,v2.0-cn-intl,P012-F229
+row,默认批次大小,32,items,可配置,灾备节点,intl,v2.0-cn-intl,P012-F229
+row,默认批次大小,32,items,可配置,只读副本,intl,v2.0-cn-intl,P012-F229
+row,不支持能力,不支持 4K 超长视频端到端,,negation,主节点,cn,v2.0-cn-intl,P012-F230
+row,不支持能力,不支持 4K 超长视频端到端,,negation,灾备节点,cn,v2.0-cn-intl,P012-F230
+row,不支持能力,不支持 4K 超长视频端到端,,negation,只读副本,cn,v2.0-cn-intl,P012-F230
+row,否定事实,低分辨率素材仅告警,,negation、must-not-claim,主节点,intl,v2.0-cn-intl,P012-F231
+row,否定事实,低分辨率素材仅告警,,negation、must-not-claim,灾备节点,intl,v2.0-cn-intl,P012-F231
+row,否定事实,低分辨率素材仅告警,,negation、must-not-claim,只读副本,intl,v2.0-cn-intl,P012-F231
+row,否定事实,不支持离线深度伪造断言,,negation、must-not-claim,主节点,cn,v2.0-cn-intl,P012-F232
+row,否定事实,不支持离线深度伪造断言,,negation、must-not-claim,灾备节点,cn,v2.0-cn-intl,P012-F232
+row,否定事实,不支持离线深度伪造断言,,negation、must-not-claim,只读副本,cn,v2.0-cn-intl,P012-F232
+row,可用性目标,99.9,percent,standard-SLA,主节点,intl,v2.0-cn-intl,P012-F233
+row,可用性目标,99.9,percent,standard-SLA,灾备节点,intl,v2.0-cn-intl,P012-F233
+row,可用性目标,99.9,percent,standard-SLA,只读副本,intl,v2.0-cn-intl,P012-F233
+row,合规基座,GB-35273/CAC-审查-P012,,zh-cn,主节点,cn,v2.0-cn-intl,P012-F234
+row,合规基座,GB-35273/CAC-审查-P012,,zh-cn,灾备节点,cn,v2.0-cn-intl,P012-F234
+row,合规基座,GB-35273/CAC-审查-P012,,zh-cn,只读副本,cn,v2.0-cn-intl,P012-F234
+row,企业版起价,25440,cny/月,per-org、annual,主节点,intl,v2.0-cn-intl,P012-F235
+row,企业版起价,25440,cny/月,per-org、annual,灾备节点,intl,v2.0-cn-intl,P012-F235
+row,企业版起价,25440,cny/月,per-org、annual,只读副本,intl,v2.0-cn-intl,P012-F235
+row,主邻接产品,P011,product,邻接 P011,主节点,cn,v2.0-cn-intl,P012-F236
+row,主邻接产品,P011,product,邻接 P011,灾备节点,cn,v2.0-cn-intl,P012-F236
+row,主邻接产品,P011,product,邻接 P011,只读副本,cn,v2.0-cn-intl,P012-F236
+row,旧版事件吞吐,55800,events/s,v1.9、legacy,主节点,intl,v2.0-cn-intl,P012-F237
+row,旧版事件吞吐,55800,events/s,v1.9、legacy,灾备节点,intl,v2.0-cn-intl,P012-F237
+row,旧版事件吞吐,55800,events/s,v1.9、legacy,只读副本,intl,v2.0-cn-intl,P012-F237
+row,旧版 P95 延迟,68,ms,v1.9、legacy,主节点,cn,v2.0-cn-intl,P012-F238
+row,旧版 P95 延迟,68,ms,v1.9、legacy,灾备节点,cn,v2.0-cn-intl,P012-F238
+row,旧版 P95 延迟,68,ms,v1.9、legacy,只读副本,cn,v2.0-cn-intl,P012-F238
+row,与 P011 兼容,true,bool,edge P012->P011,主节点,intl,v2.0-cn-intl,P012-F239
+row,与 P011 兼容,true,bool,edge P012->P011,灾备节点,intl,v2.0-cn-intl,P012-F239
+row,与 P011 兼容,true,bool,edge P012->P011,只读副本,intl,v2.0-cn-intl,P012-F239
+row,与 P020 兼容,true,bool,edge P012->P020,主节点,cn,v2.0-cn-intl,P012-F240
+row,与 P020 兼容,true,bool,edge P012->P020,灾备节点,cn,v2.0-cn-intl,P012-F240
+row,与 P020 兼容,true,bool,edge P012->P020,只读副本,cn,v2.0-cn-intl,P012-F240
+row,核心协议,伪造识别、换脸检测、声纹比对,,支持 伪造识别、支持 换脸检测、支持 声纹比对,主节点,intl,v2.0-cn-intl,P012-F221
+row,核心协议,伪造识别、换脸检测、声纹比对,,支持 伪造识别、支持 换脸检测、支持 声纹比对,灾备节点,intl,v2.0-cn-intl,P012-F221
+row,核心协议,伪造识别、换脸检测、声纹比对,,支持 伪造识别、支持 换脸检测、支持 声纹比对,只读副本,intl,v2.0-cn-intl,P012-F221
+table_header,指标,取值,单位,约束,部署单元,区域,版本,fact_id
+row,API 峰值并发,1800,req/s,standard-edition,主节点,cn,v2.0-cn-intl,P012-F223
+row,API 峰值并发,1800,req/s,standard-edition,灾备节点,cn,v2.0-cn-intl,P012-F223
+row,API 峰值并发,1800,req/s,standard-edition,只读副本,cn,v2.0-cn-intl,P012-F223
+row,P95 检索延迟,40,ms,p95、warm,主节点,intl,v2.0-cn-intl,P012-F224
+row,P95 检索延迟,40,ms,p95、warm,灾备节点,intl,v2.0-cn-intl,P012-F224
+row,P95 检索延迟,40,ms,p95、warm,只读副本,intl,v2.0-cn-intl,P012-F224
+row,最大单文档上传,18,MB,默认限制,主节点,cn,v2.0-cn-intl,P012-F225
+row,最大单文档上传,18,MB,默认限制,灾备节点,cn,v2.0-cn-intl,P012-F225
+row,最大单文档上传,18,MB,默认限制,只读副本,cn,v2.0-cn-intl,P012-F225
+row,日志/审计留存期,14,days,默认,主节点,intl,v2.0-cn-intl,P012-F226
+row,日志/审计留存期,14,days,默认,灾备节点,intl,v2.0-cn-intl,P012-F226
+row,日志/审计留存期,14,days,默认,只读副本,intl,v2.0-cn-intl,P012-F226
+row,批量接口吞吐,1200,ops/s,batch=32,主节点,cn,v2.0-cn-intl,P012-F227
+row,批量接口吞吐,1200,ops/s,batch=32,灾备节点,cn,v2.0-cn-intl,P012-F227
+row,批量接口吞吐,1200,ops/s,batch=32,只读副本,cn,v2.0-cn-intl,P012-F227
+row,当前版本线,v2.0,version,GA,主节点,intl,v2.0-cn-intl,P012-F228
+row,当前版本线,v2.0,version,GA,灾备节点,intl,v2.0-cn-intl,P012-F228
+row,当前版本线,v2.0,version,GA,只读副本,intl,v2.0-cn-intl,P012-F228
+row,默认批次大小,32,items,可配置,主节点,cn,v2.0-cn-intl,P012-F229
+row,默认批次大小,32,items,可配置,灾备节点,cn,v2.0-cn-intl,P012-F229
+row,默认批次大小,32,items,可配置,只读副本,cn,v2.0-cn-intl,P012-F229
+row,不支持能力,不支持 4K 超长视频端到端,,negation,主节点,intl,v2.0-cn-intl,P012-F230
+row,不支持能力,不支持 4K 超长视频端到端,,negation,灾备节点,intl,v2.0-cn-intl,P012-F230
+row,不支持能力,不支持 4K 超长视频端到端,,negation,只读副本,intl,v2.0-cn-intl,P012-F230
+row,否定事实,低分辨率素材仅告警,,negation、must-not-claim,主节点,cn,v2.0-cn-intl,P012-F231
+row,否定事实,低分辨率素材仅告警,,negation、must-not-claim,灾备节点,cn,v2.0-cn-intl,P012-F231
+row,否定事实,低分辨率素材仅告警,,negation、must-not-claim,只读副本,cn,v2.0-cn-intl,P012-F231
+row,否定事实,不支持离线深度伪造断言,,negation、must-not-claim,主节点,intl,v2.0-cn-intl,P012-F232
+row,否定事实,不支持离线深度伪造断言,,negation、must-not-claim,灾备节点,intl,v2.0-cn-intl,P012-F232
+row,否定事实,不支持离线深度伪造断言,,negation、must-not-claim,只读副本,intl,v2.0-cn-intl,P012-F232
+row,可用性目标,99.9,percent,standard-SLA,主节点,cn,v2.0-cn-intl,P012-F233
+row,可用性目标,99.9,percent,standard-SLA,灾备节点,cn,v2.0-cn-intl,P012-F233
+row,可用性目标,99.9,percent,standard-SLA,只读副本,cn,v2.0-cn-intl,P012-F233
+row,合规基座,GB-35273/CAC-审查-P012,,zh-cn,主节点,intl,v2.0-cn-intl,P012-F234
+row,合规基座,GB-35273/CAC-审查-P012,,zh-cn,灾备节点,intl,v2.0-cn-intl,P012-F234
+row,合规基座,GB-35273/CAC-审查-P012,,zh-cn,只读副本,intl,v2.0-cn-intl,P012-F234
+row,企业版起价,25440,cny/月,per-org、annual,主节点,cn,v2.0-cn-intl,P012-F235
+row,企业版起价,25440,cny/月,per-org、annual,灾备节点,cn,v2.0-cn-intl,P012-F235
+row,企业版起价,25440,cny/月,per-org、annual,只读副本,cn,v2.0-cn-intl,P012-F235
+row,主邻接产品,P011,product,邻接 P011,主节点,intl,v2.0-cn-intl,P012-F236
+row,主邻接产品,P011,product,邻接 P011,灾备节点,intl,v2.0-cn-intl,P012-F236
+row,主邻接产品,P011,product,邻接 P011,只读副本,intl,v2.0-cn-intl,P012-F236
+row,旧版事件吞吐,55800,events/s,v1.9、legacy,主节点,cn,v2.0-cn-intl,P012-F237
+row,旧版事件吞吐,55800,events/s,v1.9、legacy,灾备节点,cn,v2.0-cn-intl,P012-F237
+row,旧版事件吞吐,55800,events/s,v1.9、legacy,只读副本,cn,v2.0-cn-intl,P012-F237
+row,旧版 P95 延迟,68,ms,v1.9、legacy,主节点,intl,v2.0-cn-intl,P012-F238
+row,旧版 P95 延迟,68,ms,v1.9、legacy,灾备节点,intl,v2.0-cn-intl,P012-F238
+row,旧版 P95 延迟,68,ms,v1.9、legacy,只读副本,intl,v2.0-cn-intl,P012-F238
+row,与 P011 兼容,true,bool,edge P012->P011,主节点,cn,v2.0-cn-intl,P012-F239
+row,与 P011 兼容,true,bool,edge P012->P011,灾备节点,cn,v2.0-cn-intl,P012-F239
+row,与 P011 兼容,true,bool,edge P012->P011,只读副本,cn,v2.0-cn-intl,P012-F239
+row,与 P020 兼容,true,bool,edge P012->P020,主节点,intl,v2.0-cn-intl,P012-F240
+row,与 P020 兼容,true,bool,edge P012->P020,灾备节点,intl,v2.0-cn-intl,P012-F240
+row,与 P020 兼容,true,bool,edge P012->P020,只读副本,intl,v2.0-cn-intl,P012-F240
+row,核心协议,伪造识别、换脸检测、声纹比对,,支持 伪造识别、支持 换脸检测、支持 声纹比对,主节点,cn,v2.0-cn-intl,P012-F221
+row,核心协议,伪造识别、换脸检测、声纹比对,,支持 伪造识别、支持 换脸检测、支持 声纹比对,灾备节点,cn,v2.0-cn-intl,P012-F221
+row,核心协议,伪造识别、换脸检测、声纹比对,,支持 伪造识别、支持 换脸检测、支持 声纹比对,只读副本,cn,v2.0-cn-intl,P012-F221
+row,事件摄取吞吐,90000,events/s,standard-edition、3-node,主节点,intl,v2.0-cn-intl,P012-F222
+row,事件摄取吞吐,90000,events/s,standard-edition、3-node,灾备节点,intl,v2.0-cn-intl,P012-F222
+row,事件摄取吞吐,90000,events/s,standard-edition、3-node,只读副本,intl,v2.0-cn-intl,P012-F222
+table_header,边界项,边界内容
+row,边界1,深度伪造检测 不支持 低分辨率素材仅告警
+row,边界2,深度伪造检测 不支持 不支持离线深度伪造断言
+row,整体边界,深度伪造检测 不支持 不支持 4K 超长视频端到端（详见 P012-F 系事实）

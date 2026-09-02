@@ -1,0 +1,141 @@
+doc_id: P019-V04
+product: P019
+version: v4.1
+family: config-sample
+items:
+- type: heading
+  text: 产品定位与场景 - 1
+- type: para
+  text: 开发者 SDK（Developer SDK & API，代号 SKDEV）隶属于开发平台、SDK、API 和应用编排场景，当前生命状态ACTIVE，当前版本线 v4.2。其 核心协议 的取值/配置为 REST、WebSocket、gRPC ，约束条件包括支持 REST、支持 WebSocket、支持 gRPC。
+- type: para
+  text: 在企业版部署中，开发者 SDK 将 事件摄取吞吐 设计为 60000 events/s，并受到 standard-edition、3-node 的边界约束；相关细节记录的 fact_id 为 P019-F358，自 2025-06-01 起生效。
+- type: para
+  text: 开发者 SDK 面向 开发平台、SDK、API 和应用编排 的高隔离要求，其 API 峰值并发 被定为 5000 req/s；叠加 standard-edition 之后，可支撑 60000 events/s 的吞吐基线，覆盖 cn 区域。
+- type: para
+  text: 从运维视角看，开发者 SDK 在 v4.2-intl 上的 P95 检索延迟 表现稳定为 10 ms，p95、warm；这一口径与相邻产品 P001 的 开发平台、SDK、API 和应用编排 联合方案保持一致。
+- type: para
+  text: 开发者 SDK 的产品资料强调 最大单文档上传；在默认配置下等于 64 MB，约束为 默认限制。当工作负载包含 SDK、API、端点、密钥、重试、限速、客户端、版本 等能力维度时，上述约束保持不变。
+- type: para
+  text: Developer SDK & API（SKDEV）的 日志/审计留存期 记为 90 days，限定条件 默认；该数值服务于 开发平台、SDK、API 和应用编排，由 v4.2-intl 版本正式支持。
+- type: para
+  text: 关于 开发者 SDK 的 批量接口吞吐，文献给出的标准口径为 5200 ops/s，并附加 batch=256 说明；这是评估 开发平台、SDK、API 和应用编排 能力时的重要依据（P019-F363）。
+- type: para
+  text: 开发者 SDK v4.2-intl 的 当前版本线 配置为 v4.2 version；在 GA 场景下仍能维持 10 ms 的 P95 延迟，符合 cn 区域的运营要求。
+- type: para
+  text: 开发者 SDK（Developer SDK & API，代号 SKDEV）隶属于开发平台、SDK、API 和应用编排场景，当前生命状态ACTIVE，当前版本线 v4.2。其 默认批次大小 的取值/配置为 256 items，约束条件包括可配置。
+- type: para
+  text: 在企业版部署中，开发者 SDK 将 不支持能力 设计为 不支持 v1.0 栈的鉴权协议 ，并受到 negation 的边界约束；相关细节记录的 fact_id 为 P019-F366，自 2025-01-01 起生效。
+- type: para
+  text: 开发者 SDK 面向 开发平台、SDK、API 和应用编排 的高隔离要求，其 否定事实 被定为 CLI 尚不支持 macOS 全量子命令 ；叠加 negation、must-not-claim 之后，可支撑 60000 events/s 的吞吐基线，覆盖 cn 区域。
+- type: para
+  text: 从运维视角看，开发者 SDK 在 v4.2-intl 上的 否定事实 表现稳定为 不支持旧版 Python 3.8 SDK ，negation、must-not-claim；这一口径与相邻产品 P001 的 开发平台、SDK、API 和应用编排 联合方案保持一致。
+- type: para
+  text: 开发者 SDK 的产品资料强调 可用性目标；在默认配置下等于 99.9 percent，约束为 standard-SLA。当工作负载包含 SDK、API、端点、密钥、重试、限速、客户端、版本 等能力维度时，上述约束保持不变。
+- type: para
+  text: Developer SDK & API（SKDEV）的 合规基座 记为 GB-35273/CAC-审查-P019 ，限定条件 zh-cn；该数值服务于 开发平台、SDK、API 和应用编排，由 v4.2-intl 版本正式支持。
+- type: para
+  text: 关于 开发者 SDK 的 企业版起价，文献给出的标准口径为 26030 cny/月，并附加 per-org、annual 说明；这是评估 开发平台、SDK、API 和应用编排 能力时的重要依据（P019-F371）。
+- type: para
+  text: 开发者 SDK v4.2-intl 的 主邻接产品 配置为 P001 product；在 邻接 P001 场景下仍能维持 10 ms 的 P95 延迟，符合 cn 区域的运营要求。
+- type: para
+  text: 开发者 SDK（Developer SDK & API，代号 SKDEV）隶属于开发平台、SDK、API 和应用编排场景，当前生命状态ACTIVE，当前版本线 v4.2。其 旧版事件吞吐 的取值/配置为 37200 events/s，约束条件包括v4.1、legacy。
+- type: para
+  text: 在企业版部署中，开发者 SDK 将 旧版 P95 延迟 设计为 17 ms，并受到 v4.1、legacy 的边界约束；相关细节记录的 fact_id 为 P019-F374，自 2024-06-01 起生效。
+- type: para
+  text: 开发者 SDK 面向 开发平台、SDK、API 和应用编排 的高隔离要求，其 与 P001 兼容 被定为 true bool；叠加 edge P019->P001 之后，可支撑 60000 events/s 的吞吐基线，覆盖 cn 区域。
+- type: para
+  text: 从运维视角看，开发者 SDK 在 v4.2-intl 上的 与 P020 兼容 表现稳定为 true bool，edge P019->P020；这一口径与相邻产品 P001 的 开发平台、SDK、API 和应用编排 联合方案保持一致。
+- type: heading
+  text: 能力概述与关键事实 - 2
+- type: para
+  text: 在企业版部署中，开发者 SDK 将 P95 检索延迟 设计为 10 ms，并受到 p95、warm 的边界约束；相关细节记录的 fact_id 为 P019-F360，自 2026-01-01 起生效。
+- type: para
+  text: 开发者 SDK 面向 开发平台、SDK、API 和应用编排 的高隔离要求，其 最大单文档上传 被定为 64 MB；叠加 默认限制 之后，可支撑 60000 events/s 的吞吐基线，覆盖 cn 区域。
+- type: para
+  text: 从运维视角看，开发者 SDK 在 v4.2-intl 上的 日志/审计留存期 表现稳定为 90 days，默认；这一口径与相邻产品 P001 的 开发平台、SDK、API 和应用编排 联合方案保持一致。
+- type: para
+  text: 开发者 SDK 的产品资料强调 批量接口吞吐；在默认配置下等于 5200 ops/s，约束为 batch=256。当工作负载包含 SDK、API、端点、密钥、重试、限速、客户端、版本 等能力维度时，上述约束保持不变。
+- type: para
+  text: Developer SDK & API（SKDEV）的 当前版本线 记为 v4.2 version，限定条件 GA；该数值服务于 开发平台、SDK、API 和应用编排，由 v4.2-intl 版本正式支持。
+- type: para
+  text: 关于 开发者 SDK 的 默认批次大小，文献给出的标准口径为 256 items，并附加 可配置 说明；这是评估 开发平台、SDK、API 和应用编排 能力时的重要依据（P019-F365）。
+- type: para
+  text: 开发者 SDK v4.2-intl 的 不支持能力 配置为 不支持 v1.0 栈的鉴权协议 ；在 negation 场景下仍能维持 10 ms 的 P95 延迟，符合 cn 区域的运营要求。
+- type: para
+  text: 开发者 SDK（Developer SDK & API，代号 SKDEV）隶属于开发平台、SDK、API 和应用编排场景，当前生命状态ACTIVE，当前版本线 v4.2。其 否定事实 的取值/配置为 CLI 尚不支持 macOS 全量子命令 ，约束条件包括negation、must-not-claim。
+- type: para
+  text: 在企业版部署中，开发者 SDK 将 否定事实 设计为 不支持旧版 Python 3.8 SDK ，并受到 negation、must-not-claim 的边界约束；相关细节记录的 fact_id 为 P019-F368，自 2025-01-01 起生效。
+- type: para
+  text: 开发者 SDK 面向 开发平台、SDK、API 和应用编排 的高隔离要求，其 可用性目标 被定为 99.9 percent；叠加 standard-SLA 之后，可支撑 60000 events/s 的吞吐基线，覆盖 cn 区域。
+- type: para
+  text: 从运维视角看，开发者 SDK 在 v4.2-intl 上的 合规基座 表现稳定为 GB-35273/CAC-审查-P019 ，zh-cn；这一口径与相邻产品 P001 的 开发平台、SDK、API 和应用编排 联合方案保持一致。
+- type: para
+  text: 开发者 SDK 的产品资料强调 企业版起价；在默认配置下等于 26030 cny/月，约束为 per-org、annual。当工作负载包含 SDK、API、端点、密钥、重试、限速、客户端、版本 等能力维度时，上述约束保持不变。
+- type: para
+  text: Developer SDK & API（SKDEV）的 主邻接产品 记为 P001 product，限定条件 邻接 P001；该数值服务于 开发平台、SDK、API 和应用编排，由 v4.2-intl 版本正式支持。
+- type: para
+  text: 关于 开发者 SDK 的 旧版事件吞吐，文献给出的标准口径为 37200 events/s，并附加 v4.1、legacy 说明；这是评估 开发平台、SDK、API 和应用编排 能力时的重要依据（P019-F373）。
+- type: para
+  text: 开发者 SDK v4.2-intl 的 旧版 P95 延迟 配置为 17 ms；在 v4.1、legacy 场景下仍能维持 10 ms 的 P95 延迟，符合 cn 区域的运营要求。
+- type: para
+  text: 开发者 SDK（Developer SDK & API，代号 SKDEV）隶属于开发平台、SDK、API 和应用编排场景，当前生命状态ACTIVE，当前版本线 v4.2。其 与 P001 兼容 的取值/配置为 true bool，约束条件包括edge P019->P001。
+- type: para
+  text: 在企业版部署中，开发者 SDK 将 与 P020 兼容 设计为 true bool，并受到 edge P019->P020 的边界约束；相关细节记录的 fact_id 为 P019-F376，自 2025-02-01 起生效。
+- type: para
+  text: 开发者 SDK 面向 开发平台、SDK、API 和应用编排 的高隔离要求，其 核心协议 被定为 REST、WebSocket、gRPC ；叠加 支持 REST、支持 WebSocket、支持 gRPC 之后，可支撑 60000 events/s 的吞吐基线，覆盖 cn 区域。
+- type: para
+  text: 从运维视角看，开发者 SDK 在 v4.2-intl 上的 事件摄取吞吐 表现稳定为 60000 events/s，standard-edition、3-node；这一口径与相邻产品 P001 的 开发平台、SDK、API 和应用编排 联合方案保持一致。
+- type: para
+  text: 开发者 SDK 的产品资料强调 API 峰值并发；在默认配置下等于 5000 req/s，约束为 standard-edition。当工作负载包含 SDK、API、端点、密钥、重试、限速、客户端、版本 等能力维度时，上述约束保持不变。
+- type: heading
+  text: 性能与规模基线 - 3
+- type: para
+  text: 开发者 SDK 面向 开发平台、SDK、API 和应用编排 的高隔离要求，其 批量接口吞吐 被定为 5200 ops/s；叠加 batch=256 之后，可支撑 60000 events/s 的吞吐基线，覆盖 cn 区域。
+- type: para
+  text: 从运维视角看，开发者 SDK 在 v4.2-intl 上的 当前版本线 表现稳定为 v4.2 version，GA；这一口径与相邻产品 P001 的 开发平台、SDK、API 和应用编排 联合方案保持一致。
+- type: para
+  text: 开发者 SDK 的产品资料强调 默认批次大小；在默认配置下等于 256 items，约束为 可配置。当工作负载包含 SDK、API、端点、密钥、重试、限速、客户端、版本 等能力维度时，上述约束保持不变。
+- type: para
+  text: Developer SDK & API（SKDEV）的 不支持能力 记为 不支持 v1.0 栈的鉴权协议 ，限定条件 negation；该数值服务于 开发平台、SDK、API 和应用编排，由 v4.2-intl 版本正式支持。
+- type: para
+  text: 关于 开发者 SDK 的 否定事实，文献给出的标准口径为 CLI 尚不支持 macOS 全量子命令 ，并附加 negation、must-not-claim 说明；这是评估 开发平台、SDK、API 和应用编排 能力时的重要依据（P019-F367）。
+- type: para
+  text: 开发者 SDK v4.2-intl 的 否定事实 配置为 不支持旧版 Python 3.8 SDK ；在 negation、must-not-claim 场景下仍能维持 10 ms 的 P95 延迟，符合 cn 区域的运营要求。
+- type: para
+  text: 开发者 SDK（Developer SDK & API，代号 SKDEV）隶属于开发平台、SDK、API 和应用编排场景，当前生命状态ACTIVE，当前版本线 v4.2。其 可用性目标 的取值/配置为 99.9 percent，约束条件包括standard-SLA。
+- type: para
+  text: 在企业版部署中，开发者 SDK 将 合规基座 设计为 GB-35273/CAC-审查-P019 ，并受到 zh-cn 的边界约束；相关细节记录的 fact_id 为 P019-F370，自 2025-05-01 起生效。
+- type: para
+  text: 开发者 SDK 面向 开发平台、SDK、API 和应用编排 的高隔离要求，其 企业版起价 被定为 26030 cny/月；叠加 per-org、annual 之后，可支撑 60000 events/s 的吞吐基线，覆盖 cn 区域。
+- type: para
+  text: 从运维视角看，开发者 SDK 在 v4.2-intl 上的 主邻接产品 表现稳定为 P001 product，邻接 P001；这一口径与相邻产品 P001 的 开发平台、SDK、API 和应用编排 联合方案保持一致。
+- type: para
+  text: 开发者 SDK 的产品资料强调 旧版事件吞吐；在默认配置下等于 37200 events/s，约束为 v4.1、legacy。当工作负载包含 SDK、API、端点、密钥、重试、限速、客户端、版本 等能力维度时，上述约束保持不变。
+- type: para
+  text: Developer SDK & API（SKDEV）的 旧版 P95 延迟 记为 17 ms，限定条件 v4.1、legacy；该数值服务于 开发平台、SDK、API 和应用编排，由 v4.2-intl 版本正式支持。
+- type: para
+  text: 关于 开发者 SDK 的 与 P001 兼容，文献给出的标准口径为 true bool，并附加 edge P019->P001 说明；这是评估 开发平台、SDK、API 和应用编排 能力时的重要依据（P019-F375）。
+- type: para
+  text: 开发者 SDK v4.2-intl 的 与 P020 兼容 配置为 true bool；在 edge P019->P020 场景下仍能维持 10 ms 的 P95 延迟，符合 cn 区域的运营要求。
+- type: para
+  text: 开发者 SDK（Developer SDK & API，代号 SKDEV）隶属于开发平台、SDK、API 和应用编排场景，当前生命状态ACTIVE，当前版本线 v4.2。其 核心协议 的取值/配置为 REST、WebSocket、gRPC ，约束条件包括支持 REST、支持 WebSocket、支持 gRPC。
+- type: para
+  text: 在企业版部署中，开发者 SDK 将 事件摄取吞吐 设计为 60000 events/s，并受到 standard-edition、3-node 的边界约束；相关细节记录的 fact_id 为 P019-F358，自 2025-06-01 起生效。
+- type: para
+  text: 开发者 SDK 面向 开发平台、SDK、API 和应用编排 的高隔离要求，其 API 峰值并发 被定为 5000 req/s；叠加 standard-edition 之后，可支撑 60000 events/s 的吞吐基线，覆盖 cn 区域。
+- type: para
+  text: 从运维视角看，开发者 SDK 在 v4.2-intl 上的 P95 检索延迟 表现稳定为 10 ms，p95、warm；这一口径与相邻产品 P001 的 开发平台、SDK、API 和应用编排 联合方案保持一致。
+- type: para
+  text: 开发者 SDK 的产品资料强调 最大单文档上传；在默认配置下等于 64 MB，约束为 默认限制。当工作负载包含 SDK、API、端点、密钥、重试、限速、客户端、版本 等能力维度时，上述约束保持不变。
+- type: para
+  text: Developer SDK & API（SKDEV）的 日志/审计留存期 记为 90 days，限定条件 默认；该数值服务于 开发平台、SDK、API 和应用编排，由 v4.2-intl 版本正式支持。
+- type: heading
+  text: 否定事实与边界
+- type: para
+  text: 边界事实（must-not-claim）：CLI 尚不支持 macOS 全量子命令。
+- type: para
+  text: 边界事实：开发者 SDK 不支持 不支持 v1.0 栈的鉴权协议（详见 P019-F 系事实）。
+- type: para
+  text: 边界事实（must-not-claim）：不支持旧版 Python 3.8 SDK。
+- type: para
+  text: 边界事实：开发者 SDK 不支持 不支持 v1.0 栈的鉴权协议（详见 P019-F 系事实）。

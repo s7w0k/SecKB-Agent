@@ -1,0 +1,188 @@
+type,content
+table_header,指标,取值,单位,约束,部署单元,区域,版本,fact_id
+row,核心协议,越狱样本、对抗探测,,支持 越狱样本、支持 对抗探测,主节点,cn,v1.7-cn,P009-F161
+row,核心协议,越狱样本、对抗探测,,支持 越狱样本、支持 对抗探测,灾备节点,cn,v1.7-cn,P009-F161
+row,核心协议,越狱样本、对抗探测,,支持 越狱样本、支持 对抗探测,只读副本,cn,v1.7-cn,P009-F161
+row,事件摄取吞吐,28000,events/s,standard-edition、3-node,主节点,cn,v1.7-cn,P009-F162
+row,事件摄取吞吐,28000,events/s,standard-edition、3-node,灾备节点,cn,v1.7-cn,P009-F162
+row,事件摄取吞吐,28000,events/s,standard-edition、3-node,只读副本,cn,v1.7-cn,P009-F162
+row,API 峰值并发,900,req/s,standard-edition,主节点,cn,v1.7-cn,P009-F163
+row,API 峰值并发,900,req/s,standard-edition,灾备节点,cn,v1.7-cn,P009-F163
+row,API 峰值并发,900,req/s,standard-edition,只读副本,cn,v1.7-cn,P009-F163
+row,P95 检索延迟,90,ms,p95、warm,主节点,cn,v1.7-cn,P009-F164
+row,P95 检索延迟,90,ms,p95、warm,灾备节点,cn,v1.7-cn,P009-F164
+row,P95 检索延迟,90,ms,p95、warm,只读副本,cn,v1.7-cn,P009-F164
+row,最大单文档上传,4,MB,默认限制,主节点,cn,v1.7-cn,P009-F165
+row,最大单文档上传,4,MB,默认限制,灾备节点,cn,v1.7-cn,P009-F165
+row,最大单文档上传,4,MB,默认限制,只读副本,cn,v1.7-cn,P009-F165
+row,日志/审计留存期,120,days,默认,主节点,cn,v1.7-cn,P009-F166
+row,日志/审计留存期,120,days,默认,灾备节点,cn,v1.7-cn,P009-F166
+row,日志/审计留存期,120,days,默认,只读副本,cn,v1.7-cn,P009-F166
+row,批量接口吞吐,700,ops/s,batch=16,主节点,cn,v1.7-cn,P009-F167
+row,批量接口吞吐,700,ops/s,batch=16,灾备节点,cn,v1.7-cn,P009-F167
+row,批量接口吞吐,700,ops/s,batch=16,只读副本,cn,v1.7-cn,P009-F167
+row,当前版本线,v1.7,version,GA,主节点,cn,v1.7-cn,P009-F168
+row,当前版本线,v1.7,version,GA,灾备节点,cn,v1.7-cn,P009-F168
+row,当前版本线,v1.7,version,GA,只读副本,cn,v1.7-cn,P009-F168
+row,默认批次大小,16,items,可配置,主节点,cn,v1.7-cn,P009-F169
+row,默认批次大小,16,items,可配置,灾备节点,cn,v1.7-cn,P009-F169
+row,默认批次大小,16,items,可配置,只读副本,cn,v1.7-cn,P009-F169
+row,不支持能力,不提供自主越狱样本生成的语义保证,,negation,主节点,cn,v1.7-cn,P009-F170
+row,不支持能力,不提供自主越狱样本生成的语义保证,,negation,灾备节点,cn,v1.7-cn,P009-F170
+row,不支持能力,不提供自主越狱样本生成的语义保证,,negation,只读副本,cn,v1.7-cn,P009-F170
+row,否定事实,评估结果不自动阻断发布,,negation、must-not-claim,主节点,cn,v1.7-cn,P009-F171
+row,否定事实,评估结果不自动阻断发布,,negation、must-not-claim,灾备节点,cn,v1.7-cn,P009-F171
+row,否定事实,评估结果不自动阻断发布,,negation、must-not-claim,只读副本,cn,v1.7-cn,P009-F171
+row,否定事实,仅专业版提供逐条溯源,,negation、must-not-claim,主节点,cn,v1.7-cn,P009-F172
+row,否定事实,仅专业版提供逐条溯源,,negation、must-not-claim,灾备节点,cn,v1.7-cn,P009-F172
+row,否定事实,仅专业版提供逐条溯源,,negation、must-not-claim,只读副本,cn,v1.7-cn,P009-F172
+row,可用性目标,99.9,percent,standard-SLA,主节点,cn,v1.7-cn,P009-F173
+row,可用性目标,99.9,percent,standard-SLA,灾备节点,cn,v1.7-cn,P009-F173
+row,可用性目标,99.9,percent,standard-SLA,只读副本,cn,v1.7-cn,P009-F173
+row,合规基座,GB-35273/CAC-审查-P009,,zh-cn,主节点,cn,v1.7-cn,P009-F174
+row,合规基座,GB-35273/CAC-审查-P009,,zh-cn,灾备节点,cn,v1.7-cn,P009-F174
+row,合规基座,GB-35273/CAC-审查-P009,,zh-cn,只读副本,cn,v1.7-cn,P009-F174
+row,企业版起价,21330,cny/月,per-org、annual,主节点,cn,v1.7-cn,P009-F175
+row,企业版起价,21330,cny/月,per-org、annual,灾备节点,cn,v1.7-cn,P009-F175
+row,企业版起价,21330,cny/月,per-org、annual,只读副本,cn,v1.7-cn,P009-F175
+row,主邻接产品,P002,product,邻接 P002,主节点,cn,v1.7-cn,P009-F176
+row,主邻接产品,P002,product,邻接 P002,灾备节点,cn,v1.7-cn,P009-F176
+row,主邻接产品,P002,product,邻接 P002,只读副本,cn,v1.7-cn,P009-F176
+row,旧版事件吞吐,17360,events/s,v1.6、legacy,主节点,cn,v1.7-cn,P009-F177
+row,旧版事件吞吐,17360,events/s,v1.6、legacy,灾备节点,cn,v1.7-cn,P009-F177
+row,旧版事件吞吐,17360,events/s,v1.6、legacy,只读副本,cn,v1.7-cn,P009-F177
+row,旧版 P95 延迟,153,ms,v1.6、legacy,主节点,cn,v1.7-cn,P009-F178
+row,旧版 P95 延迟,153,ms,v1.6、legacy,灾备节点,cn,v1.7-cn,P009-F178
+row,旧版 P95 延迟,153,ms,v1.6、legacy,只读副本,cn,v1.7-cn,P009-F178
+row,与 P002 兼容,true,bool,edge P009->P002,主节点,cn,v1.7-cn,P009-F179
+row,与 P002 兼容,true,bool,edge P009->P002,灾备节点,cn,v1.7-cn,P009-F179
+row,与 P002 兼容,true,bool,edge P009->P002,只读副本,cn,v1.7-cn,P009-F179
+row,与 P016 兼容,true,bool,edge P009->P016,主节点,cn,v1.7-cn,P009-F180
+row,与 P016 兼容,true,bool,edge P009->P016,灾备节点,cn,v1.7-cn,P009-F180
+row,与 P016 兼容,true,bool,edge P009->P016,只读副本,cn,v1.7-cn,P009-F180
+table_header,指标,取值,单位,约束,部署单元,区域,版本,fact_id
+row,事件摄取吞吐,28000,events/s,standard-edition、3-node,主节点,cn,v1.7-cn,P009-F162
+row,事件摄取吞吐,28000,events/s,standard-edition、3-node,灾备节点,cn,v1.7-cn,P009-F162
+row,事件摄取吞吐,28000,events/s,standard-edition、3-node,只读副本,cn,v1.7-cn,P009-F162
+row,API 峰值并发,900,req/s,standard-edition,主节点,cn,v1.7-cn,P009-F163
+row,API 峰值并发,900,req/s,standard-edition,灾备节点,cn,v1.7-cn,P009-F163
+row,API 峰值并发,900,req/s,standard-edition,只读副本,cn,v1.7-cn,P009-F163
+row,P95 检索延迟,90,ms,p95、warm,主节点,cn,v1.7-cn,P009-F164
+row,P95 检索延迟,90,ms,p95、warm,灾备节点,cn,v1.7-cn,P009-F164
+row,P95 检索延迟,90,ms,p95、warm,只读副本,cn,v1.7-cn,P009-F164
+row,最大单文档上传,4,MB,默认限制,主节点,cn,v1.7-cn,P009-F165
+row,最大单文档上传,4,MB,默认限制,灾备节点,cn,v1.7-cn,P009-F165
+row,最大单文档上传,4,MB,默认限制,只读副本,cn,v1.7-cn,P009-F165
+row,日志/审计留存期,120,days,默认,主节点,cn,v1.7-cn,P009-F166
+row,日志/审计留存期,120,days,默认,灾备节点,cn,v1.7-cn,P009-F166
+row,日志/审计留存期,120,days,默认,只读副本,cn,v1.7-cn,P009-F166
+row,批量接口吞吐,700,ops/s,batch=16,主节点,cn,v1.7-cn,P009-F167
+row,批量接口吞吐,700,ops/s,batch=16,灾备节点,cn,v1.7-cn,P009-F167
+row,批量接口吞吐,700,ops/s,batch=16,只读副本,cn,v1.7-cn,P009-F167
+row,当前版本线,v1.7,version,GA,主节点,cn,v1.7-cn,P009-F168
+row,当前版本线,v1.7,version,GA,灾备节点,cn,v1.7-cn,P009-F168
+row,当前版本线,v1.7,version,GA,只读副本,cn,v1.7-cn,P009-F168
+row,默认批次大小,16,items,可配置,主节点,cn,v1.7-cn,P009-F169
+row,默认批次大小,16,items,可配置,灾备节点,cn,v1.7-cn,P009-F169
+row,默认批次大小,16,items,可配置,只读副本,cn,v1.7-cn,P009-F169
+row,不支持能力,不提供自主越狱样本生成的语义保证,,negation,主节点,cn,v1.7-cn,P009-F170
+row,不支持能力,不提供自主越狱样本生成的语义保证,,negation,灾备节点,cn,v1.7-cn,P009-F170
+row,不支持能力,不提供自主越狱样本生成的语义保证,,negation,只读副本,cn,v1.7-cn,P009-F170
+row,否定事实,评估结果不自动阻断发布,,negation、must-not-claim,主节点,cn,v1.7-cn,P009-F171
+row,否定事实,评估结果不自动阻断发布,,negation、must-not-claim,灾备节点,cn,v1.7-cn,P009-F171
+row,否定事实,评估结果不自动阻断发布,,negation、must-not-claim,只读副本,cn,v1.7-cn,P009-F171
+row,否定事实,仅专业版提供逐条溯源,,negation、must-not-claim,主节点,cn,v1.7-cn,P009-F172
+row,否定事实,仅专业版提供逐条溯源,,negation、must-not-claim,灾备节点,cn,v1.7-cn,P009-F172
+row,否定事实,仅专业版提供逐条溯源,,negation、must-not-claim,只读副本,cn,v1.7-cn,P009-F172
+row,可用性目标,99.9,percent,standard-SLA,主节点,cn,v1.7-cn,P009-F173
+row,可用性目标,99.9,percent,standard-SLA,灾备节点,cn,v1.7-cn,P009-F173
+row,可用性目标,99.9,percent,standard-SLA,只读副本,cn,v1.7-cn,P009-F173
+row,合规基座,GB-35273/CAC-审查-P009,,zh-cn,主节点,cn,v1.7-cn,P009-F174
+row,合规基座,GB-35273/CAC-审查-P009,,zh-cn,灾备节点,cn,v1.7-cn,P009-F174
+row,合规基座,GB-35273/CAC-审查-P009,,zh-cn,只读副本,cn,v1.7-cn,P009-F174
+row,企业版起价,21330,cny/月,per-org、annual,主节点,cn,v1.7-cn,P009-F175
+row,企业版起价,21330,cny/月,per-org、annual,灾备节点,cn,v1.7-cn,P009-F175
+row,企业版起价,21330,cny/月,per-org、annual,只读副本,cn,v1.7-cn,P009-F175
+row,主邻接产品,P002,product,邻接 P002,主节点,cn,v1.7-cn,P009-F176
+row,主邻接产品,P002,product,邻接 P002,灾备节点,cn,v1.7-cn,P009-F176
+row,主邻接产品,P002,product,邻接 P002,只读副本,cn,v1.7-cn,P009-F176
+row,旧版事件吞吐,17360,events/s,v1.6、legacy,主节点,cn,v1.7-cn,P009-F177
+row,旧版事件吞吐,17360,events/s,v1.6、legacy,灾备节点,cn,v1.7-cn,P009-F177
+row,旧版事件吞吐,17360,events/s,v1.6、legacy,只读副本,cn,v1.7-cn,P009-F177
+row,旧版 P95 延迟,153,ms,v1.6、legacy,主节点,cn,v1.7-cn,P009-F178
+row,旧版 P95 延迟,153,ms,v1.6、legacy,灾备节点,cn,v1.7-cn,P009-F178
+row,旧版 P95 延迟,153,ms,v1.6、legacy,只读副本,cn,v1.7-cn,P009-F178
+row,与 P002 兼容,true,bool,edge P009->P002,主节点,cn,v1.7-cn,P009-F179
+row,与 P002 兼容,true,bool,edge P009->P002,灾备节点,cn,v1.7-cn,P009-F179
+row,与 P002 兼容,true,bool,edge P009->P002,只读副本,cn,v1.7-cn,P009-F179
+row,与 P016 兼容,true,bool,edge P009->P016,主节点,cn,v1.7-cn,P009-F180
+row,与 P016 兼容,true,bool,edge P009->P016,灾备节点,cn,v1.7-cn,P009-F180
+row,与 P016 兼容,true,bool,edge P009->P016,只读副本,cn,v1.7-cn,P009-F180
+row,核心协议,越狱样本、对抗探测,,支持 越狱样本、支持 对抗探测,主节点,cn,v1.7-cn,P009-F161
+row,核心协议,越狱样本、对抗探测,,支持 越狱样本、支持 对抗探测,灾备节点,cn,v1.7-cn,P009-F161
+row,核心协议,越狱样本、对抗探测,,支持 越狱样本、支持 对抗探测,只读副本,cn,v1.7-cn,P009-F161
+table_header,指标,取值,单位,约束,部署单元,区域,版本,fact_id
+row,API 峰值并发,900,req/s,standard-edition,主节点,cn,v1.7-cn,P009-F163
+row,API 峰值并发,900,req/s,standard-edition,灾备节点,cn,v1.7-cn,P009-F163
+row,API 峰值并发,900,req/s,standard-edition,只读副本,cn,v1.7-cn,P009-F163
+row,P95 检索延迟,90,ms,p95、warm,主节点,cn,v1.7-cn,P009-F164
+row,P95 检索延迟,90,ms,p95、warm,灾备节点,cn,v1.7-cn,P009-F164
+row,P95 检索延迟,90,ms,p95、warm,只读副本,cn,v1.7-cn,P009-F164
+row,最大单文档上传,4,MB,默认限制,主节点,cn,v1.7-cn,P009-F165
+row,最大单文档上传,4,MB,默认限制,灾备节点,cn,v1.7-cn,P009-F165
+row,最大单文档上传,4,MB,默认限制,只读副本,cn,v1.7-cn,P009-F165
+row,日志/审计留存期,120,days,默认,主节点,cn,v1.7-cn,P009-F166
+row,日志/审计留存期,120,days,默认,灾备节点,cn,v1.7-cn,P009-F166
+row,日志/审计留存期,120,days,默认,只读副本,cn,v1.7-cn,P009-F166
+row,批量接口吞吐,700,ops/s,batch=16,主节点,cn,v1.7-cn,P009-F167
+row,批量接口吞吐,700,ops/s,batch=16,灾备节点,cn,v1.7-cn,P009-F167
+row,批量接口吞吐,700,ops/s,batch=16,只读副本,cn,v1.7-cn,P009-F167
+row,当前版本线,v1.7,version,GA,主节点,cn,v1.7-cn,P009-F168
+row,当前版本线,v1.7,version,GA,灾备节点,cn,v1.7-cn,P009-F168
+row,当前版本线,v1.7,version,GA,只读副本,cn,v1.7-cn,P009-F168
+row,默认批次大小,16,items,可配置,主节点,cn,v1.7-cn,P009-F169
+row,默认批次大小,16,items,可配置,灾备节点,cn,v1.7-cn,P009-F169
+row,默认批次大小,16,items,可配置,只读副本,cn,v1.7-cn,P009-F169
+row,不支持能力,不提供自主越狱样本生成的语义保证,,negation,主节点,cn,v1.7-cn,P009-F170
+row,不支持能力,不提供自主越狱样本生成的语义保证,,negation,灾备节点,cn,v1.7-cn,P009-F170
+row,不支持能力,不提供自主越狱样本生成的语义保证,,negation,只读副本,cn,v1.7-cn,P009-F170
+row,否定事实,评估结果不自动阻断发布,,negation、must-not-claim,主节点,cn,v1.7-cn,P009-F171
+row,否定事实,评估结果不自动阻断发布,,negation、must-not-claim,灾备节点,cn,v1.7-cn,P009-F171
+row,否定事实,评估结果不自动阻断发布,,negation、must-not-claim,只读副本,cn,v1.7-cn,P009-F171
+row,否定事实,仅专业版提供逐条溯源,,negation、must-not-claim,主节点,cn,v1.7-cn,P009-F172
+row,否定事实,仅专业版提供逐条溯源,,negation、must-not-claim,灾备节点,cn,v1.7-cn,P009-F172
+row,否定事实,仅专业版提供逐条溯源,,negation、must-not-claim,只读副本,cn,v1.7-cn,P009-F172
+row,可用性目标,99.9,percent,standard-SLA,主节点,cn,v1.7-cn,P009-F173
+row,可用性目标,99.9,percent,standard-SLA,灾备节点,cn,v1.7-cn,P009-F173
+row,可用性目标,99.9,percent,standard-SLA,只读副本,cn,v1.7-cn,P009-F173
+row,合规基座,GB-35273/CAC-审查-P009,,zh-cn,主节点,cn,v1.7-cn,P009-F174
+row,合规基座,GB-35273/CAC-审查-P009,,zh-cn,灾备节点,cn,v1.7-cn,P009-F174
+row,合规基座,GB-35273/CAC-审查-P009,,zh-cn,只读副本,cn,v1.7-cn,P009-F174
+row,企业版起价,21330,cny/月,per-org、annual,主节点,cn,v1.7-cn,P009-F175
+row,企业版起价,21330,cny/月,per-org、annual,灾备节点,cn,v1.7-cn,P009-F175
+row,企业版起价,21330,cny/月,per-org、annual,只读副本,cn,v1.7-cn,P009-F175
+row,主邻接产品,P002,product,邻接 P002,主节点,cn,v1.7-cn,P009-F176
+row,主邻接产品,P002,product,邻接 P002,灾备节点,cn,v1.7-cn,P009-F176
+row,主邻接产品,P002,product,邻接 P002,只读副本,cn,v1.7-cn,P009-F176
+row,旧版事件吞吐,17360,events/s,v1.6、legacy,主节点,cn,v1.7-cn,P009-F177
+row,旧版事件吞吐,17360,events/s,v1.6、legacy,灾备节点,cn,v1.7-cn,P009-F177
+row,旧版事件吞吐,17360,events/s,v1.6、legacy,只读副本,cn,v1.7-cn,P009-F177
+row,旧版 P95 延迟,153,ms,v1.6、legacy,主节点,cn,v1.7-cn,P009-F178
+row,旧版 P95 延迟,153,ms,v1.6、legacy,灾备节点,cn,v1.7-cn,P009-F178
+row,旧版 P95 延迟,153,ms,v1.6、legacy,只读副本,cn,v1.7-cn,P009-F178
+row,与 P002 兼容,true,bool,edge P009->P002,主节点,cn,v1.7-cn,P009-F179
+row,与 P002 兼容,true,bool,edge P009->P002,灾备节点,cn,v1.7-cn,P009-F179
+row,与 P002 兼容,true,bool,edge P009->P002,只读副本,cn,v1.7-cn,P009-F179
+row,与 P016 兼容,true,bool,edge P009->P016,主节点,cn,v1.7-cn,P009-F180
+row,与 P016 兼容,true,bool,edge P009->P016,灾备节点,cn,v1.7-cn,P009-F180
+row,与 P016 兼容,true,bool,edge P009->P016,只读副本,cn,v1.7-cn,P009-F180
+row,核心协议,越狱样本、对抗探测,,支持 越狱样本、支持 对抗探测,主节点,cn,v1.7-cn,P009-F161
+row,核心协议,越狱样本、对抗探测,,支持 越狱样本、支持 对抗探测,灾备节点,cn,v1.7-cn,P009-F161
+row,核心协议,越狱样本、对抗探测,,支持 越狱样本、支持 对抗探测,只读副本,cn,v1.7-cn,P009-F161
+row,事件摄取吞吐,28000,events/s,standard-edition、3-node,主节点,cn,v1.7-cn,P009-F162
+row,事件摄取吞吐,28000,events/s,standard-edition、3-node,灾备节点,cn,v1.7-cn,P009-F162
+row,事件摄取吞吐,28000,events/s,standard-edition、3-node,只读副本,cn,v1.7-cn,P009-F162
+table_header,边界项,边界内容
+row,边界1,模型红队 不支持 评估结果不自动阻断发布
+row,边界2,模型红队 不支持 仅专业版提供逐条溯源
+row,整体边界,模型红队 不支持 不提供自主越狱样本生成的语义保证（详见 P009-F 系事实）

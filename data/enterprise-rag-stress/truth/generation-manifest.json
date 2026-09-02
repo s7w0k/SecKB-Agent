@@ -1,0 +1,12 @@
+{
+  "scale": "S1",
+  "seed": 20260828,
+  "products": 20,
+  "product_lines": 10,
+  "facts": 396,
+  "edges": 25,
+  "versions": 44,
+  "acl_records": 44,
+  "hash": "71f6560d79bd4df73fc3517f0a1f9e1680ce337ca3722795fc5b862bbb61f0e9",
+  "generated_by": "scripts.enterprise_rag.generate_truth"
+}

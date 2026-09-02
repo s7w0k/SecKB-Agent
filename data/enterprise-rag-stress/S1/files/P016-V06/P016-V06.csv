@@ -1,0 +1,188 @@
+type,content
+table_header,指标,取值,单位,约束,部署单元,区域,版本,fact_id
+row,核心协议,图形检测、贝叶斯评分,,支持 图形检测、支持 贝叶斯评分,主节点,cn,v2.0-cn,P016-F301
+row,核心协议,图形检测、贝叶斯评分,,支持 图形检测、支持 贝叶斯评分,灾备节点,cn,v2.0-cn,P016-F301
+row,核心协议,图形检测、贝叶斯评分,,支持 图形检测、支持 贝叶斯评分,只读副本,cn,v2.0-cn,P016-F301
+row,事件摄取吞吐,1200000,events/s,enterprise-edition、3-node,主节点,cn,v2.0-cn,P016-F302
+row,事件摄取吞吐,1200000,events/s,enterprise-edition、3-node,灾备节点,cn,v2.0-cn,P016-F302
+row,事件摄取吞吐,1200000,events/s,enterprise-edition、3-node,只读副本,cn,v2.0-cn,P016-F302
+row,API 峰值并发,12000,req/s,enterprise-edition,主节点,cn,v2.0-cn,P016-F303
+row,API 峰值并发,12000,req/s,enterprise-edition,灾备节点,cn,v2.0-cn,P016-F303
+row,API 峰值并发,12000,req/s,enterprise-edition,只读副本,cn,v2.0-cn,P016-F303
+row,P95 检索延迟,20,ms,p95、warm,主节点,cn,v2.0-cn,P016-F304
+row,P95 检索延迟,20,ms,p95、warm,灾备节点,cn,v2.0-cn,P016-F304
+row,P95 检索延迟,20,ms,p95、warm,只读副本,cn,v2.0-cn,P016-F304
+row,最大单文档上传,40,MB,默认限制,主节点,cn,v2.0-cn,P016-F305
+row,最大单文档上传,40,MB,默认限制,灾备节点,cn,v2.0-cn,P016-F305
+row,最大单文档上传,40,MB,默认限制,只读副本,cn,v2.0-cn,P016-F305
+row,日志/审计留存期,210,days,默认,主节点,cn,v2.0-cn,P016-F306
+row,日志/审计留存期,210,days,默认,灾备节点,cn,v2.0-cn,P016-F306
+row,日志/审计留存期,210,days,默认,只读副本,cn,v2.0-cn,P016-F306
+row,批量接口吞吐,15000,ops/s,batch=1024,主节点,cn,v2.0-cn,P016-F307
+row,批量接口吞吐,15000,ops/s,batch=1024,灾备节点,cn,v2.0-cn,P016-F307
+row,批量接口吞吐,15000,ops/s,batch=1024,只读副本,cn,v2.0-cn,P016-F307
+row,当前版本线,v2.0,version,GA,主节点,cn,v2.0-cn,P016-F308
+row,当前版本线,v2.0,version,GA,灾备节点,cn,v2.0-cn,P016-F308
+row,当前版本线,v2.0,version,GA,只读副本,cn,v2.0-cn,P016-F308
+row,默认批次大小,1024,items,可配置,主节点,cn,v2.0-cn,P016-F309
+row,默认批次大小,1024,items,可配置,灾备节点,cn,v2.0-cn,P016-F309
+row,默认批次大小,1024,items,可配置,只读副本,cn,v2.0-cn,P016-F309
+row,不支持能力,不支持无样本冷启动的团伙识别,,negation,主节点,cn,v2.0-cn,P016-F310
+row,不支持能力,不支持无样本冷启动的团伙识别,,negation,灾备节点,cn,v2.0-cn,P016-F310
+row,不支持能力,不支持无样本冷启动的团伙识别,,negation,只读副本,cn,v2.0-cn,P016-F310
+row,否定事实,实时评分特征仅企业版,,negation、must-not-claim,主节点,cn,v2.0-cn,P016-F311
+row,否定事实,实时评分特征仅企业版,,negation、must-not-claim,灾备节点,cn,v2.0-cn,P016-F311
+row,否定事实,实时评分特征仅企业版,,negation、must-not-claim,只读副本,cn,v2.0-cn,P016-F311
+row,否定事实,不支持灰色账户自动冻结,,negation、must-not-claim,主节点,cn,v2.0-cn,P016-F312
+row,否定事实,不支持灰色账户自动冻结,,negation、must-not-claim,灾备节点,cn,v2.0-cn,P016-F312
+row,否定事实,不支持灰色账户自动冻结,,negation、must-not-claim,只读副本,cn,v2.0-cn,P016-F312
+row,可用性目标,99.9,percent,enterprise-SLA,主节点,cn,v2.0-cn,P016-F313
+row,可用性目标,99.9,percent,enterprise-SLA,灾备节点,cn,v2.0-cn,P016-F313
+row,可用性目标,99.9,percent,enterprise-SLA,只读副本,cn,v2.0-cn,P016-F313
+row,合规基座,GB-35273/CAC-审查-P016,,zh-cn,主节点,cn,v2.0-cn,P016-F314
+row,合规基座,GB-35273/CAC-审查-P016,,zh-cn,灾备节点,cn,v2.0-cn,P016-F314
+row,合规基座,GB-35273/CAC-审查-P016,,zh-cn,只读副本,cn,v2.0-cn,P016-F314
+row,企业版起价,21920,cny/月,per-org、annual,主节点,cn,v2.0-cn,P016-F315
+row,企业版起价,21920,cny/月,per-org、annual,灾备节点,cn,v2.0-cn,P016-F315
+row,企业版起价,21920,cny/月,per-org、annual,只读副本,cn,v2.0-cn,P016-F315
+row,主邻接产品,P015,product,邻接 P015,主节点,cn,v2.0-cn,P016-F316
+row,主邻接产品,P015,product,邻接 P015,灾备节点,cn,v2.0-cn,P016-F316
+row,主邻接产品,P015,product,邻接 P015,只读副本,cn,v2.0-cn,P016-F316
+row,旧版事件吞吐,744000,events/s,v1.9、legacy,主节点,cn,v2.0-cn,P016-F317
+row,旧版事件吞吐,744000,events/s,v1.9、legacy,灾备节点,cn,v2.0-cn,P016-F317
+row,旧版事件吞吐,744000,events/s,v1.9、legacy,只读副本,cn,v2.0-cn,P016-F317
+row,旧版 P95 延迟,34,ms,v1.9、legacy,主节点,cn,v2.0-cn,P016-F318
+row,旧版 P95 延迟,34,ms,v1.9、legacy,灾备节点,cn,v2.0-cn,P016-F318
+row,旧版 P95 延迟,34,ms,v1.9、legacy,只读副本,cn,v2.0-cn,P016-F318
+row,与 P015 兼容,true,bool,edge P016->P015,主节点,cn,v2.0-cn,P016-F319
+row,与 P015 兼容,true,bool,edge P016->P015,灾备节点,cn,v2.0-cn,P016-F319
+row,与 P015 兼容,true,bool,edge P016->P015,只读副本,cn,v2.0-cn,P016-F319
+row,与 P009 兼容,true,bool,edge P016->P009,主节点,cn,v2.0-cn,P016-F320
+row,与 P009 兼容,true,bool,edge P016->P009,灾备节点,cn,v2.0-cn,P016-F320
+row,与 P009 兼容,true,bool,edge P016->P009,只读副本,cn,v2.0-cn,P016-F320
+table_header,指标,取值,单位,约束,部署单元,区域,版本,fact_id
+row,事件摄取吞吐,1200000,events/s,enterprise-edition、3-node,主节点,cn,v2.0-cn,P016-F302
+row,事件摄取吞吐,1200000,events/s,enterprise-edition、3-node,灾备节点,cn,v2.0-cn,P016-F302
+row,事件摄取吞吐,1200000,events/s,enterprise-edition、3-node,只读副本,cn,v2.0-cn,P016-F302
+row,API 峰值并发,12000,req/s,enterprise-edition,主节点,cn,v2.0-cn,P016-F303
+row,API 峰值并发,12000,req/s,enterprise-edition,灾备节点,cn,v2.0-cn,P016-F303
+row,API 峰值并发,12000,req/s,enterprise-edition,只读副本,cn,v2.0-cn,P016-F303
+row,P95 检索延迟,20,ms,p95、warm,主节点,cn,v2.0-cn,P016-F304
+row,P95 检索延迟,20,ms,p95、warm,灾备节点,cn,v2.0-cn,P016-F304
+row,P95 检索延迟,20,ms,p95、warm,只读副本,cn,v2.0-cn,P016-F304
+row,最大单文档上传,40,MB,默认限制,主节点,cn,v2.0-cn,P016-F305
+row,最大单文档上传,40,MB,默认限制,灾备节点,cn,v2.0-cn,P016-F305
+row,最大单文档上传,40,MB,默认限制,只读副本,cn,v2.0-cn,P016-F305
+row,日志/审计留存期,210,days,默认,主节点,cn,v2.0-cn,P016-F306
+row,日志/审计留存期,210,days,默认,灾备节点,cn,v2.0-cn,P016-F306
+row,日志/审计留存期,210,days,默认,只读副本,cn,v2.0-cn,P016-F306
+row,批量接口吞吐,15000,ops/s,batch=1024,主节点,cn,v2.0-cn,P016-F307
+row,批量接口吞吐,15000,ops/s,batch=1024,灾备节点,cn,v2.0-cn,P016-F307
+row,批量接口吞吐,15000,ops/s,batch=1024,只读副本,cn,v2.0-cn,P016-F307
+row,当前版本线,v2.0,version,GA,主节点,cn,v2.0-cn,P016-F308
+row,当前版本线,v2.0,version,GA,灾备节点,cn,v2.0-cn,P016-F308
+row,当前版本线,v2.0,version,GA,只读副本,cn,v2.0-cn,P016-F308
+row,默认批次大小,1024,items,可配置,主节点,cn,v2.0-cn,P016-F309
+row,默认批次大小,1024,items,可配置,灾备节点,cn,v2.0-cn,P016-F309
+row,默认批次大小,1024,items,可配置,只读副本,cn,v2.0-cn,P016-F309
+row,不支持能力,不支持无样本冷启动的团伙识别,,negation,主节点,cn,v2.0-cn,P016-F310
+row,不支持能力,不支持无样本冷启动的团伙识别,,negation,灾备节点,cn,v2.0-cn,P016-F310
+row,不支持能力,不支持无样本冷启动的团伙识别,,negation,只读副本,cn,v2.0-cn,P016-F310
+row,否定事实,实时评分特征仅企业版,,negation、must-not-claim,主节点,cn,v2.0-cn,P016-F311
+row,否定事实,实时评分特征仅企业版,,negation、must-not-claim,灾备节点,cn,v2.0-cn,P016-F311
+row,否定事实,实时评分特征仅企业版,,negation、must-not-claim,只读副本,cn,v2.0-cn,P016-F311
+row,否定事实,不支持灰色账户自动冻结,,negation、must-not-claim,主节点,cn,v2.0-cn,P016-F312
+row,否定事实,不支持灰色账户自动冻结,,negation、must-not-claim,灾备节点,cn,v2.0-cn,P016-F312
+row,否定事实,不支持灰色账户自动冻结,,negation、must-not-claim,只读副本,cn,v2.0-cn,P016-F312
+row,可用性目标,99.9,percent,enterprise-SLA,主节点,cn,v2.0-cn,P016-F313
+row,可用性目标,99.9,percent,enterprise-SLA,灾备节点,cn,v2.0-cn,P016-F313
+row,可用性目标,99.9,percent,enterprise-SLA,只读副本,cn,v2.0-cn,P016-F313
+row,合规基座,GB-35273/CAC-审查-P016,,zh-cn,主节点,cn,v2.0-cn,P016-F314
+row,合规基座,GB-35273/CAC-审查-P016,,zh-cn,灾备节点,cn,v2.0-cn,P016-F314
+row,合规基座,GB-35273/CAC-审查-P016,,zh-cn,只读副本,cn,v2.0-cn,P016-F314
+row,企业版起价,21920,cny/月,per-org、annual,主节点,cn,v2.0-cn,P016-F315
+row,企业版起价,21920,cny/月,per-org、annual,灾备节点,cn,v2.0-cn,P016-F315
+row,企业版起价,21920,cny/月,per-org、annual,只读副本,cn,v2.0-cn,P016-F315
+row,主邻接产品,P015,product,邻接 P015,主节点,cn,v2.0-cn,P016-F316
+row,主邻接产品,P015,product,邻接 P015,灾备节点,cn,v2.0-cn,P016-F316
+row,主邻接产品,P015,product,邻接 P015,只读副本,cn,v2.0-cn,P016-F316
+row,旧版事件吞吐,744000,events/s,v1.9、legacy,主节点,cn,v2.0-cn,P016-F317
+row,旧版事件吞吐,744000,events/s,v1.9、legacy,灾备节点,cn,v2.0-cn,P016-F317
+row,旧版事件吞吐,744000,events/s,v1.9、legacy,只读副本,cn,v2.0-cn,P016-F317
+row,旧版 P95 延迟,34,ms,v1.9、legacy,主节点,cn,v2.0-cn,P016-F318
+row,旧版 P95 延迟,34,ms,v1.9、legacy,灾备节点,cn,v2.0-cn,P016-F318
+row,旧版 P95 延迟,34,ms,v1.9、legacy,只读副本,cn,v2.0-cn,P016-F318
+row,与 P015 兼容,true,bool,edge P016->P015,主节点,cn,v2.0-cn,P016-F319
+row,与 P015 兼容,true,bool,edge P016->P015,灾备节点,cn,v2.0-cn,P016-F319
+row,与 P015 兼容,true,bool,edge P016->P015,只读副本,cn,v2.0-cn,P016-F319
+row,与 P009 兼容,true,bool,edge P016->P009,主节点,cn,v2.0-cn,P016-F320
+row,与 P009 兼容,true,bool,edge P016->P009,灾备节点,cn,v2.0-cn,P016-F320
+row,与 P009 兼容,true,bool,edge P016->P009,只读副本,cn,v2.0-cn,P016-F320
+row,核心协议,图形检测、贝叶斯评分,,支持 图形检测、支持 贝叶斯评分,主节点,cn,v2.0-cn,P016-F301
+row,核心协议,图形检测、贝叶斯评分,,支持 图形检测、支持 贝叶斯评分,灾备节点,cn,v2.0-cn,P016-F301
+row,核心协议,图形检测、贝叶斯评分,,支持 图形检测、支持 贝叶斯评分,只读副本,cn,v2.0-cn,P016-F301
+table_header,指标,取值,单位,约束,部署单元,区域,版本,fact_id
+row,API 峰值并发,12000,req/s,enterprise-edition,主节点,cn,v2.0-cn,P016-F303
+row,API 峰值并发,12000,req/s,enterprise-edition,灾备节点,cn,v2.0-cn,P016-F303
+row,API 峰值并发,12000,req/s,enterprise-edition,只读副本,cn,v2.0-cn,P016-F303
+row,P95 检索延迟,20,ms,p95、warm,主节点,cn,v2.0-cn,P016-F304
+row,P95 检索延迟,20,ms,p95、warm,灾备节点,cn,v2.0-cn,P016-F304
+row,P95 检索延迟,20,ms,p95、warm,只读副本,cn,v2.0-cn,P016-F304
+row,最大单文档上传,40,MB,默认限制,主节点,cn,v2.0-cn,P016-F305
+row,最大单文档上传,40,MB,默认限制,灾备节点,cn,v2.0-cn,P016-F305
+row,最大单文档上传,40,MB,默认限制,只读副本,cn,v2.0-cn,P016-F305
+row,日志/审计留存期,210,days,默认,主节点,cn,v2.0-cn,P016-F306
+row,日志/审计留存期,210,days,默认,灾备节点,cn,v2.0-cn,P016-F306
+row,日志/审计留存期,210,days,默认,只读副本,cn,v2.0-cn,P016-F306
+row,批量接口吞吐,15000,ops/s,batch=1024,主节点,cn,v2.0-cn,P016-F307
+row,批量接口吞吐,15000,ops/s,batch=1024,灾备节点,cn,v2.0-cn,P016-F307
+row,批量接口吞吐,15000,ops/s,batch=1024,只读副本,cn,v2.0-cn,P016-F307
+row,当前版本线,v2.0,version,GA,主节点,cn,v2.0-cn,P016-F308
+row,当前版本线,v2.0,version,GA,灾备节点,cn,v2.0-cn,P016-F308
+row,当前版本线,v2.0,version,GA,只读副本,cn,v2.0-cn,P016-F308
+row,默认批次大小,1024,items,可配置,主节点,cn,v2.0-cn,P016-F309
+row,默认批次大小,1024,items,可配置,灾备节点,cn,v2.0-cn,P016-F309
+row,默认批次大小,1024,items,可配置,只读副本,cn,v2.0-cn,P016-F309
+row,不支持能力,不支持无样本冷启动的团伙识别,,negation,主节点,cn,v2.0-cn,P016-F310
+row,不支持能力,不支持无样本冷启动的团伙识别,,negation,灾备节点,cn,v2.0-cn,P016-F310
+row,不支持能力,不支持无样本冷启动的团伙识别,,negation,只读副本,cn,v2.0-cn,P016-F310
+row,否定事实,实时评分特征仅企业版,,negation、must-not-claim,主节点,cn,v2.0-cn,P016-F311
+row,否定事实,实时评分特征仅企业版,,negation、must-not-claim,灾备节点,cn,v2.0-cn,P016-F311
+row,否定事实,实时评分特征仅企业版,,negation、must-not-claim,只读副本,cn,v2.0-cn,P016-F311
+row,否定事实,不支持灰色账户自动冻结,,negation、must-not-claim,主节点,cn,v2.0-cn,P016-F312
+row,否定事实,不支持灰色账户自动冻结,,negation、must-not-claim,灾备节点,cn,v2.0-cn,P016-F312
+row,否定事实,不支持灰色账户自动冻结,,negation、must-not-claim,只读副本,cn,v2.0-cn,P016-F312
+row,可用性目标,99.9,percent,enterprise-SLA,主节点,cn,v2.0-cn,P016-F313
+row,可用性目标,99.9,percent,enterprise-SLA,灾备节点,cn,v2.0-cn,P016-F313
+row,可用性目标,99.9,percent,enterprise-SLA,只读副本,cn,v2.0-cn,P016-F313
+row,合规基座,GB-35273/CAC-审查-P016,,zh-cn,主节点,cn,v2.0-cn,P016-F314
+row,合规基座,GB-35273/CAC-审查-P016,,zh-cn,灾备节点,cn,v2.0-cn,P016-F314
+row,合规基座,GB-35273/CAC-审查-P016,,zh-cn,只读副本,cn,v2.0-cn,P016-F314
+row,企业版起价,21920,cny/月,per-org、annual,主节点,cn,v2.0-cn,P016-F315
+row,企业版起价,21920,cny/月,per-org、annual,灾备节点,cn,v2.0-cn,P016-F315
+row,企业版起价,21920,cny/月,per-org、annual,只读副本,cn,v2.0-cn,P016-F315
+row,主邻接产品,P015,product,邻接 P015,主节点,cn,v2.0-cn,P016-F316
+row,主邻接产品,P015,product,邻接 P015,灾备节点,cn,v2.0-cn,P016-F316
+row,主邻接产品,P015,product,邻接 P015,只读副本,cn,v2.0-cn,P016-F316
+row,旧版事件吞吐,744000,events/s,v1.9、legacy,主节点,cn,v2.0-cn,P016-F317
+row,旧版事件吞吐,744000,events/s,v1.9、legacy,灾备节点,cn,v2.0-cn,P016-F317
+row,旧版事件吞吐,744000,events/s,v1.9、legacy,只读副本,cn,v2.0-cn,P016-F317
+row,旧版 P95 延迟,34,ms,v1.9、legacy,主节点,cn,v2.0-cn,P016-F318
+row,旧版 P95 延迟,34,ms,v1.9、legacy,灾备节点,cn,v2.0-cn,P016-F318
+row,旧版 P95 延迟,34,ms,v1.9、legacy,只读副本,cn,v2.0-cn,P016-F318
+row,与 P015 兼容,true,bool,edge P016->P015,主节点,cn,v2.0-cn,P016-F319
+row,与 P015 兼容,true,bool,edge P016->P015,灾备节点,cn,v2.0-cn,P016-F319
+row,与 P015 兼容,true,bool,edge P016->P015,只读副本,cn,v2.0-cn,P016-F319
+row,与 P009 兼容,true,bool,edge P016->P009,主节点,cn,v2.0-cn,P016-F320
+row,与 P009 兼容,true,bool,edge P016->P009,灾备节点,cn,v2.0-cn,P016-F320
+row,与 P009 兼容,true,bool,edge P016->P009,只读副本,cn,v2.0-cn,P016-F320
+row,核心协议,图形检测、贝叶斯评分,,支持 图形检测、支持 贝叶斯评分,主节点,cn,v2.0-cn,P016-F301
+row,核心协议,图形检测、贝叶斯评分,,支持 图形检测、支持 贝叶斯评分,灾备节点,cn,v2.0-cn,P016-F301
+row,核心协议,图形检测、贝叶斯评分,,支持 图形检测、支持 贝叶斯评分,只读副本,cn,v2.0-cn,P016-F301
+row,事件摄取吞吐,1200000,events/s,enterprise-edition、3-node,主节点,cn,v2.0-cn,P016-F302
+row,事件摄取吞吐,1200000,events/s,enterprise-edition、3-node,灾备节点,cn,v2.0-cn,P016-F302
+row,事件摄取吞吐,1200000,events/s,enterprise-edition、3-node,只读副本,cn,v2.0-cn,P016-F302
+table_header,边界项,边界内容
+row,边界1,风控反欺诈 不支持 实时评分特征仅企业版
+row,边界2,风控反欺诈 不支持 不支持灰色账户自动冻结
+row,整体边界,风控反欺诈 不支持 不支持无样本冷启动的团伙识别（详见 P016-F 系事实）
